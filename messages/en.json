@@ -1,0 +1,55 @@
+{
+  "brand": {
+    "name": "YAKA",
+    "sub": "LAW & CONSULTANCY"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "practiceAreas": "Practice Areas",
+    "team": "Our Team",
+    "articles": "Articles",
+    "press": "Press",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "viewAllAreas": "VIEW ALL AREAS →",
+    "allAreas": "All areas →"
+  },
+  "actions": {
+    "book": "Book Appointment",
+    "details": "Details →",
+    "viewProfile": "View profile →",
+    "allTeam": "All team →",
+    "allArticles": "All articles →",
+    "allAreasLink": "View all areas →",
+    "aboutMore": "About us →",
+    "viewAreas": "Practice Areas"
+  },
+  "footer": {
+    "tagline": "\"An upright stance, honest law.\"",
+    "blurb": "In Ankara Beştepe, meticulous and accessible counsel across every area of law.",
+    "quickLinks": "QUICK LINKS",
+    "practiceAreas": "PRACTICE AREAS",
+    "contact": "CONTACT",
+    "reachable": "REACHABLE 24/7",
+    "rights": "© 2026 YAKA Law & Consultancy. All rights reserved.",
+    "kvkk": "KVKK",
+    "disclosure": "Disclosure Notice",
+    "cookies": "Cookie Policy"
+  },
+  "cookie": {
+    "text": "We use cookies to improve your experience. You can disable non-essential cookies at any time.",
+    "policy": "Cookie Policy",
+    "settings": "Settings",
+    "reject": "Reject",
+    "accept": "Accept"
+  },
+  "aria": {
+    "whatsapp": "Reach us on WhatsApp",
+    "prevTestimonial": "Previous testimonial",
+    "nextTestimonial": "Next testimonial",
+    "gotoTestimonial": "Go to testimonial",
+    "openAreas": "Open practice areas",
+    "language": "Language selection"
+  }
+}

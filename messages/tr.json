@@ -1,0 +1,55 @@
+{
+  "brand": {
+    "name": "YAKA",
+    "sub": "HUKUK & DANIŞMANLIK"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "about": "Hakkımızda",
+    "practiceAreas": "Çalışma Alanları",
+    "team": "Ekibimiz",
+    "articles": "Makaleler",
+    "press": "Basında Biz",
+    "faq": "SSS",
+    "contact": "İletişim",
+    "viewAllAreas": "TÜM ALANLARI GÖR →",
+    "allAreas": "Tüm alanlar →"
+  },
+  "actions": {
+    "book": "Randevu Al",
+    "details": "Detay →",
+    "viewProfile": "Profili gör →",
+    "allTeam": "Tüm ekip →",
+    "allArticles": "Tüm makaleler →",
+    "allAreasLink": "Tüm alanları gör →",
+    "aboutMore": "Hakkımızda →",
+    "viewAreas": "Çalışma Alanları"
+  },
+  "footer": {
+    "tagline": "\"Dik duruş, dürüst hukuk.\"",
+    "blurb": "Ankara Beştepe'de, hukukun her alanında titiz ve ulaşılabilir danışmanlık.",
+    "quickLinks": "HIZLI LİNKLER",
+    "practiceAreas": "ÇALIŞMA ALANLARI",
+    "contact": "İLETİŞİM",
+    "reachable": "7/24 ULAŞILABİLİR",
+    "rights": "© 2026 YAKA Hukuk & Danışmanlık. Tüm hakları saklıdır.",
+    "kvkk": "KVKK",
+    "disclosure": "Aydınlatma Metni",
+    "cookies": "Çerez Politikası"
+  },
+  "cookie": {
+    "text": "Deneyiminizi iyileştirmek için çerez kullanıyoruz. Zorunlu olmayan çerezleri istediğiniz zaman kapatabilirsiniz.",
+    "policy": "Çerez Politikası",
+    "settings": "Ayarlar",
+    "reject": "Reddet",
+    "accept": "Kabul Et"
+  },
+  "aria": {
+    "whatsapp": "WhatsApp ile ulaşın",
+    "prevTestimonial": "Önceki yorum",
+    "nextTestimonial": "Sonraki yorum",
+    "gotoTestimonial": "Yoruma git",
+    "openAreas": "Çalışma alanlarını aç",
+    "language": "Dil seçimi"
+  }
+}

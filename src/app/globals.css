@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   YAKA Hukuk — tasarım token'ları (design-reference/*.dc.html'den birebir).
+   Tek kaynak: renkler, gölgeler, fontlar. Tailwind v4 @theme ile utility üretir.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-cream: #f6f3ec; /* sayfa arka planı */
+  --color-ink: #1c2230; /* birincil metin */
+  --color-ink-deep: #161b27; /* koyu bantlar (footer / CTA) */
+  --color-gold: #9c7c4a; /* altın vurgu */
+  --color-muted: #5b6270; /* soluk metin */
+  --color-line: #e4dfd5; /* ince kenar / ayraç */
+  --color-surface: #ffffff; /* kart yüzeyi */
+  --color-on-dark: #dcd8cf; /* koyu bant üstü metin */
+  --color-on-dark-muted: #9aa1af; /* koyu bant üstü soluk metin */
+
+  --shadow-card: 0 1px 2px rgba(28, 34, 48, 0.06), 0 8px 24px rgba(28, 34, 48, 0.05);
+  --shadow-card-hover: 0 2px 4px rgba(28, 34, 48, 0.07), 0 14px 32px rgba(28, 34, 48, 0.08);
+  --shadow-header: 0 2px 4px rgba(28, 34, 48, 0.05), 0 10px 28px rgba(28, 34, 48, 0.08);
+}
+
+/* Fontlar next/font ile <html> üzerinde runtime CSS değişkeni olarak set edilir. */
+@theme inline {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Mockup'lardaki görsel yer tutucu deseni. */
+.placeholder-pattern {
+  background: repeating-linear-gradient(
+    45deg,
+    #efeae0 0,
+    #efeae0 12px,
+    #f3efe6 12px,
+    #f3efe6 24px
+  );
+}
+
+/* Erişilebilir odak halkası (klavye). */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --- Animasyonlar (mockup'larla birebir) --- */
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawLine {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-rise {
+  animation: riseIn 0.55s ease-out both;
+}
+
+.animate-draw {
+  transform-origin: left;
+  animation: drawLine 0.7s 0.2s ease-out both;
+}
+
+/* Scroll-reveal: yalnızca JS varken gizle (no-JS ve SEO güvenli). */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.55s ease-out,
+    transform 0.55s ease-out;
+}
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
