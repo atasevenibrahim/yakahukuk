@@ -5,12 +5,20 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { cn } from "@/lib/cn";
 import { BrandMark } from "./BrandMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { MegaMenu, type MegaMenuArea } from "./MegaMenu";
 
-type ExistingHref = "/" | "/hakkimizda" | "/ekip";
+type ExistingHref =
+  | "/"
+  | "/hakkimizda"
+  | "/ekip"
+  | "/makaleler"
+  | "/basinda-biz"
+  | "/sss"
+  | "/iletisim";
 
 function navClass(active: boolean) {
   return cn(
@@ -42,6 +50,13 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
     home: pathname === "/",
     about: pathname === "/hakkimizda",
     team: pathname === "/ekip" || pathname.startsWith("/ekip/"),
+    areas:
+      pathname === "/calisma-alanlari" ||
+      pathname.startsWith("/calisma-alanlari/"),
+    articles: pathname === "/makaleler" || pathname.startsWith("/makaleler/"),
+    press: pathname === "/basinda-biz" || pathname.startsWith("/basinda-biz/"),
+    faq: pathname === "/sss",
+    contact: pathname === "/iletisim",
   };
 
   const existing: { href: ExistingHref; label: string; active: boolean }[] = [
@@ -49,7 +64,12 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
     { href: "/hakkimizda", label: t("about"), active: isActive.about },
   ];
   const teamItem = { href: "/ekip" as const, label: t("team"), active: isActive.team };
-  const placeholders = [t("articles"), t("press"), t("faq"), t("contact")];
+  const trailingNav: { href: ExistingHref; label: string; active: boolean }[] = [
+    { href: "/makaleler", label: t("articles"), active: isActive.articles },
+    { href: "/basinda-biz", label: t("press"), active: isActive.press },
+    { href: "/sss", label: t("faq"), active: isActive.faq },
+    { href: "/iletisim", label: t("contact"), active: isActive.contact },
+  ];
 
   return (
     <header
@@ -75,21 +95,22 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
             label={t("practiceAreas")}
             areas={practiceAreas}
             viewAllLabel={t("viewAllAreas")}
+            active={isActive.areas}
           />
           <Link href={teamItem.href} className={navClass(teamItem.active)}>
             {teamItem.label}
           </Link>
-          {placeholders.map((label) => (
-            <a key={label} href="#" className={navClass(false)}>
-              {label}
-            </a>
+          {trailingNav.map((item) => (
+            <Link key={item.href} href={item.href} className={navClass(item.active)}>
+              {item.label}
+            </Link>
           ))}
         </nav>
 
         {/* Masaüstü sağ küme */}
         <div className="hidden flex-none items-center gap-5 lg:flex">
           <LangSwitcher ariaLabel={tAria("language")} />
-          <Button size="sm">{tActions("book")}</Button>
+          <Button href="/randevu-al" size="sm">{tActions("book")}</Button>
         </div>
 
         {/* Mobil hamburger */}
@@ -100,7 +121,7 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
           aria-label="Menü"
           className="ml-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-line bg-surface text-xl text-ink lg:hidden"
         >
-          {mobileOpen ? "✕" : "≡"}
+          <AppIcon name={mobileOpen ? "close" : "menu"} size={20} />
         </button>
       </Container>
 
@@ -118,25 +139,29 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
             >
               {t("about")}
             </Link>
-            <a href="#" className={navClass(false)} onClick={closeMobile}>
+            <Link
+              href="/calisma-alanlari"
+              className={navClass(isActive.areas)}
+              onClick={closeMobile}
+            >
               {t("practiceAreas")}
-            </a>
+            </Link>
             <Link href="/ekip" className={navClass(isActive.team)} onClick={closeMobile}>
               {t("team")}
             </Link>
-            {placeholders.map((label) => (
-              <a
-                key={label}
-                href="#"
-                className={navClass(false)}
+            {trailingNav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={navClass(item.active)}
                 onClick={closeMobile}
               >
-                {label}
-              </a>
+                {item.label}
+              </Link>
             ))}
             <div className="mt-3 flex items-center justify-between gap-4 border-t border-line pt-4">
               <LangSwitcher ariaLabel={tAria("language")} />
-              <Button size="sm">{tActions("book")}</Button>
+              <Button href="/randevu-al" size="sm">{tActions("book")}</Button>
             </div>
           </Container>
         </div>

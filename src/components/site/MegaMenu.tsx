@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Link } from "@/i18n/navigation";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { cn } from "@/lib/cn";
 
 export type MegaMenuArea = { title: string; href: string; slug: string };
@@ -10,10 +12,12 @@ export function MegaMenu({
   label,
   areas,
   viewAllLabel,
+  active,
 }: {
   label: string;
   areas: MegaMenuArea[];
   viewAllLabel: string;
+  active?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -26,21 +30,24 @@ export function MegaMenu({
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
       }}
     >
-      <button
-        type="button"
+      <Link
+        href="/calisma-alanlari"
         aria-haspopup="true"
         aria-expanded={open}
         onFocus={() => setOpen(true)}
         onKeyDown={(e) => {
           if (e.key === "Escape") setOpen(false);
         }}
-        className="flex cursor-pointer items-center gap-1.5 border-b-2 border-transparent bg-transparent py-1.5 text-sm font-medium text-ink transition-colors hover:text-gold"
+        className={cn(
+          "flex items-center gap-1.5 border-b-2 py-1.5 text-sm font-medium transition-colors",
+          active
+            ? "border-gold text-ink"
+            : "border-transparent text-ink hover:text-gold",
+        )}
       >
         {label}
-        <span aria-hidden className="translate-y-px text-[9px] text-muted">
-          ▾
-        </span>
-      </button>
+        <AppIcon name="chevronDown" size={13} className="text-muted" />
+      </Link>
 
       {open && (
         <div
@@ -63,15 +70,16 @@ export function MegaMenu({
                 {area.title}
               </a>
             ))}
-            <a
-              href="#"
+            <Link
+              href="/calisma-alanlari"
               className={cn(
-                "col-span-2 mt-2 border-t border-line px-2.5 pt-3 text-center",
+                "col-span-2 mt-2 flex items-center justify-center gap-1.5 border-t border-line px-2.5 pt-3",
                 "font-mono text-[11.5px] tracking-[1px] text-gold",
               )}
             >
               {viewAllLabel}
-            </a>
+              <AppIcon name="arrowRight" size={13} strokeWidth={2} />
+            </Link>
           </div>
         </div>
       )}

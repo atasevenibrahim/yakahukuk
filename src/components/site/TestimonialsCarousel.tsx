@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { cn } from "@/lib/cn";
 
 type Item = { quote: string; author: string; rating: number };
@@ -32,8 +33,16 @@ export function TestimonialsCarousel({ items }: { items: Item[] }) {
               <p className="mt-[18px] font-serif text-[27px] italic leading-[1.4] text-balance text-ink">
                 {item.quote}
               </p>
-              <div className="mt-5 text-[15px] tracking-[4px] text-gold" aria-hidden>
-                {"★★★★★".slice(0, item.rating)}
+              <div className="mt-5 flex gap-1 text-gold" aria-hidden>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <AppIcon
+                    key={i}
+                    name="star"
+                    size={15}
+                    strokeWidth={1.5}
+                    fill={i < item.rating ? "currentColor" : "none"}
+                  />
+                ))}
               </div>
               <p className="mt-3.5 font-mono text-[12.5px] tracking-[2px] text-muted">
                 {item.author}
@@ -48,9 +57,9 @@ export function TestimonialsCarousel({ items }: { items: Item[] }) {
           type="button"
           aria-label={t("prevTestimonial")}
           onClick={() => setIndex((index - 1 + count) % count)}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface text-base text-ink transition-colors hover:border-gold hover:text-gold"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:border-gold hover:text-gold"
         >
-          ‹
+          <AppIcon name="chevronLeft" size={18} />
         </button>
         <div className="flex gap-2">
           {items.map((_, dot) => (
@@ -71,9 +80,9 @@ export function TestimonialsCarousel({ items }: { items: Item[] }) {
           type="button"
           aria-label={t("nextTestimonial")}
           onClick={() => setIndex((index + 1) % count)}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface text-base text-ink transition-colors hover:border-gold hover:text-gold"
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:border-gold hover:text-gold"
         >
-          ›
+          <AppIcon name="chevronRight" size={18} />
         </button>
       </div>
     </div>

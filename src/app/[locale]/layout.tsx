@@ -35,7 +35,6 @@ export async function generateMetadata({
       template: "%s · YAKA Hukuk & Danışmanlık",
     },
     description,
-    icons: { icon: "/yaka-logo.png" },
   };
 }
 
@@ -64,15 +63,10 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
+      suppressHydrationWarning
       className={`${manrope.variable} ${cormorant.variable} ${plexMono.variable}`}
     >
       <body>
-        {/* JS varlığını işaretle → scroll-reveal yalnızca JS'te gizler (no-JS güvenli). */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: "document.documentElement.classList.add('js')",
-          }}
-        />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
             <Header practiceAreas={areas} />

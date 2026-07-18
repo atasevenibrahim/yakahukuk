@@ -23,7 +23,7 @@ export function DarkCTA({
             {text}
           </p>
         </div>
-        <Button variant="light" size="lg" className="flex-none">
+        <Button href="/randevu-al" variant="light" size="lg" className="flex-none">
           {buttonLabel}
         </Button>
       </Container>

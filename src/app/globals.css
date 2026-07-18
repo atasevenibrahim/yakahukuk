@@ -27,17 +27,22 @@
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-body {
-  background: var(--color-cream);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+/* @layer base'e alınmazsa bu resetler katmansız (unlayered) sayılır ve
+   specificity'den bağımsız olarak TÜM Tailwind utility sınıflarını
+   (text-*, hover:text-* dahil) ezer — bu yüzden burada @layer base şart. */
+@layer base {
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* Mockup'lardaki görsel yer tutucu deseni. */
@@ -88,17 +93,20 @@ a {
   animation: drawLine 0.7s 0.2s ease-out both;
 }
 
-/* Scroll-reveal: yalnızca JS varken gizle (no-JS ve SEO güvenli). */
-.js [data-reveal] {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 0.55s ease-out,
-    transform 0.55s ease-out;
-}
-.js [data-reveal].is-visible {
-  opacity: 1;
-  transform: none;
+/* Scroll-reveal: yalnızca JS çalışıyorken gizle (no-JS ve SEO güvenli).
+   `scripting: enabled` media feature'ı DOM mutasyonu gerektirmez → hydration güvenli. */
+@media (scripting: enabled) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.55s ease-out,
+      transform 0.55s ease-out;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -108,7 +116,7 @@ a {
     animation: none !important;
     transition: none !important;
   }
-  .js [data-reveal] {
+  [data-reveal] {
     opacity: 1 !important;
     transform: none !important;
   }

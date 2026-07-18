@@ -2,7 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { site } from "@/content/site";
 
 const CONSENT_KEY = "yaka-cookie-consent";
@@ -53,9 +55,7 @@ export function SiteOverlays() {
         className="fixed right-6 z-[95] flex h-[54px] w-[54px] items-center justify-center rounded-full bg-ink text-cream shadow-[0_4px_16px_rgba(28,34,48,0.25)] transition-all hover:-translate-y-0.5 hover:bg-gold hover:text-white"
         style={{ bottom: bannerVisible ? 96 : 24 }}
       >
-        <span className="text-[22px]" aria-hidden>
-          ✆
-        </span>
+        <AppIcon name="message" size={24} strokeWidth={1.75} />
       </a>
 
       {bannerVisible && (
@@ -63,9 +63,13 @@ export function SiteOverlays() {
           <Container className="flex flex-wrap items-center gap-6 py-4">
             <p className="min-w-[280px] flex-1 text-[13.5px] leading-snug text-muted">
               {t("text")}{" "}
-              <a href="#" className="border-b border-gold text-gold">
+              <Link
+                href={{ pathname: "/yasal", query: { tab: "cerez" } }}
+                target="_blank"
+                className="border-b border-gold text-gold"
+              >
                 {t("policy")}
-              </a>
+              </Link>
             </p>
             <div className="flex items-center gap-2.5">
               <a

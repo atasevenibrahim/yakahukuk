@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { site } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { BrandMark } from "./BrandMark";
@@ -44,18 +45,18 @@ export async function Footer({
             <Link href="/ekip" className={colLink}>
               {tNav("team")}
             </Link>
-            <a href="#" className={colLink}>
+            <Link href="/makaleler" className={colLink}>
               {tNav("articles")}
-            </a>
-            <a href="#" className={colLink}>
+            </Link>
+            <Link href="/basinda-biz" className={colLink}>
               {tNav("press")}
-            </a>
-            <a href="#" className={colLink}>
+            </Link>
+            <Link href="/sss" className={colLink}>
               {tNav("faq")}
-            </a>
-            <a href="#" className={colLink}>
+            </Link>
+            <Link href="/randevu-al" className={colLink}>
               {tActions("book")}
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -68,9 +69,13 @@ export async function Footer({
                 {area.title}
               </a>
             ))}
-            <a href="#" className={colLink}>
+            <Link
+              href="/calisma-alanlari"
+              className={cn(colLink, "inline-flex items-center gap-1")}
+            >
               {tNav("allAreas")}
-            </a>
+              <AppIcon name="arrowRight" size={14} />
+            </Link>
           </div>
         </div>
 
@@ -100,15 +105,24 @@ export async function Footer({
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
           <span className="text-[12.5px] text-on-dark-muted">{t("rights")}</span>
           <div className="flex items-center gap-[22px] text-[12.5px]">
-            <a href="#" className={cn(colLink, "text-on-dark-muted")}>
+            <Link
+              href={{ pathname: "/yasal", query: { tab: "kvkk" } }}
+              className={cn(colLink, "text-on-dark-muted")}
+            >
               {t("kvkk")}
-            </a>
-            <a href="#" className={cn(colLink, "text-on-dark-muted")}>
+            </Link>
+            <Link
+              href={{ pathname: "/yasal", query: { tab: "aydinlatma" } }}
+              className={cn(colLink, "text-on-dark-muted")}
+            >
               {t("disclosure")}
-            </a>
-            <a href="#" className={cn(colLink, "text-on-dark-muted")}>
+            </Link>
+            <Link
+              href={{ pathname: "/yasal", query: { tab: "cerez" } }}
+              className={cn(colLink, "text-on-dark-muted")}
+            >
               {t("cookies")}
-            </a>
+            </Link>
           </div>
         </div>
       </Container>

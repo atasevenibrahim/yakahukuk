@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Diamond } from "@/components/ui/Diamond";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
@@ -18,21 +18,21 @@ import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
 const arrowLink =
-  "border-b border-gold pb-0.5 text-[15px] font-semibold text-gold";
+  "inline-flex items-center gap-1 border-b border-gold pb-0.5 text-[15px] font-semibold text-gold";
 
 const values = [
   {
-    icon: "diamond" as const,
+    icon: "shieldCheck" as const,
     title: "Dik duruş",
     text: "Hakkınızı savunurken geri adım atmayız; masada da salonda da duruşumuz nettir.",
   },
   {
-    icon: "circle" as const,
+    icon: "lock" as const,
     title: "Gizlilik",
     text: "Bize emanet ettiğiniz her bilgi, meslek sırrı titizliğiyle korunur.",
   },
   {
-    icon: "square" as const,
+    icon: "ruler" as const,
     title: "Titizlik",
     text: "Dilekçeden duruşmaya her ayrıntı, terzi işi bir özenle hazırlanır.",
   },
@@ -85,7 +85,7 @@ export default async function HomePage({
             savunur. Süreci bilerek ilerlersiniz; işin titizliği bize aittir.
           </p>
           <div className="mt-9 flex flex-wrap gap-3.5">
-            <Button size="lg">{t("book")}</Button>
+            <Button href="/randevu-al" size="lg">{t("book")}</Button>
             <Button variant="outline" size="lg">
               {t("viewAreas")}
             </Button>
@@ -131,8 +131,9 @@ export default async function HomePage({
               alıyoruz. Ankara Beştepe&apos;deki büromuzda her dosyaya aynı terzi
               titizliğiyle yaklaşır, müvekkilimizin yanında dik ve düzgün dururuz.
             </p>
-            <Link href="/hakkimizda" className={`mt-6 inline-block ${arrowLink}`}>
+            <Link href="/hakkimizda" className={`mt-6 ${arrowLink}`}>
               {t("aboutMore")}
+              <AppIcon name="arrowRight" size={16} />
             </Link>
           </div>
           <div className="flex flex-col gap-7">
@@ -140,7 +141,7 @@ export default async function HomePage({
               <div key={value.title}>
                 {index > 0 && <div className="mb-7 border-t border-line" />}
                 <div className="flex items-start gap-5">
-                  <Diamond variant={value.icon} className="mt-1.5" />
+                  <AppIcon name={value.icon} size={18} strokeWidth={1.75} className="mt-1.5 flex-none text-gold" />
                   <div>
                     <h3 className="m-0 text-lg font-semibold">{value.title}</h3>
                     <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
@@ -164,21 +165,26 @@ export default async function HomePage({
                 Öne çıkan alanlarımız
               </h2>
             </div>
-            <a href="#" className={`mb-2 hidden flex-none sm:inline-block ${arrowLink}`}>
+            <Link
+              href="/calisma-alanlari"
+              className={`mb-2 hidden flex-none sm:inline-flex ${arrowLink}`}
+            >
               {t("allAreasLink")}
-            </a>
+              <AppIcon name="arrowRight" size={16} />
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((area) => (
               <a key={area.slug} href={area.href} className="block text-ink">
                 <Card hover accent className="h-full p-7">
-                  <Diamond variant={area.icon} className="mb-5 ml-0.5 mt-0.5" />
+                  <AppIcon name={area.icon} size={20} strokeWidth={1.75} className="mb-5 ml-0.5 mt-0.5 text-gold" />
                   <h3 className="m-0 text-[19px] font-semibold">{area.title}</h3>
                   <p className="mb-4 mt-2 text-[14.5px] leading-relaxed text-muted">
                     {area.excerpt}
                   </p>
-                  <span className="text-sm font-semibold text-gold">
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-gold">
                     {t("details")}
+                    <AppIcon name="arrowRight" size={14} />
                   </span>
                 </Card>
               </a>
@@ -220,9 +226,13 @@ export default async function HomePage({
                 Güncel yazılarımız
               </h2>
             </div>
-            <a href="#" className={`mb-2 hidden flex-none sm:inline-block ${arrowLink}`}>
+            <Link
+              href="/makaleler"
+              className={`mb-2 hidden flex-none sm:inline-flex ${arrowLink}`}
+            >
               {t("allArticles")}
-            </a>
+              <AppIcon name="arrowRight" size={16} />
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
@@ -258,6 +268,13 @@ export default async function HomePage({
         <Container className="max-w-[840px] text-center">
           <Eyebrow label="MÜVEKKİL YORUMLARI" center />
           <TestimonialsCarousel items={testimonials} />
+          <Link
+            href="/yorumlar"
+            className={`mt-8 inline-flex items-center gap-1 ${arrowLink}`}
+          >
+            Tüm yorumları gör
+            <AppIcon name="arrowRight" size={16} />
+          </Link>
         </Container>
       </Reveal>
 

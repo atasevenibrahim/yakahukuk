@@ -11,6 +11,20 @@ export const routing = defineRouting({
     "/hakkimizda": { tr: "/hakkimizda", en: "/about" },
     "/ekip": { tr: "/ekip", en: "/team" },
     "/ekip/[slug]": { tr: "/ekip/[slug]", en: "/team/[slug]" },
+    "/calisma-alanlari": { tr: "/calisma-alanlari", en: "/practice-areas" },
+    "/calisma-alanlari/[slug]": {
+      tr: "/calisma-alanlari/[slug]",
+      en: "/practice-areas/[slug]",
+    },
+    "/makaleler": { tr: "/makaleler", en: "/articles" },
+    "/makaleler/[slug]": { tr: "/makaleler/[slug]", en: "/articles/[slug]" },
+    "/basinda-biz": { tr: "/basinda-biz", en: "/press" },
+    "/basinda-biz/[slug]": { tr: "/basinda-biz/[slug]", en: "/press/[slug]" },
+    "/sss": { tr: "/sss", en: "/faq" },
+    "/iletisim": { tr: "/iletisim", en: "/contact" },
+    "/yasal": { tr: "/yasal", en: "/legal" },
+    "/yorumlar": { tr: "/yorumlar", en: "/testimonials" },
+    "/randevu-al": { tr: "/randevu-al", en: "/book-appointment" },
   },
 });
 

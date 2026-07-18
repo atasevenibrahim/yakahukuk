@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
@@ -79,8 +80,9 @@ export default async function TeamPage({
                         </span>
                       ))}
                     </div>
-                    <p className="mt-[18px] text-sm font-semibold text-gold">
+                    <p className="mt-[18px] inline-flex items-center gap-1 text-sm font-semibold text-gold">
                       {t("viewProfile")}
+                      <AppIcon name="arrowRight" size={14} />
                     </p>
                   </div>
                 </Card>

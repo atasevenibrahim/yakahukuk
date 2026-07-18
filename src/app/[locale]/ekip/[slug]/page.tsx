@@ -10,6 +10,7 @@ import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { teamMemberBySlug, teamSlugs } from "@/content/team";
 import { localizedArticles } from "@/content/articles";
+import { practiceAreas } from "@/content/practice-areas";
 import { site } from "@/content/site";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
@@ -102,7 +103,7 @@ export default async function TeamMemberPage({
                   </span>
                 ))}
               </div>
-              <Button block size="sm" className="mt-[22px]">
+              <Button href="/randevu-al" block size="sm" className="mt-[22px]">
                 {tActions("book")}
               </Button>
             </Card>
@@ -155,15 +156,24 @@ export default async function TeamMemberPage({
               Çalışma alanları
             </h2>
             <div className="flex flex-wrap gap-2.5">
-              {member.areas.map((area) => (
-                <a
-                  key={area}
-                  href="#"
-                  className="rounded-full border border-line bg-surface px-[18px] py-[9px] text-sm font-medium text-ink transition-colors hover:border-gold hover:text-gold"
-                >
-                  {area}
-                </a>
-              ))}
+              {member.areas.map((area) => {
+                const areaSlug = practiceAreas.find(
+                  (a) => a.t.tr.title === area,
+                )?.slug;
+                return (
+                  <Link
+                    key={area}
+                    href={
+                      areaSlug
+                        ? { pathname: "/calisma-alanlari/[slug]", params: { slug: areaSlug } }
+                        : "/calisma-alanlari"
+                    }
+                    className="rounded-full border border-line bg-surface px-[18px] py-[9px] text-sm font-medium text-ink transition-colors hover:border-gold hover:text-gold"
+                  >
+                    {area}
+                  </Link>
+                );
+              })}
             </div>
           </section>
 

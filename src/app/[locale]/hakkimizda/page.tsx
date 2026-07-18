@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
-import { Diamond } from "@/components/ui/Diamond";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
@@ -13,15 +13,15 @@ import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
 const arrowLink =
-  "border-b border-gold pb-0.5 text-[15px] font-semibold text-gold";
+  "inline-flex items-center gap-1 border-b border-gold pb-0.5 text-[15px] font-semibold text-gold";
 
 const values = [
-  { icon: "diamond" as const, title: "Dik duruş", text: "Masada da salonda da geri adım atmayız; duruşumuz her zaman nettir." },
-  { icon: "circle" as const, title: "Gizlilik", text: "Bize emanet edilen her bilgi, meslek sırrı titizliğiyle korunur." },
-  { icon: "square" as const, title: "Titizlik", text: "Dilekçeden duruşmaya her ayrıntı, terzi işi bir özenle hazırlanır." },
-  { icon: "dot" as const, title: "Şeffaflık", text: "Süreci, riski ve olasılıkları açıkça söyleriz; sürpriz sevmeyiz." },
-  { icon: "corner" as const, title: "Ulaşılabilirlik", text: "7/24 ulaşılabiliriz; sorunuz hiçbir zaman yanıtsız kalmaz." },
-  { icon: "rounded" as const, title: "Sadelik", text: "Hukuku ağdalı değil, anlaşılır bir dille anlatırız." },
+  { icon: "shieldCheck" as const, title: "Dik duruş", text: "Masada da salonda da geri adım atmayız; duruşumuz her zaman nettir." },
+  { icon: "lock" as const, title: "Gizlilik", text: "Bize emanet edilen her bilgi, meslek sırrı titizliğiyle korunur." },
+  { icon: "ruler" as const, title: "Titizlik", text: "Dilekçeden duruşmaya her ayrıntı, terzi işi bir özenle hazırlanır." },
+  { icon: "eye" as const, title: "Şeffaflık", text: "Süreci, riski ve olasılıkları açıkça söyleriz; sürpriz sevmeyiz." },
+  { icon: "clock" as const, title: "Ulaşılabilirlik", text: "7/24 ulaşılabiliriz; sorunuz hiçbir zaman yanıtsız kalmaz." },
+  { icon: "feather" as const, title: "Sadelik", text: "Hukuku ağdalı değil, anlaşılır bir dille anlatırız." },
 ];
 
 const timeline = [
@@ -152,7 +152,7 @@ export default async function AboutPage({
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {values.map((value) => (
               <Card key={value.title} hover accent className="p-8">
-                <Diamond variant={value.icon} className="mb-5 ml-0.5 mt-0.5" />
+                <AppIcon name={value.icon} size={20} strokeWidth={1.75} className="mb-5 ml-0.5 mt-0.5 text-gold" />
                 <h3 className="m-0 text-lg font-semibold">{value.title}</h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-muted">
                   {value.text}
@@ -214,8 +214,9 @@ export default async function AboutPage({
                 Dosyanızın arkasındaki isimler
               </h2>
             </div>
-            <Link href="/ekip" className={`mb-2 hidden flex-none sm:inline-block ${arrowLink}`}>
+            <Link href="/ekip" className={`mb-2 hidden flex-none sm:inline-flex ${arrowLink}`}>
               {t("allTeam")}
+              <AppIcon name="arrowRight" size={16} />
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
