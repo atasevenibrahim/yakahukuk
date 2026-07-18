@@ -1,0 +1,150 @@
+// YAKA Hukuk — Prisma şeması.
+// Bu dilimde yalnızca iletişim formu için ContactMessage modeli var;
+// diğer içerikler (makale/ekip/çalışma alanı) hâlâ src/content/*.ts'te.
+// Genişletme planı: YAKA_Hukuk_Claude_Code_Prompt.md Bölüm 5.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RequestStatus {
+  NEW
+  READ
+  REPLIED
+  CLOSED
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  RESCHEDULED
+  CANCELLED
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  locale    String
+
+  status RequestStatus @default(NEW)
+
+  // Admin panelinden eklenen dahili not (müvekkile gönderilmez).
+  internalNote String?
+
+  // KVKK onay kanıtı.
+  kvkkConsent     Boolean
+  kvkkTextVersion String
+
+  ip        String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+}
+
+model Appointment {
+  id               String   @id @default(cuid())
+  date             DateTime // gün (saat kısmı 00:00, Europe/Istanbul takvim günü)
+  startTime        String   // "10:00"
+  endTime          String   // "10:45"
+  practiceAreaSlug String?
+  name             String
+  email            String
+  phone            String
+  subject          String? // kısa açıklama (opsiyonel)
+  locale           String
+
+  status AppointmentStatus @default(PENDING)
+
+  internalNote String?
+
+  kvkkConsent     Boolean
+  kvkkTextVersion String
+
+  ip        String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  // Aynı slotta aynı statüde çift kayıt engeli (uygulama katmanında da kontrol edilir).
+  @@unique([date, startTime, status])
+}
+
+model AvailabilityRule {
+  id            String  @id @default(cuid())
+  weekday       Int // 0=Pazartesi … 6=Pazar
+  startTime     String // "09:00"
+  endTime       String // "18:00"
+  slotMinutes   Int     @default(45)
+  bufferMinutes Int     @default(15)
+  isActive      Boolean @default(true)
+}
+
+model BlockedDate {
+  id     String   @id @default(cuid())
+  date   DateTime
+  reason String?
+}
+
+// --- Admin / kimlik doğrulama ---
+// Not: Tam Role/Permission matrisi "Kullanıcılar & Roller" ekranı gelene kadar
+// ertelendi; şimdilik tekil isSuperAdmin bayrağı yeterli (tek admin senaryosu).
+
+model User {
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  passwordHash String
+  isSuperAdmin Boolean @default(true)
+
+  twoFAEnabled     Boolean  @default(false)
+  twoFASecret      String? // AES-256-GCM ile şifreli saklanır (TWOFA_ENCRYPTION_KEY)
+  backupCodeHashes String[] // argon2id hash'leri
+
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+
+  sessions      Session[]
+  resetTokens   PasswordResetToken[]
+
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  module    String
+  entityId  String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
