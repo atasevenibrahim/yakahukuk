@@ -8,6 +8,10 @@ import { localizedPracticeAreas } from "@/content/practice-areas";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
+// Gerçek zamanlı müsaitlik verisi okuyor (AvailabilityRule/BlockedDate/Appointment) — build
+// anında statik olarak dondurulursa slot listesi hiç güncellenmez. Her istekte taze render edilir.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {
