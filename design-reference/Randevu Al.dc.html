@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F3EC;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:90;background:rgba(246,243,236,.94);backdrop-filter:blur(10px);border-bottom:1px solid #E4DFD5;box-shadow:{{ headerShadow }};transition:box-shadow .3s">
+  <div style="max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;row-gap:8px">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:12px;flex:none">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:42px;height:42px;object-fit:contain;display:block">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:2px;color:#1C2230;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2.6px;color:#5B6270">HUKUK &amp; DANIŞMANLIK</span>
+      </span>
+    </a>
+    <nav style="display:flex;align-items:center;flex-wrap:wrap;min-width:0;gap:6px 16px;margin-left:auto;font-size:14px;font-weight:500">
+      <a href="./Ana Sayfa.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ana Sayfa</a>
+      <a href="./Hakkımızda.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Hakkımızda</a>
+      <a href="./Çalışma Alanları.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Çalışma Alanları</a>
+      <a href="./Ekibimiz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ekibimiz</a>
+      <a href="./Makaleler.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Makaleler</a>
+      <a href="./Basında Biz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Basında Biz</a>
+      <a href="./SSS.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">SSS</a>
+      <a href="./İletişim.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">İletişim</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:20px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <a href="#" style="color:#9C7C4A;font-weight:500;border-bottom:1px solid #9C7C4A;padding-bottom:1px">TR</a>
+        <span style="color:#E4DFD5">/</span>
+        <a href="#" style="color:#5B6270" style-hover="color:#9C7C4A">EN</a>
+      </div>
+      <a href="#" style="background:#9C7C4A;color:#FFFFFF;padding:12px 24px;border-radius:4px;font-size:15px;font-weight:600">Randevu Al</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:880px;margin:0 auto;padding:72px 32px 0">
+  <div style="text-align:center">
+    <div style="display:flex;align-items:center;gap:14px;justify-content:center;animation:riseIn .5s ease-out both">
+      <span style="position:relative;display:block;width:34px;height:1px;background:#9C7C4A;transform-origin:left;animation:drawLine .7s .2s ease-out both">
+        <span style="position:absolute;right:9px;top:-3px;width:8px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span>
+      </span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:3px;color:#5B6270">RANDEVU</span>
+    </div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:500;line-height:1.08;margin:20px 0 0;animation:riseIn .55s .08s ease-out both;text-wrap:balance">Görüşmeyi planlayalım.</h1>
+    <p style="font-size:17px;line-height:1.6;color:#5B6270;margin:18px 0 0;animation:riseIn .55s .16s ease-out both">Üç adımda randevunuzu oluşturun; onayı e-posta ve SMS ile alırsınız.</p>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-top:48px;animation:riseIn .55s .2s ease-out both">
+    <sc-for list="{{ adimlar }}" as="a" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1.5px solid {{ a.kenar }};background:{{ a.zemin }};color:{{ a.renk }};font-family:'IBM Plex Mono',monospace;font-size:13px;transition:all .3s">{{ a.no }}</span>
+          <span style="font-size:13.5px;font-weight:600;color:{{ a.metinRenk }};transition:color .3s">{{ a.ad }}</span>
+        </div>
+        <sc-if value="{{ a.cizgiVar }}" hint-placeholder-val="{{ true }}"><span style="width:56px;height:1px;background:#E4DFD5;margin:0 18px"></span></sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<div style="max-width:880px;margin:0 auto;padding:40px 32px 0">
+  <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:40px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05)">
+
+    <sc-if value="{{ adim1 }}" hint-placeholder-val="{{ true }}">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 8px">Görüşme konusu</h2>
+      <p style="font-size:14.5px;color:#5B6270;margin:0 0 28px">Dosyanız hangi alana giriyor? Emin değilseniz "Emin değilim" seçin.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <sc-for list="{{ konular }}" as="k" hint-placeholder-count="12">
+          <button onClick="{{ k.sec }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;text-align:left;padding:14px 16px;border-radius:4px;border:1px solid {{ k.kenar }};background:{{ k.zemin }};color:{{ k.renk }};cursor:pointer;transition:all .2s" style-hover="border-color:#9C7C4A">{{ k.ad }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:24px">
+        <label style="font-size:14px;font-weight:600;color:#1C2230">Kısa açıklama <span style="font-weight:400;color:#5B6270">(opsiyonel)</span></label>
+        <textarea value="{{ aciklama }}" onChange="{{ aciklamaDegisti }}" placeholder="Dosyanızı bir-iki cümleyle anlatın…" rows="3" style="padding:14px 16px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:15px;line-height:1.6;color:#1C2230;outline:none;resize:vertical;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:28px">
+        <button onClick="{{ ileri1 }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:{{ ileri1Renk }};background:{{ ileri1Zemin }};border:none;border-radius:4px;padding:14px 30px;cursor:{{ ileri1Imlec }};transition:background .25s">Devam et →</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ adim2 }}" hint-placeholder-val="{{ false }}">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 8px">Gün ve saat</h2>
+      <p style="font-size:14.5px;color:#5B6270;margin:0 0 28px">Önümüzdeki hafta için uygun bir zaman seçin. Görüşmeler ~45 dakikadır.</p>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+        <sc-for list="{{ gunler }}" as="g" hint-placeholder-count="5">
+          <button onClick="{{ g.sec }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;font-family:Manrope,sans-serif;padding:14px 8px;border-radius:4px;border:1px solid {{ g.kenar }};background:{{ g.zemin }};cursor:pointer;transition:all .2s" style-hover="border-color:#9C7C4A">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1.5px;color:{{ g.ustRenk }}">{{ g.gunAdi }}</span>
+            <span style="font-size:18px;font-weight:600;color:{{ g.renk }}">{{ g.tarih }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px">
+        <sc-for list="{{ saatler }}" as="s" hint-placeholder-count="8">
+          <button onClick="{{ s.sec }}" disabled="{{ s.dolu }}" style="font-family:'IBM Plex Mono',monospace;font-size:14px;padding:13px 8px;border-radius:4px;border:1px solid {{ s.kenar }};background:{{ s.zemin }};color:{{ s.renk }};cursor:{{ s.imlec }};text-decoration:{{ s.cizgi }};transition:all .2s">{{ s.saat }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px;margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border:1px solid #E4DFD5;background:#FFFFFF;border-radius:2px"></span>UYGUN</span>
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;background:#EFEAE0;border:1px solid #E4DFD5;border-radius:2px"></span>DOLU</span>
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;background:#1C2230;border-radius:2px"></span>SEÇİLİ</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:28px">
+        <button onClick="{{ geri2 }}" style="font-family:Manrope,sans-serif;font-size:14.5px;font-weight:600;color:#5B6270;background:none;border:none;padding:14px 0;cursor:pointer;transition:color .2s" style-hover="color:#9C7C4A">← Geri</button>
+        <button onClick="{{ ileri2 }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:{{ ileri2Renk }};background:{{ ileri2Zemin }};border:none;border-radius:4px;padding:14px 30px;cursor:{{ ileri2Imlec }};transition:background .25s">Devam et →</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ adim3 }}" hint-placeholder-val="{{ false }}">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 8px">Bilgileriniz</h2>
+      <p style="font-size:14.5px;color:#5B6270;margin:0 0 28px">Onay ve hatırlatmalar bu bilgilere gönderilir.</p>
+      <div style="background:#F6F3EC;border:1px solid #E4DFD5;border-radius:4px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:26px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:#9C7C4A">SEÇİMİNİZ</span>
+        <span style="font-size:14.5px;font-weight:600">{{ ozetKonu }}</span>
+        <span style="color:#E4DFD5">·</span>
+        <span style="font-size:14.5px;font-weight:600">{{ ozetZaman }}</span>
+        <button onClick="{{ geri3 }}" style="margin-left:auto;font-family:Manrope,sans-serif;font-size:13px;font-weight:600;color:#9C7C4A;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px solid #9C7C4A">Değiştir</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:14px;font-weight:600;color:#1C2230">Ad Soyad <span style="color:#9C7C4A">*</span></label>
+          <input type="text" value="{{ f.ad }}" onChange="{{ adDegisti }}" placeholder="Adınız Soyadınız" style="height:48px;padding:0 16px;border:1px solid {{ hata.ad }};border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:15px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:14px;font-weight:600;color:#1C2230">Telefon <span style="color:#9C7C4A">*</span></label>
+          <input type="tel" value="{{ f.telefon }}" onChange="{{ telefonDegisti }}" placeholder="05xx xxx xx xx" style="height:48px;padding:0 16px;border:1px solid {{ hata.telefon }};border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:15px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+        </div>
+        <div style="grid-column:1 / -1;display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:14px;font-weight:600;color:#1C2230">E-posta <span style="color:#9C7C4A">*</span></label>
+          <input type="email" value="{{ f.eposta }}" onChange="{{ epostaDegisti }}" placeholder="ornek@eposta.com" style="height:48px;padding:0 16px;border:1px solid {{ hata.eposta }};border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:15px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+        </div>
+        <div style="grid-column:1 / -1;display:flex;align-items:flex-start;gap:12px">
+          <input type="checkbox" checked="{{ f.kvkk }}" onChange="{{ kvkkDegisti }}" style="width:18px;height:18px;margin-top:2px;accent-color:#9C7C4A;cursor:pointer">
+          <span style="font-size:13.5px;line-height:1.55;color:{{ kvkkRenk }}">Kişisel verilerimin <a href="#" style="color:#9C7C4A;border-bottom:1px solid #9C7C4A">Aydınlatma Metni</a> kapsamında işlenmesini kabul ediyorum. <span style="color:#9C7C4A">*</span></span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:28px">
+        <button onClick="{{ geri3 }}" style="font-family:Manrope,sans-serif;font-size:14.5px;font-weight:600;color:#5B6270;background:none;border:none;padding:14px 0;cursor:pointer;transition:color .2s" style-hover="color:#9C7C4A">← Geri</button>
+        <button onClick="{{ onayla }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:14px 30px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Randevuyu Onayla</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ adim4 }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:32px 16px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;border:1.5px solid #3F7A5B;color:#3F7A5B;font-size:24px">✓</span>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;margin:22px 0 0">Randevunuz oluşturuldu.</h2>
+        <p style="font-size:15.5px;line-height:1.6;color:#5B6270;margin:12px 0 0">Onay e-postası ve SMS gönderildi. Görüşme öncesi hatırlatma alırsınız.</p>
+        <div style="display:inline-flex;align-items:center;gap:16px;background:#F6F3EC;border:1px solid #E4DFD5;border-radius:4px;padding:16px 24px;margin-top:24px;flex-wrap:wrap;justify-content:center">
+          <span style="font-size:15px;font-weight:600">{{ ozetKonu }}</span>
+          <span style="color:#E4DFD5">·</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#9C7C4A">{{ ozetZaman }}</span>
+        </div>
+        <p style="font-size:13.5px;color:#5B6270;margin:24px 0 0">Değişiklik için: <a href="tel:03122158085" style="color:#9C7C4A;border-bottom:1px solid #9C7C4A">0312 215 80 85</a></p>
+        <div style="margin-top:26px">
+          <a href="./Ana Sayfa.dc.html" style="display:inline-block;font-size:14.5px;font-weight:600;color:#1C2230;border:1px solid #9C7C4A;border-radius:4px;padding:12px 26px;transition:all .2s" style-hover="background:#9C7C4A;color:#FFFFFF">Ana sayfaya dön</a>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5B6270;flex-wrap:wrap">
+    <span style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border:1.5px solid #9C7C4A;border-radius:50%"></span>GİZLİLİK GÜVENCESİ</span>
+    <span style="color:#E4DFD5">·</span>
+    <span>ANKARA · BEŞTEPE</span>
+    <span style="color:#E4DFD5">·</span>
+    <span><a href="tel:03122158085" style="color:#9C7C4A">0312 215 80 85</a> — 7/24</span>
+  </div>
+</div>
+
+<div style="margin-top:96px;background:#161B27">
+  <div style="max-width:1240px;margin:0 auto;padding:40px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#9aa1af">© 2026 YAKA Hukuk &amp; Danışmanlık. Tüm hakları saklıdır.</span>
+      <div style="display:flex;gap:22px;font-size:12.5px">
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">KVKK</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Aydınlatma Metni</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Çerez Politikası</a>
+        <span style="position:relative;display:block;width:22px;height:1px;background:#9C7C4A;align-self:center"><span style="position:absolute;right:6px;top:-2.5px;width:6px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    scrolled: false, adim: 1,
+    konu: '', aciklama: '', gun: -1, saat: '',
+    f: { ad: '', telefon: '', eposta: '', kvkk: false },
+    hatalar: {}
+  };
+  componentDidMount() {
+    this._onScroll = () => {
+      const s = window.scrollY > 8;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+  setF(k, v) { this.setState({ f: { ...this.state.f, [k]: v }, hatalar: { ...this.state.hatalar, [k]: false } }); }
+  renderVals() {
+    const st = this.state, f = st.f, h = st.hatalar;
+    const konuAdlari = ['Aile Hukuku', 'Ceza Hukuku', 'Fikri Mülkiyet', 'Göçmenlik & Vatandaşlık', 'İdari Hukuk', 'İflas Hukuku', 'İstinaf Hukuku', 'Yaralanma & Hasar', 'Sigorta Hukuku', 'Ticaret Hukuku', 'Tüketici Hukuku', 'Vergi Hukuku', 'Emin değilim'];
+    const gunVerileri = [
+      { gunAdi: 'PZT', tarih: '20 TEM' }, { gunAdi: 'SAL', tarih: '21 TEM' }, { gunAdi: 'ÇAR', tarih: '22 TEM' }, { gunAdi: 'PER', tarih: '23 TEM' }, { gunAdi: 'CUM', tarih: '24 TEM' }
+    ];
+    const doluSaatler = { 0: ['10:00', '14:00'], 1: ['11:00'], 2: ['09:00', '15:00', '16:00'], 3: [], 4: ['10:00', '11:00'] };
+    const saatAdlari = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const adimEtiketleri = [{ no: '1', ad: 'Konu' }, { no: '2', ad: 'Zaman' }, { no: '3', ad: 'Bilgiler' }];
+    const kenar = k => h[k] ? '#A23A32' : '#E4DFD5';
+    return {
+      headerShadow: st.scrolled ? '0 2px 4px rgba(28,34,48,.05), 0 10px 28px rgba(28,34,48,.08)' : 'none',
+      adimlar: adimEtiketleri.map((a, i) => {
+        const n = i + 1, aktif = st.adim === n || (st.adim === 4 && n === 3), gecti = st.adim > n;
+        return {
+          ...a,
+          no: gecti ? '✓' : a.no,
+          kenar: aktif || gecti ? '#9C7C4A' : '#E4DFD5',
+          zemin: gecti ? '#9C7C4A' : (aktif ? '#FFFFFF' : 'transparent'),
+          renk: gecti ? '#FFFFFF' : (aktif ? '#9C7C4A' : '#5B6270'),
+          metinRenk: aktif || gecti ? '#1C2230' : '#5B6270',
+          cizgiVar: n < 3
+        };
+      }),
+      adim1: st.adim === 1, adim2: st.adim === 2, adim3: st.adim === 3, adim4: st.adim === 4,
+      konular: konuAdlari.map(ad => {
+        const secili = ad === st.konu;
+        return { ad, kenar: secili ? '#1C2230' : '#E4DFD5', zemin: secili ? '#1C2230' : '#FFFFFF', renk: secili ? '#F6F3EC' : '#1C2230', sec: () => this.setState({ konu: ad }) };
+      }),
+      aciklama: st.aciklama,
+      aciklamaDegisti: e => this.setState({ aciklama: e.target.value }),
+      ileri1: () => { if (st.konu) { this.setState({ adim: 2 }); window.scrollTo({ top: 0 }); } },
+      ileri1Zemin: st.konu ? '#1C2230' : '#E4DFD5',
+      ileri1Renk: st.konu ? '#F6F3EC' : '#5B6270',
+      ileri1Imlec: st.konu ? 'pointer' : 'not-allowed',
+      gunler: gunVerileri.map((g, i) => {
+        const secili = i === st.gun;
+        return { ...g, kenar: secili ? '#1C2230' : '#E4DFD5', zemin: secili ? '#1C2230' : '#FFFFFF', renk: secili ? '#F6F3EC' : '#1C2230', ustRenk: secili ? '#9C7C4A' : '#5B6270', sec: () => this.setState({ gun: i, saat: '' }) };
+      }),
+      saatler: saatAdlari.map(saat => {
+        const dolu = st.gun >= 0 && (doluSaatler[st.gun] || []).includes(saat);
+        const secili = saat === st.saat;
+        return {
+          saat, dolu,
+          kenar: secili ? '#1C2230' : '#E4DFD5',
+          zemin: dolu ? '#EFEAE0' : (secili ? '#1C2230' : '#FFFFFF'),
+          renk: dolu ? '#5B6270' : (secili ? '#F6F3EC' : '#1C2230'),
+          imlec: dolu ? 'not-allowed' : 'pointer',
+          cizgi: dolu ? 'line-through' : 'none',
+          sec: () => { if (!dolu) this.setState({ saat }); }
+        };
+      }),
+      geri2: () => this.setState({ adim: 1 }),
+      ileri2: () => { if (st.gun >= 0 && st.saat) { this.setState({ adim: 3 }); window.scrollTo({ top: 0 }); } },
+      ileri2Zemin: st.gun >= 0 && st.saat ? '#1C2230' : '#E4DFD5',
+      ileri2Renk: st.gun >= 0 && st.saat ? '#F6F3EC' : '#5B6270',
+      ileri2Imlec: st.gun >= 0 && st.saat ? 'pointer' : 'not-allowed',
+      ozetKonu: st.konu || '—',
+      ozetZaman: st.gun >= 0 ? gunVerileri[st.gun].tarih + ' · ' + st.saat : '—',
+      f,
+      hata: { ad: kenar('ad'), telefon: kenar('telefon'), eposta: kenar('eposta') },
+      kvkkRenk: h.kvkk ? '#A23A32' : '#5B6270',
+      adDegisti: e => this.setF('ad', e.target.value),
+      telefonDegisti: e => this.setF('telefon', e.target.value),
+      epostaDegisti: e => this.setF('eposta', e.target.value),
+      kvkkDegisti: e => this.setF('kvkk', e.target.checked),
+      geri3: () => this.setState({ adim: 2 }),
+      onayla: () => {
+        const yeni = {
+          ad: !f.ad.trim(),
+          telefon: f.telefon.replace(/\D/g, '').length < 10,
+          eposta: !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.eposta),
+          kvkk: !f.kvkk
+        };
+        if (Object.values(yeni).some(Boolean)) { this.setState({ hatalar: yeni }); return; }
+        this.setState({ adim: 4, hatalar: {} });
+        window.scrollTo({ top: 0 });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

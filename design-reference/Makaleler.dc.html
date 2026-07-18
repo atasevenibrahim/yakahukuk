@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F3EC;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:90;background:rgba(246,243,236,.94);backdrop-filter:blur(10px);border-bottom:1px solid #E4DFD5;box-shadow:{{ headerShadow }};transition:box-shadow .3s">
+  <div style="max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;row-gap:8px">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:12px;flex:none">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:42px;height:42px;object-fit:contain;display:block">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:2px;color:#1C2230;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2.6px;color:#5B6270">HUKUK &amp; DANIŞMANLIK</span>
+      </span>
+    </a>
+    <nav style="display:flex;align-items:center;flex-wrap:wrap;min-width:0;gap:6px 16px;margin-left:auto;font-size:14px;font-weight:500">
+      <a href="./Ana Sayfa.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ana Sayfa</a>
+      <a href="./Hakkımızda.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Hakkımızda</a>
+      <div style="position:relative" onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}">
+        <a href="./Çalışma Alanları.dc.html" style="padding:6px 0;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px" style-hover="color:#9C7C4A">Çalışma Alanları <span style="font-size:9px;color:#5B6270;transform:translateY(1px)">▾</span></a>
+        <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:16px;animation:riseIn .25s ease-out both">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 12px 32px rgba(28,34,48,.09);padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;width:560px">
+              <sc-for list="{{ alanlar }}" as="alan" hint-placeholder-count="0">
+                <a href="./Çalışma Alanı Detay.dc.html" style="font-size:13.5px;font-weight:500;color:#1C2230;padding:8px 10px;border-radius:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="background:#F6F3EC;color:#9C7C4A">{{ alan }}</a>
+              </sc-for>
+              <a href="./Çalışma Alanları.dc.html" style="grid-column:1 / -1;margin-top:8px;padding:10px;border-top:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:1px;color:#9C7C4A;text-align:center">TÜM ALANLARI GÖR →</a>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <a href="./Ekibimiz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ekibimiz</a>
+      <a href="#" style="color:#1C2230;padding:6px 0;border-bottom:2px solid #9C7C4A">Makaleler</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Basında Biz</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">SSS</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">İletişim</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:20px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <a href="#" style="color:#9C7C4A;font-weight:500;border-bottom:1px solid #9C7C4A;padding-bottom:1px">TR</a>
+        <span style="color:#E4DFD5">/</span>
+        <a href="#" style="color:#5B6270" style-hover="color:#9C7C4A">EN</a>
+      </div>
+      <a href="#" style="background:#1C2230;color:#F6F3EC;padding:12px 24px;border-radius:4px;font-size:15px;font-weight:600;transition:background .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap">
+    <div style="max-width:640px">
+      <div style="display:flex;align-items:center;gap:14px;animation:riseIn .5s ease-out both">
+        <span style="position:relative;display:block;width:34px;height:1px;background:#9C7C4A;transform-origin:left;animation:drawLine .7s .2s ease-out both">
+          <span style="position:absolute;right:9px;top:-3px;width:8px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span>
+        </span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:3px;color:#5B6270">MAKALELER</span>
+      </div>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:500;line-height:1.08;margin:22px 0 0;animation:riseIn .55s .08s ease-out both;text-wrap:balance">Hukuku anlaşılır kılan yazılar.</h1>
+    </div>
+    <div style="flex:none;animation:riseIn .55s .16s ease-out both;margin-bottom:6px">
+      <input type="text" value="{{ arama }}" onChange="{{ aramaDegisti }}" placeholder="Makale ara…" style="width:280px;height:48px;padding:0 18px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:40px;animation:riseIn .55s .2s ease-out both">
+    <sc-for list="{{ kategoriler }}" as="k" hint-placeholder-count="6">
+      <button onClick="{{ k.sec }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid {{ k.kenar }};background:{{ k.zemin }};color:{{ k.renk }};cursor:pointer;transition:all .2s">{{ k.ad }}</button>
+    </sc-for>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:48px 32px 0">
+  <sc-if value="{{ bosDurum }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:72px 32px;text-align:center">
+      <span style="display:inline-block;width:18px;height:18px;border:1.5px solid #9C7C4A;transform:rotate(45deg)"></span>
+      <p style="font-size:16px;color:#1C2230;font-weight:600;margin:20px 0 0">Aramanızla eşleşen makale bulunamadı.</p>
+      <p style="font-size:14.5px;color:#5B6270;margin:8px 0 0">Farklı bir anahtar kelime deneyin ya da tüm makalelere göz atın.</p>
+      <button onClick="{{ filtreTemizle }}" style="font-family:Manrope,sans-serif;font-size:14px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:11px 22px;margin-top:22px;cursor:pointer;transition:all .2s" style-hover="background:#F6F3EC">Filtreleri temizle</button>
+    </div>
+  </sc-if>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <sc-for list="{{ makaleler }}" as="m" hint-placeholder-count="6">
+      <a href="./Makale Detay.dc.html" style="display:block;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;overflow:hidden;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05);transition:all .25s;color:#1C2230" style-hover="transform:translateY(-2px);box-shadow:0 2px 4px rgba(28,34,48,.07),0 14px 32px rgba(28,34,48,.08)">
+        <div style="height:170px;background:repeating-linear-gradient(45deg,#EFEAE0 0,#EFEAE0 12px,#F3EFE6 12px,#F3EFE6 24px);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #E4DFD5">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:999px;padding:5px 12px">kapak görseli</span>
+        </div>
+        <div style="padding:24px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:#9C7C4A">{{ m.kategori }}</span>
+          <h3 style="font-size:18px;font-weight:600;line-height:1.4;margin:10px 0 0;text-wrap:balance">{{ m.baslik }}</h3>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5B6270;margin:12px 0 0">{{ m.meta }}</p>
+          <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:10px 0 0">{{ m.ozet }}</p>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+  <sc-if value="{{ dahaVar }}" hint-placeholder-val="{{ true }}">
+    <div style="text-align:center;margin-top:48px">
+      <button onClick="{{ dahaYukle }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:13px 28px;cursor:pointer;transition:all .2s" style-hover="background:#9C7C4A;color:#FFFFFF">Daha fazla yükle</button>
+    </div>
+  </sc-if>
+</div>
+
+<div style="margin-top:120px;background:#161B27">
+  <div style="max-width:1240px;margin:0 auto;padding:88px 32px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap">
+    <div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:500;color:#F6F3EC;margin:0;text-wrap:balance">Sorunuz mu var? Danışın.</h2>
+      <p style="font-size:16px;line-height:1.6;color:#9aa1af;margin:14px 0 0;max-width:520px">Yazılar genel bilgi verir; dosyanız size özeldir. Ön görüşme için randevu oluşturun.</p>
+    </div>
+    <a href="#" style="flex:none;background:#F6F3EC;color:#1C2230;padding:16px 34px;border-radius:4px;font-size:16px;font-weight:600;transition:all .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+  </div>
+</div>
+
+<div style="background:#161B27;border-top:1px solid rgba(246,243,236,.08)">
+  <div style="max-width:1240px;margin:0 auto;padding:72px 32px 0;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:48px">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:40px;height:40px;object-fit:contain;filter:brightness(0) invert(.95)">
+        <span style="display:flex;flex-direction:column;gap:1px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2.4px;color:#9aa1af">HUKUK &amp; DANIŞMANLIK</span>
+        </span>
+      </div>
+      <p style="font-size:14px;line-height:1.7;color:#9aa1af;margin:20px 0 0;max-width:300px">Ankara Beştepe'de, hukukun her alanında titiz ve ulaşılabilir danışmanlık.</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#F6F3EC;margin:16px 0 0">"Dik duruş, dürüst hukuk."</p>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">HIZLI LİNKLER</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+        <a href="./Hakkımızda.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Hakkımızda</a>
+        <a href="./Ekibimiz.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ekibimiz</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Makaleler</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Basında Biz</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">SSS</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Randevu Al</a>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">ÇALIŞMA ALANLARI</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+        <a href="./Çalışma Alanı Detay.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Aile Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ceza Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ticaret Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Sigorta Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Vergi Hukuku</a>
+        <a href="./Çalışma Alanları.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Tüm alanlar →</a>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">İLETİŞİM</h3>
+      <div style="display:flex;flex-direction:column;gap:13px;font-size:14px;line-height:1.6;color:#dcd8cf">
+        <span>Beştepe, Meriç Sk. No:54/A<br>Yenimahalle / Ankara</span>
+        <a href="tel:03122158085" style="color:#dcd8cf" style-hover="color:#9C7C4A">0312 215 80 85</a>
+        <a href="/cdn-cgi/l/email-protection#e980878f86a990888288819c829c82c78a8684" style="color:#dcd8cf" style-hover="color:#9C7C4A"><span class="__cf_email__" data-cfemail="422b2c242d023b2329232a372937296c212d2f">[email&#160;protected]</span></a>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;color:#9C7C4A">7/24 ULAŞILABİLİR</span>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:1240px;margin:0 auto;padding:28px 32px 32px">
+    <div style="border-top:1px solid rgba(246,243,236,.1);margin-top:48px;padding-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#9aa1af">© 2026 YAKA Hukuk &amp; Danışmanlık. Tüm hakları saklıdır.</span>
+      <div style="display:flex;gap:22px;font-size:12.5px">
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">KVKK</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Aydınlatma Metni</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Çerez Politikası</a>
+        <span style="position:relative;display:block;width:22px;height:1px;background:#9C7C4A;align-self:center"><span style="position:absolute;right:6px;top:-2.5px;width:6px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ whatsappGoster }}" hint-placeholder-val="{{ false }}">
+  <a href="#" aria-label="WhatsApp ile ulaşın" style="position:fixed;right:24px;bottom:24px;z-index:95;width:54px;height:54px;border-radius:50%;background:#1C2230;color:#F6F3EC;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(28,34,48,.25);transition:all .25s" style-hover="background:#9C7C4A;color:#FFFFFF;transform:translateY(-2px)">✆</a>
+</sc-if>
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{&quot;showWhatsApp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Öğeler&quot;}}">
+class Component extends DCLogic {
+  state = { megaOpen: false, scrolled: false, arama: '', kategori: 'Tümü', limit: 6 };
+  componentDidMount() {
+    this._onScroll = () => {
+      const s = window.scrollY > 8;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+  }
+  renderVals() {
+    const tum = [
+      { kategori: 'AİLE HUKUKU', baslik: 'Anlaşmalı boşanmada süreç nasıl ilerler?', meta: '12 TEM 2026 · 6 DK OKUMA', ozet: 'Protokol hazırlığından duruşma gününe, adım adım anlaşmalı boşanma.' },
+      { kategori: 'TİCARET HUKUKU', baslik: 'Şirket kuruluşunda sözleşme titizliği neden önemli?', meta: '28 HAZ 2026 · 8 DK OKUMA', ozet: 'Ortaklık yapısından imza yetkisine, kuruluşta atlanmaması gerekenler.' },
+      { kategori: 'VERGİ HUKUKU', baslik: 'Vergi incelemesinde mükellefin hakları nelerdir?', meta: '15 HAZ 2026 · 5 DK OKUMA', ozet: 'İnceleme tutanağından uzlaşmaya, bilmeniz gereken temel güvenceler.' },
+      { kategori: 'SİGORTA HUKUKU', baslik: 'Poliçe reddi durumunda sigortalının yol haritası', meta: '03 HAZ 2026 · 7 DK OKUMA', ozet: 'Ret gerekçesini okumaktan tahkime, izlenecek adımlar.' },
+      { kategori: 'AİLE HUKUKU', baslik: 'Velayet kararlarında çocuğun üstün yararı', meta: '20 MAY 2026 · 6 DK OKUMA', ozet: 'Mahkemeler velayeti neye göre belirler? Kriterler ve içtihat.' },
+      { kategori: 'CEZA HUKUKU', baslik: 'İfadeye çağrıldınız: haklarınızı biliyor musunuz?', meta: '08 MAY 2026 · 4 DK OKUMA', ozet: 'Müdafi talebi, susma hakkı ve tutanak imzası hakkında temel bilgiler.' },
+      { kategori: 'TÜKETİCİ HUKUKU', baslik: 'Ayıplı malda tüketicinin seçimlik hakları', meta: '24 NİS 2026 · 5 DK OKUMA', ozet: 'İade, değişim, indirim ve onarım: hangi durumda hangisi?' },
+      { kategori: 'İDARİ HUKUK', baslik: 'İdari işleme karşı dava açma süreleri', meta: '10 NİS 2026 · 6 DK OKUMA', ozet: 'Sürelerin kaçırılması hak kaybıdır; kritik tarihler ve istisnalar.' },
+      { kategori: 'TİCARET HUKUKU', baslik: 'Ticari sözleşmelerde cezai şart nasıl kurgulanır?', meta: '27 MAR 2026 · 7 DK OKUMA', ozet: 'Caydırıcı ama geçerli cezai şartın sınırları ve kaleme alınışı.' }
+    ];
+    const kategoriAdlari = ['Tümü', 'AİLE HUKUKU', 'CEZA HUKUKU', 'TİCARET HUKUKU', 'SİGORTA HUKUKU', 'VERGİ HUKUKU', 'TÜKETİCİ HUKUKU', 'İDARİ HUKUK'];
+    const q = this.state.arama.toLocaleLowerCase('tr');
+    const filtreli = tum.filter(m =>
+      (this.state.kategori === 'Tümü' || m.kategori === this.state.kategori) &&
+      (!q || m.baslik.toLocaleLowerCase('tr').includes(q) || m.ozet.toLocaleLowerCase('tr').includes(q))
+    );
+    const gorunen = filtreli.slice(0, this.state.limit);
+    return {
+      alanlar: ['Aile Hukuku', 'Ceza Hukuku', 'Fikri Mülkiyet Hukuku', 'Göçmenlik ve Vatandaşlık Hukuku', 'İdari Hukuk', 'İflas Hukuku', 'İstinaf Hukuku', 'Kişisel Yaralanma ve Mülk Hasarı', 'Sigorta Hukuku', 'Ticaret Hukuku', 'Tüketici Hukuku', 'Vergi Hukuku'],
+      megaOpen: this.state.megaOpen,
+      openMega: () => this.setState({ megaOpen: true }),
+      closeMega: () => this.setState({ megaOpen: false }),
+      headerShadow: this.state.scrolled ? '0 2px 4px rgba(28,34,48,.05), 0 10px 28px rgba(28,34,48,.08)' : 'none',
+      arama: this.state.arama,
+      aramaDegisti: e => this.setState({ arama: e.target.value, limit: 6 }),
+      kategoriler: kategoriAdlari.map(ad => {
+        const aktif = ad === this.state.kategori;
+        return {
+          ad: ad === 'Tümü' ? 'Tümü' : ad.charAt(0) + ad.slice(1).toLocaleLowerCase('tr'),
+          zemin: aktif ? '#1C2230' : '#FFFFFF',
+          renk: aktif ? '#F6F3EC' : '#1C2230',
+          kenar: aktif ? '#1C2230' : '#E4DFD5',
+          sec: () => this.setState({ kategori: ad, limit: 6 })
+        };
+      }),
+      makaleler: gorunen,
+      bosDurum: filtreli.length === 0,
+      dahaVar: filtreli.length > gorunen.length,
+      dahaYukle: () => this.setState({ limit: this.state.limit + 6 }),
+      filtreTemizle: () => this.setState({ arama: '', kategori: 'Tümü', limit: 6 }),
+      whatsappGoster: this.props.showWhatsApp ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

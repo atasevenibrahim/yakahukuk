@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EDE4;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh">
+  <div style="width:248px;flex:none;background:#161B27;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:11px;padding:20px 22px;border-bottom:1px solid rgba(246,243,236,.08)">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:34px;height:34px;object-fit:contain;filter:brightness(0) invert(.95)">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#9aa1af">YÖNETİM PANELİ</span>
+      </span>
+    </a>
+    <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="12">
+        <sc-if value="{{ m.bolum }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:2.5px;color:#5B6270;padding:16px 12px 6px">{{ m.ad }}</span>
+        </sc-if>
+        <sc-if value="{{ m.link }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:13.5px;font-weight:500;color:{{ m.renk }};background:{{ m.zemin }};border-left:2px solid {{ m.cizgi }};transition:all .2s" style-hover="background:rgba(246,243,236,.06);color:#F6F3EC">
+            <span style="flex:none;width:12px;height:12px;border:1.5px solid {{ m.ikonRenk }};transform:rotate(45deg);border-radius:{{ m.ikonKose }}"></span>
+            {{ m.ad }}
+            <sc-if value="{{ m.rozet }}" hint-placeholder-val="{{ false }}">
+              <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:#9C7C4A;color:#FFFFFF;border-radius:999px;padding:2px 8px">{{ m.rozetSayi }}</span>
+            </sc-if>
+          </a>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <a href="./Admin Giriş.dc.html" style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid rgba(246,243,236,.08);font-size:13px;color:#9aa1af;transition:color .2s" style-hover="color:#F6F3EC">← Çıkış yap</a>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:50;background:rgba(240,237,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid #E4DFD5;padding:14px 32px;display:flex;align-items:center;gap:20px">
+      <div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">PANEL</span>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin:2px 0 0">Dashboard</h1>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:1px;color:#5B6270;border:1px solid #E4DFD5;border-radius:999px;padding:6px 14px;background:#FFFFFF">TR · EN</span>
+        <button onClick="{{ zilTikla }}" style="position:relative;width:40px;height:40px;border-radius:50%;border:1px solid #E4DFD5;background:#FFFFFF;cursor:pointer;font-size:15px;transition:all .2s" style-hover="border-color:#9C7C4A" aria-label="Bildirimler">🔔<sc-if value="{{ zilRozet }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:999px;background:#9C7C4A;color:#FFFFFF;font-family:'IBM Plex Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ zilSayi }}</span></sc-if></button>
+        <a href="./Admin Profil.dc.html" style="display:flex;align-items:center;gap:10px">
+          <span style="width:38px;height:38px;border-radius:50%;background:#1C2230;color:#F6F3EC;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">YT</span>
+          <span style="display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:13px;font-weight:600;line-height:1">Av. Yer Tutucu</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#9C7C4A">SÜPER ADMİN</span>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:32px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <sc-for list="{{ kartlar }}" as="k" hint-placeholder-count="4">
+          <a href="{{ k.href }}" style="display:block;background:#FFFFFF;border:1px solid #E4DFD5;border-top:2px solid {{ k.vurgu }};border-radius:6px;padding:22px 24px;box-shadow:0 1px 2px rgba(28,34,48,.05);transition:all .25s;color:#1C2230" style-hover="transform:translateY(-2px);box-shadow:0 4px 14px rgba(28,34,48,.09)">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">{{ k.etiket }}</span>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:500;color:#1C2230;margin-top:8px;line-height:1">{{ k.sayi }}</div>
+            <span style="display:inline-block;font-size:12.5px;color:{{ k.altRenk }};margin-top:10px">{{ k.alt }}</span>
+          </a>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start">
+        <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #E4DFD5">
+            <h2 style="font-size:15px;font-weight:700;margin:0">Son gelen talepler</h2>
+            <a href="./Admin Gelen Talepler.dc.html" style="font-size:13px;font-weight:600;color:#9C7C4A">Tümünü gör →</a>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ talepler }}" as="t" hint-placeholder-count="5">
+              <a href="./Admin Gelen Talepler.dc.html" style="display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:14px 24px;border-bottom:1px solid #F0EDE4;background:{{ t.zemin }};transition:background .2s;color:#1C2230" style-hover="background:#FAF8F3">
+                <span style="width:34px;height:34px;border-radius:50%;background:#F0EDE4;color:#5B6270;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ t.bas }}</span>
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                  <span style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.kim }} — {{ t.konu }}</span>
+                  <span style="font-size:12px;color:#5B6270;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.ozet }}</span>
+                </span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:{{ t.durumRenk }};border:1px solid {{ t.durumKenar }};border-radius:999px;padding:3px 10px;background:{{ t.durumZemin }}">{{ t.durum }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">{{ t.zaman }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #E4DFD5">
+              <h2 style="font-size:15px;font-weight:700;margin:0">Yaklaşan randevular</h2>
+              <a href="./Admin Randevular.dc.html" style="font-size:13px;font-weight:600;color:#9C7C4A">Takvim →</a>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ randevular }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:14px;padding:13px 24px;border-bottom:1px solid #F0EDE4">
+                  <span style="flex:none;display:flex;flex-direction:column;align-items:center;width:48px;background:#F6F3EC;border:1px solid #E4DFD5;border-radius:4px;padding:6px 0">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:#9C7C4A">{{ r.gun }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.saat }}</span>
+                  </span>
+                  <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                    <span style="font-size:13.5px;font-weight:600">{{ r.kim }}</span>
+                    <span style="font-size:12px;color:#5B6270">{{ r.konu }}</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:20px 24px">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 14px">Hızlı eylemler</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <a href="./Admin Makaleler.dc.html" style="font-size:13px;font-weight:600;text-align:center;border:1px solid #E4DFD5;border-radius:4px;padding:12px 8px;background:#FAF8F3;transition:all .2s;color:#1C2230" style-hover="border-color:#9C7C4A;color:#9C7C4A">+ Yeni makale</a>
+              <a href="./Admin Randevular.dc.html" style="font-size:13px;font-weight:600;text-align:center;border:1px solid #E4DFD5;border-radius:4px;padding:12px 8px;background:#FAF8F3;transition:all .2s;color:#1C2230" style-hover="border-color:#9C7C4A;color:#9C7C4A">Müsaitlik ayarla</a>
+              <a href="./Admin İçerik.dc.html" style="font-size:13px;font-weight:600;text-align:center;border:1px solid #E4DFD5;border-radius:4px;padding:12px 8px;background:#FAF8F3;transition:all .2s;color:#1C2230" style-hover="border-color:#9C7C4A;color:#9C7C4A">+ Ekip üyesi</a>
+              <a href="./Admin Ayarlar.dc.html" style="font-size:13px;font-weight:600;text-align:center;border:1px solid #E4DFD5;border-radius:4px;padding:12px 8px;background:#FAF8F3;transition:all .2s;color:#1C2230" style-hover="border-color:#9C7C4A;color:#9C7C4A">Ayarlar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #E4DFD5">
+          <h2 style="font-size:15px;font-weight:700;margin:0">Son işlem kayıtları</h2>
+          <a href="./Admin Ayarlar.dc.html" style="font-size:13px;font-weight:600;color:#9C7C4A">Audit log →</a>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ islemler }}" as="i" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:16px;align-items:baseline;padding:12px 24px;border-bottom:1px solid #F0EDE4">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">{{ i.zaman }}</span>
+              <span style="font-size:13.5px"><span style="font-weight:600">{{ i.kim }}</span> <span style="color:#5B6270">{{ i.eylem }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:#9C7C4A;text-align:right">{{ i.modul }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { zil: 3 };
+  renderVals() {
+    const menu = [
+      { link: true, ad: 'Dashboard', href: '#', aktif: true },
+      { link: true, ad: 'Gelen Talepler', href: './Admin Gelen Talepler.dc.html', rozet: true, rozetSayi: 5 },
+      { link: true, ad: 'Randevular', href: './Admin Randevular.dc.html', rozet: true, rozetSayi: 3 },
+      { bolum: true, ad: 'İÇERİK' },
+      { link: true, ad: 'Çalışma Alanları', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Ekip', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Makaleler', href: './Admin Makaleler.dc.html' },
+      { link: true, ad: 'Basında Biz', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yorumlar', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'SSS', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yasal Metinler', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Ana Sayfa / Hero', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Medya', href: './Admin Ayarlar.dc.html' },
+      { bolum: true, ad: 'SİSTEM' },
+      { link: true, ad: 'Ayarlar', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Diller & Çeviri', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Kullanıcılar & Roller', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'İşlem Kayıtları', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Profil', href: './Admin Profil.dc.html' }
+    ];
+    return {
+      menu: menu.map(m => ({
+        ...m,
+        renk: m.aktif ? '#F6F3EC' : '#9aa1af',
+        zemin: m.aktif ? 'rgba(246,243,236,.08)' : 'transparent',
+        cizgi: m.aktif ? '#9C7C4A' : 'transparent',
+        ikonRenk: m.aktif ? '#9C7C4A' : '#5B6270',
+        ikonKose: m.aktif ? '0' : '50%'
+      })),
+      zilRozet: this.state.zil > 0,
+      zilSayi: this.state.zil,
+      zilTikla: () => this.setState({ zil: 0 }),
+      kartlar: [
+        { etiket: 'BEKLEYEN RANDEVU', sayi: '03', alt: '2 tanesi bugün geldi', altRenk: '#9C7C4A', vurgu: '#9C7C4A', href: './Admin Randevular.dc.html' },
+        { etiket: 'YENİ MESAJ', sayi: '05', alt: 'Son: 22 dk önce', altRenk: '#9C7C4A', vurgu: '#9C7C4A', href: './Admin Gelen Talepler.dc.html' },
+        { etiket: 'YAYINDAKİ MAKALE', sayi: '12', alt: '2 taslak bekliyor', altRenk: '#5B6270', vurgu: 'transparent', href: './Admin Makaleler.dc.html' },
+        { etiket: 'ÇALIŞMA ALANI', sayi: '12', alt: 'Tümü yayında', altRenk: '#5B6270', vurgu: 'transparent', href: './Admin İçerik.dc.html' }
+      ],
+      talepler: [
+        { bas: 'EK', kim: 'E. Kaya', konu: 'Randevu talebi', ozet: 'Aile Hukuku · 24 TEM 10:00 slotu için', durum: 'YENİ', durumRenk: '#9C7C4A', durumKenar: '#9C7C4A', durumZemin: 'rgba(156,124,74,.08)', zaman: '22 dk', zemin: '#FDFCF9' },
+        { bas: 'MO', kim: 'M. Özdemir', konu: 'İletişim formu', ozet: 'Vergi incelemesi hakkında bilgi talebi', durum: 'YENİ', durumRenk: '#9C7C4A', durumKenar: '#9C7C4A', durumZemin: 'rgba(156,124,74,.08)', zaman: '1 sa', zemin: '#FDFCF9' },
+        { bas: 'AT', kim: 'A. Tekin', konu: 'Randevu talebi', ozet: 'Ticaret Hukuku · 23 TEM 14:00 slotu için', durum: 'OKUNDU', durumRenk: '#5B6270', durumKenar: '#E4DFD5', durumZemin: 'transparent', zaman: '3 sa', zemin: 'transparent' },
+        { bas: 'SB', kim: 'S. Bulut', konu: 'İletişim formu', ozet: 'Kira uyuşmazlığı; arabuluculuk sorusu', durum: 'YANITLANDI', durumRenk: '#3F7A5B', durumKenar: '#CDE0D4', durumZemin: 'rgba(63,122,91,.06)', zaman: 'Dün', zemin: 'transparent' },
+        { bas: 'HD', kim: 'H. Demir', konu: 'Randevu talebi', ozet: 'Sigorta Hukuku · poliçe reddi görüşmesi', durum: 'KAPANDI', durumRenk: '#5B6270', durumKenar: '#E4DFD5', durumZemin: 'transparent', zaman: 'Dün', zemin: 'transparent' }
+      ],
+      randevular: [
+        { gun: 'BUGÜN', saat: '14:00', kim: 'A. Tekin', konu: 'Ticaret Hukuku · ön görüşme' },
+        { gun: 'YARIN', saat: '10:00', kim: 'E. Kaya', konu: 'Aile Hukuku · ön görüşme' },
+        { gun: '24 TEM', saat: '15:30', kim: 'O. Şahin', konu: 'Vergi Hukuku · dosya değerlendirme' }
+      ],
+      islemler: [
+        { zaman: 'BUGÜN 11:42', kim: 'Av. Yer Tutucu', eylem: '"Anlaşmalı boşanmada süreç" makalesini güncelledi', modul: 'MAKALELER' },
+        { zaman: 'BUGÜN 09:15', kim: 'Editör E.', eylem: 'yeni SSS maddesi ekledi', modul: 'SSS' },
+        { zaman: 'DÜN 17:03', kim: 'Av. Yer Tutucu', eylem: 'randevu talebini onayladı (E. Kaya)', modul: 'RANDEVU' },
+        { zaman: 'DÜN 14:28', kim: 'Editör E.', eylem: 'müvekkil yorumunu onayladı (G. Ç.)', modul: 'YORUMLAR' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

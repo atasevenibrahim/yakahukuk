@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EDE4;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh">
+  <div style="width:248px;flex:none;background:#161B27;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:11px;padding:20px 22px;border-bottom:1px solid rgba(246,243,236,.08)">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:34px;height:34px;object-fit:contain;filter:brightness(0) invert(.95)">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#9aa1af">YÖNETİM PANELİ</span>
+      </span>
+    </a>
+    <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="12">
+        <sc-if value="{{ m.bolum }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:2.5px;color:#5B6270;padding:16px 12px 6px">{{ m.ad }}</span>
+        </sc-if>
+        <sc-if value="{{ m.link }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:13.5px;font-weight:500;color:{{ m.renk }};background:{{ m.zemin }};border-left:2px solid {{ m.cizgi }};transition:all .2s" style-hover="background:rgba(246,243,236,.06);color:#F6F3EC">
+            <span style="flex:none;width:12px;height:12px;border:1.5px solid {{ m.ikonRenk }};transform:rotate(45deg);border-radius:{{ m.ikonKose }}"></span>
+            {{ m.ad }}
+          </a>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <a href="./Admin Giriş.dc.html" style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid rgba(246,243,236,.08);font-size:13px;color:#9aa1af;transition:color .2s" style-hover="color:#F6F3EC">← Çıkış yap</a>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:50;background:rgba(240,237,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid #E4DFD5;padding:14px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">PANEL / RANDEVULAR</span>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin:2px 0 0">Randevu Yönetimi</h1>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button onClick="{{ takvimSec }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:4px;border:1px solid {{ tKenar }};background:{{ tZemin }};color:{{ tRenk }};cursor:pointer;transition:all .2s">Takvim</button>
+        <button onClick="{{ musaitlikSec }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:4px;border:1px solid {{ mKenar }};background:{{ mZemin }};color:{{ mRenk }};cursor:pointer;transition:all .2s">Müsaitlik ayarı</button>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:24px 32px">
+      <sc-if value="{{ takvimGorunumu }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:minmax(320px,1.1fr) minmax(0,1fr);gap:20px;align-items:start">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <h2 style="font-size:15px;font-weight:700;margin:0">Temmuz 2026</h2>
+              <div style="display:flex;gap:6px">
+                <button style="width:32px;height:32px;border-radius:4px;border:1px solid #E4DFD5;background:#FFFFFF;cursor:pointer;color:#5B6270" style-hover="border-color:#9C7C4A;color:#9C7C4A">‹</button>
+                <button style="width:32px;height:32px;border-radius:4px;border:1px solid #E4DFD5;background:#FFFFFF;cursor:pointer;color:#5B6270" style-hover="border-color:#9C7C4A;color:#9C7C4A">›</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+              <sc-for list="{{ gunBasliklari }}" as="g" hint-placeholder-count="7">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:#5B6270;text-align:center;padding:6px 0">{{ g }}</span>
+              </sc-for>
+              <sc-for list="{{ takvim }}" as="t" hint-placeholder-count="35">
+                <button onClick="{{ t.sec }}" disabled="{{ t.pasif }}" style="position:relative;aspect-ratio:1;border-radius:4px;border:1px solid {{ t.kenar }};background:{{ t.zemin }};color:{{ t.renk }};font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:{{ t.imlec }};transition:all .15s">{{ t.no }}<sc-if value="{{ t.noktaVar }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:{{ t.nokta }}"></span></sc-if></button>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:18px;margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5B6270;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#3F7A5B"></span>ONAYLI</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#9C7C4A"></span>BEKLEYEN</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#E4DFD5"></span>KAPALI</span>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <div style="padding:18px 24px;border-bottom:1px solid #E4DFD5">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:#9C7C4A">SEÇİLİ GÜN</span>
+              <h2 style="font-size:16px;font-weight:700;margin:4px 0 0">{{ seciliGunBaslik }}</h2>
+            </div>
+            <sc-if value="{{ gunBos }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:48px 24px;text-align:center">
+                <span style="display:inline-block;width:16px;height:16px;border:1.5px solid #9C7C4A;transform:rotate(45deg)"></span>
+                <p style="font-size:14px;font-weight:600;margin:16px 0 0">Bu günde randevu yok.</p>
+                <p style="font-size:12.5px;color:#5B6270;margin:6px 0 0">Takvimden noktalı bir güne tıklayın.</p>
+              </div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ gunRandevulari }}" as="r" hint-placeholder-count="2">
+                <div style="padding:16px 24px;border-bottom:1px solid #F0EDE4">
+                  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500">{{ r.saat }}</span>
+                    <span style="font-size:14px;font-weight:700">{{ r.kim }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:{{ r.durumRenk }};border:1px solid {{ r.durumKenar }};border-radius:999px;padding:3px 10px;background:{{ r.durumZemin }}">{{ r.durum }}</span>
+                  </div>
+                  <p style="font-size:13px;color:#5B6270;margin:6px 0 0">{{ r.konu }}</p>
+                  <sc-if value="{{ r.bekliyor }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                      <button onClick="{{ r.onayla }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#FFFFFF;background:#3F7A5B;border:none;border-radius:4px;padding:9px 16px;cursor:pointer">Onayla</button>
+                      <button onClick="{{ r.reddet }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#A23A32;background:#FFFFFF;border:1px solid #E8C5C1;border-radius:4px;padding:9px 16px;cursor:pointer" style-hover="background:#FBF1F0">Reddet</button>
+                      <button onClick="{{ r.planla }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:4px;padding:9px 16px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">Yeniden planla</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ musaitlikGorunumu }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:820px;display:flex;flex-direction:column;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:28px">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 18px">Haftalık çalışma saatleri</h2>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ hafta }}" as="h" hint-placeholder-count="7">
+                <div style="display:grid;grid-template-columns:110px auto 1fr;gap:16px;align-items:center;padding:10px 14px;border:1px solid #F0EDE4;border-radius:4px;background:{{ h.zemin }}">
+                  <span style="font-size:13.5px;font-weight:600;color:{{ h.renk }}">{{ h.ad }}</span>
+                  <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#5B6270;cursor:pointer">
+                    <input type="checkbox" checked="{{ h.acik }}" onChange="{{ h.degistir }}" style="width:16px;height:16px;accent-color:#9C7C4A;cursor:pointer">Açık
+                  </label>
+                  <sc-if value="{{ h.acik }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#1C2230;text-align:right">{{ h.saatler }}</span>
+                  </sc-if>
+                  <sc-if value="{{ h.kapali }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:#5B6270;text-align:right">KAPALI</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:28px">
+              <h2 style="font-size:15px;font-weight:700;margin:0 0 18px">Slot ayarları</h2>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                  <span style="font-size:13.5px;color:#5B6270">Slot süresi</span>
+                  <div style="display:flex;gap:6px">
+                    <sc-for list="{{ slotSureleri }}" as="s" hint-placeholder-count="3">
+                      <button onClick="{{ s.sec }}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 14px;border-radius:4px;border:1px solid {{ s.kenar }};background:{{ s.zemin }};color:{{ s.renk }};cursor:pointer">{{ s.ad }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                  <span style="font-size:13.5px;color:#5B6270">Aralık (buffer)</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:13px">15 dk</span>
+                </div>
+                <p style="font-size:12px;line-height:1.6;color:#5B6270;margin:0;background:#FAF8F3;border:1px solid #F0EDE4;border-radius:4px;padding:12px 14px">Çakışan randevular otomatik engellenir; onaylanan talep slotu dolu işaretler.</p>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:28px">
+              <h2 style="font-size:15px;font-weight:700;margin:0 0 18px">Kapalı günler</h2>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ kapaliGunler }}" as="k" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #F0EDE4;border-radius:4px">
+                    <span style="font-size:13.5px;font-weight:600">{{ k.ad }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5B6270">{{ k.tarih }}</span>
+                  </div>
+                </sc-for>
+                <button onClick="{{ kapaliEkle }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;color:#9C7C4A;background:#FFFFFF;border:1px dashed #9C7C4A;border-radius:4px;padding:11px;cursor:pointer;margin-top:4px" style-hover="background:#FAF8F3">+ Kapalı gün ekle</button>
+              </div>
+            </div>
+          </div>
+          <div style="position:sticky;bottom:0;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 -2px 12px rgba(28,34,48,.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+            <span style="font-size:13px;color:#5B6270">{{ kayitDurumu }}</span>
+            <div style="display:flex;gap:10px">
+              <button onClick="{{ geriAl }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:4px;padding:11px 20px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">Değişiklikleri geri al</button>
+              <button onClick="{{ kaydet }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:11px 24px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Kaydet</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ toastGoster }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99;background:#1C2230;color:#F6F3EC;border-radius:4px;padding:13px 24px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(28,34,48,.25);animation:riseIn .3s ease-out both">{{ toastMetin }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    gorunum: 'takvim', gun: 20, toast: '', slotSure: '45 dk', degisti: false,
+    hafta: [true, true, true, true, true, false, false],
+    durumOverride: {}
+  };
+  componentWillUnmount() { clearTimeout(this._t); }
+  toast(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2500); }
+  renderVals() {
+    const st = this.state;
+    const menu = [
+      { link: true, ad: 'Dashboard', href: './Admin Dashboard.dc.html' },
+      { link: true, ad: 'Gelen Talepler', href: './Admin Gelen Talepler.dc.html' },
+      { link: true, ad: 'Randevular', href: '#', aktif: true },
+      { bolum: true, ad: 'İÇERİK' },
+      { link: true, ad: 'Çalışma Alanları', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Ekip', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Makaleler', href: './Admin Makaleler.dc.html' },
+      { link: true, ad: 'Basında Biz', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yorumlar', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'SSS', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yasal Metinler', href: './Admin İçerik.dc.html' },
+      { bolum: true, ad: 'SİSTEM' },
+      { link: true, ad: 'Ayarlar', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Profil', href: './Admin Profil.dc.html' }
+    ];
+    // randevu verileri: gün -> liste
+    const randevuVerileri = {
+      18: [{ saat: '14:00', kim: 'A. Tekin', konu: 'Ticaret Hukuku · ön görüşme', durum: 'ONAYLI' }],
+      20: [
+        { saat: '10:00', kim: 'E. Kaya', konu: 'Aile Hukuku · ön görüşme', durum: 'BEKLİYOR' },
+        { saat: '15:30', kim: 'O. Şahin', konu: 'Vergi Hukuku · dosya değerlendirme', durum: 'ONAYLI' }
+      ],
+      23: [{ saat: '14:00', kim: 'A. Tekin', konu: 'Ticaret Hukuku · kuruluş görüşmesi', durum: 'BEKLİYOR' }],
+      24: [{ saat: '10:00', kim: 'E. Kaya', konu: 'Aile Hukuku · protokol görüşmesi', durum: 'BEKLİYOR' }],
+      27: [{ saat: '11:00', kim: 'S. Bulut', konu: 'Kira uyuşmazlığı · ön görüşme', durum: 'ONAYLI' }]
+    };
+    const kapaliGunNolar = [4, 5, 11, 12, 19, 25, 26];
+    const gunAdlari = ['PZT', 'SAL', 'ÇAR', 'PER', 'CUM', 'CMT', 'PAZ'];
+    // Temmuz 2026: 1 Temmuz Çarşamba → offset 2
+    const takvim = [];
+    for (let i = 0; i < 2; i++) takvim.push({ no: '', pasif: true, kenar: 'transparent', zemin: 'transparent', renk: 'transparent', imlec: 'default', noktaVar: false });
+    for (let g = 1; g <= 31; g++) {
+      const kapali = kapaliGunNolar.includes(g);
+      const rlar = randevuVerileri[g];
+      const secili = g === st.gun;
+      const bekleyenVar = rlar && rlar.some(r => (st.durumOverride[g + '-' + r.saat] || r.durum) === 'BEKLİYOR');
+      takvim.push({
+        no: String(g).padStart(2, '0'),
+        pasif: kapali,
+        kenar: secili ? '#1C2230' : (kapali ? '#F0EDE4' : '#E4DFD5'),
+        zemin: secili ? '#1C2230' : (kapali ? '#FAF8F3' : '#FFFFFF'),
+        renk: secili ? '#F6F3EC' : (kapali ? '#C9C4B8' : '#1C2230'),
+        imlec: kapali ? 'not-allowed' : 'pointer',
+        noktaVar: !!rlar,
+        nokta: bekleyenVar ? '#9C7C4A' : '#3F7A5B',
+        sec: () => { if (!kapali) this.setState({ gun: g }); }
+      });
+    }
+    const seciliRlar = randevuVerileri[st.gun] || [];
+    const durumStil = d => d === 'ONAYLI' ? { r: '#3F7A5B', k: '#CDE0D4', z: 'rgba(63,122,91,.06)' } : d === 'REDDEDİLDİ' ? { r: '#A23A32', k: '#E8C5C1', z: 'rgba(162,58,50,.06)' } : { r: '#9C7C4A', k: '#9C7C4A', z: 'rgba(156,124,74,.08)' };
+    const haftaAdlari = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+    return {
+      menu: menu.map(m => ({ ...m, renk: m.aktif ? '#F6F3EC' : '#9aa1af', zemin: m.aktif ? 'rgba(246,243,236,.08)' : 'transparent', cizgi: m.aktif ? '#9C7C4A' : 'transparent', ikonRenk: m.aktif ? '#9C7C4A' : '#5B6270', ikonKose: m.aktif ? '0' : '50%' })),
+      takvimGorunumu: st.gorunum === 'takvim',
+      musaitlikGorunumu: st.gorunum === 'musaitlik',
+      takvimSec: () => this.setState({ gorunum: 'takvim' }),
+      musaitlikSec: () => this.setState({ gorunum: 'musaitlik' }),
+      tKenar: st.gorunum === 'takvim' ? '#1C2230' : '#E4DFD5',
+      tZemin: st.gorunum === 'takvim' ? '#1C2230' : '#FFFFFF',
+      tRenk: st.gorunum === 'takvim' ? '#F6F3EC' : '#1C2230',
+      mKenar: st.gorunum === 'musaitlik' ? '#1C2230' : '#E4DFD5',
+      mZemin: st.gorunum === 'musaitlik' ? '#1C2230' : '#FFFFFF',
+      mRenk: st.gorunum === 'musaitlik' ? '#F6F3EC' : '#1C2230',
+      gunBasliklari: gunAdlari,
+      takvim,
+      seciliGunBaslik: String(st.gun).padStart(2, '0') + ' Temmuz 2026',
+      gunBos: seciliRlar.length === 0,
+      gunRandevulari: seciliRlar.map(r => {
+        const key = st.gun + '-' + r.saat;
+        const durum = st.durumOverride[key] || r.durum;
+        const s = durumStil(durum);
+        return {
+          ...r, durum,
+          durumRenk: s.r, durumKenar: s.k, durumZemin: s.z,
+          bekliyor: durum === 'BEKLİYOR',
+          onayla: () => { this.setState({ durumOverride: { ...st.durumOverride, [key]: 'ONAYLI' } }); this.toast('Randevu onaylandı — slot dolu işaretlendi'); },
+          reddet: () => { this.setState({ durumOverride: { ...st.durumOverride, [key]: 'REDDEDİLDİ' } }); this.toast('Talep reddedildi'); },
+          planla: () => this.toast('Yeniden planlama: müvekkile yeni slot önerisi gönderilecek')
+        };
+      }),
+      hafta: haftaAdlari.map((ad, i) => ({
+        ad,
+        acik: st.hafta[i],
+        kapali: !st.hafta[i],
+        saatler: '09:00 – 18:00',
+        zemin: st.hafta[i] ? '#FFFFFF' : '#FAF8F3',
+        renk: st.hafta[i] ? '#1C2230' : '#5B6270',
+        degistir: e => { const h = [...st.hafta]; h[i] = e.target.checked; this.setState({ hafta: h, degisti: true }); }
+      })),
+      slotSureleri: ['30 dk', '45 dk', '60 dk'].map(ad => ({
+        ad,
+        kenar: ad === st.slotSure ? '#1C2230' : '#E4DFD5',
+        zemin: ad === st.slotSure ? '#1C2230' : '#FFFFFF',
+        renk: ad === st.slotSure ? '#F6F3EC' : '#1C2230',
+        sec: () => this.setState({ slotSure: ad, degisti: true })
+      })),
+      kapaliGunler: [
+        { ad: 'Kurban Bayramı', tarih: '25–26 TEM' },
+        { ad: 'Büro içi eğitim', tarih: '19 TEM' }
+      ],
+      kapaliEkle: () => this.toast('Kapalı gün ekleme — tarih seçici açılacak'),
+      kayitDurumu: st.degisti ? 'Kaydedilmemiş değişiklikler var' : 'Tüm değişiklikler kayıtlı',
+      kaydet: () => { this.setState({ degisti: false }); this.toast('Müsaitlik ayarları kaydedildi'); },
+      geriAl: () => { this.setState({ hafta: [true, true, true, true, true, false, false], slotSure: '45 dk', degisti: false }); this.toast('Değişiklikler geri alındı'); },
+      toastGoster: !!st.toast,
+      toastMetin: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F3EC;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:90;background:rgba(246,243,236,.94);backdrop-filter:blur(10px);border-bottom:1px solid #E4DFD5;box-shadow:{{ headerShadow }};transition:box-shadow .3s">
+  <div style="max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;row-gap:8px">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:12px;flex:none">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:42px;height:42px;object-fit:contain;display:block">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:2px;color:#1C2230;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2.6px;color:#5B6270">HUKUK &amp; DANIŞMANLIK</span>
+      </span>
+    </a>
+    <nav style="display:flex;align-items:center;flex-wrap:wrap;min-width:0;gap:6px 16px;margin-left:auto;font-size:14px;font-weight:500">
+      <a href="./Ana Sayfa.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ana Sayfa</a>
+      <a href="./Hakkımızda.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Hakkımızda</a>
+      <a href="./Çalışma Alanları.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Çalışma Alanları</a>
+      <a href="./Ekibimiz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ekibimiz</a>
+      <a href="./Makaleler.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Makaleler</a>
+      <a href="./Basında Biz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Basında Biz</a>
+      <a href="./SSS.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">SSS</a>
+      <a href="./İletişim.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">İletişim</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:20px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <a href="#" style="color:#9C7C4A;font-weight:500;border-bottom:1px solid #9C7C4A;padding-bottom:1px">TR</a>
+        <span style="color:#E4DFD5">/</span>
+        <a href="#" style="color:#5B6270" style-hover="color:#9C7C4A">EN</a>
+      </div>
+      <a href="./Randevu Al.dc.html" style="background:#1C2230;color:#F6F3EC;padding:12px 24px;border-radius:4px;font-size:15px;font-weight:600;transition:background .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:80px 32px 0">
+  <div style="max-width:720px">
+    <div style="display:flex;align-items:center;gap:14px;animation:riseIn .5s ease-out both">
+      <span style="position:relative;display:block;width:34px;height:1px;background:#9C7C4A;transform-origin:left;animation:drawLine .7s .2s ease-out both">
+        <span style="position:absolute;right:9px;top:-3px;width:8px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span>
+      </span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:3px;color:#5B6270">YASAL METİNLER</span>
+    </div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:500;line-height:1.08;margin:22px 0 0;animation:riseIn .55s .08s ease-out both;text-wrap:balance">Şeffaflık, bizde yazılı kuraldır.</h1>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:56px 32px 0;display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:start">
+  <div style="position:sticky;top:96px;display:flex;flex-direction:column;gap:4px">
+    <sc-for list="{{ sekmeler }}" as="s" hint-placeholder-count="3">
+      <button onClick="{{ s.sec }}" style="display:flex;align-items:center;gap:12px;font-family:Manrope,sans-serif;font-size:14.5px;font-weight:600;text-align:left;padding:13px 16px;border-radius:4px;border:none;background:{{ s.zemin }};color:{{ s.renk }};cursor:pointer;transition:all .2s">
+        <span style="flex:none;width:16px;height:2px;background:{{ s.cizgi }};transition:all .2s"></span>
+        {{ s.ad }}
+      </button>
+    </sc-for>
+    <div style="margin-top:20px;padding:18px 16px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#9C7C4A">SON GÜNCELLEME</span>
+      <p style="font-size:13.5px;color:#5B6270;margin:8px 0 0">[GG.AA.YYYY — yer tutucu]</p>
+    </div>
+  </div>
+
+  <div style="max-width:760px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:44px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05)">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9C7C4A">{{ aktifEtiket }}</span>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;margin:12px 0 0">{{ aktifBaslik }}</h2>
+    <p style="font-size:15.5px;line-height:1.75;color:#5B6270;margin:22px 0 0;text-wrap:pretty">{{ aktifGiris }}</p>
+    <sc-for list="{{ aktifBolumler }}" as="b" hint-placeholder-count="4">
+      <div style="margin-top:32px">
+        <h3 style="font-size:17px;font-weight:700;margin:0;display:flex;align-items:baseline;gap:12px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:400;color:#9C7C4A">{{ b.no }}</span>
+          {{ b.baslik }}
+        </h3>
+        <p style="font-size:15px;line-height:1.75;color:#5B6270;margin:10px 0 0;text-wrap:pretty">{{ b.metin }}</p>
+      </div>
+    </sc-for>
+    <div style="margin-top:40px;padding:20px 24px;background:#F6F3EC;border:1px solid #E4DFD5;border-radius:4px">
+      <p style="font-size:13.5px;line-height:1.6;color:#5B6270;margin:0"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#9C7C4A">NOT</span> — Bu metin şablon niteliğindedir; nihai yasal metinler büronun KVKK danışmanı tarafından onaylanarak admin panelinden yüklenecektir.</p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:96px;background:#161B27">
+  <div style="max-width:1240px;margin:0 auto;padding:40px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#9aa1af">© 2026 YAKA Hukuk &amp; Danışmanlık. Tüm hakları saklıdır.</span>
+      <div style="display:flex;gap:22px;font-size:12.5px">
+        <a href="./İletişim.dc.html" style="color:#9aa1af" style-hover="color:#9C7C4A">İletişim</a>
+        <a href="./Ana Sayfa.dc.html" style="color:#9aa1af" style-hover="color:#9C7C4A">Ana Sayfa</a>
+        <span style="position:relative;display:block;width:22px;height:1px;background:#9C7C4A;align-self:center"><span style="position:absolute;right:6px;top:-2.5px;width:6px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { scrolled: false, sekme: 0 };
+  componentDidMount() {
+    this._onScroll = () => {
+      const s = window.scrollY > 8;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+  renderVals() {
+    const metinler = [
+      {
+        ad: 'KVKK Politikası', etiket: 'KVKK', baslik: 'Kişisel Verilerin Korunması Politikası',
+        giris: 'YAKA Hukuk & Danışmanlık olarak kişisel verilerinizi 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve ilgili mevzuata uygun olarak işliyoruz. Bu politika; hangi verileri, hangi amaçla ve ne kadar süreyle işlediğimizi açıklar.',
+        bolumler: [
+          { no: '01', baslik: 'Veri sorumlusu', metin: 'Veri sorumlusu, Beştepe, Meriç Sk. No:54/A Yenimahalle/Ankara adresinde faaliyet gösteren YAKA Hukuk & Danışmanlık\'tır. [Ticari unvan ve sicil bilgileri — yer tutucu.]' },
+          { no: '02', baslik: 'İşlenen veri kategorileri', metin: 'Kimlik, iletişim, hukuki işlem ve müvekkil işlem verileri; randevu ve iletişim formları aracılığıyla paylaştığınız bilgiler. [Detay tablo — yer tutucu.]' },
+          { no: '03', baslik: 'İşleme amaçları ve hukuki sebep', metin: 'Hukuki hizmetin sunulması, randevu süreçlerinin yürütülmesi, yasal yükümlülüklerin yerine getirilmesi. KVKK m.5/2 kapsamındaki hukuki sebeplere dayanılır. [Yer tutucu.]' },
+          { no: '04', baslik: 'Saklama süreleri ve haklarınız', metin: 'Veriler, mevzuatın öngördüğü asgari süreler boyunca saklanır. KVKK m.11 kapsamındaki haklarınız için info@yakahukuk.com adresine başvurabilirsiniz. [Yer tutucu.]' }
+        ]
+      },
+      {
+        ad: 'Aydınlatma Metni', etiket: 'AYDINLATMA', baslik: 'Kişisel Verilere İlişkin Aydınlatma Metni',
+        giris: 'Bu aydınlatma metni, KVKK m.10 uyarınca; web sitemizi ziyaret eden, form dolduran veya randevu oluşturan kişileri kişisel verilerinin işlenmesi konusunda bilgilendirmek amacıyla hazırlanmıştır.',
+        bolumler: [
+          { no: '01', baslik: 'Toplanan veriler ve yöntem', metin: 'Ad-soyad, telefon, e-posta ve mesaj içerikleri; web formları ve telefon aracılığıyla, otomatik ve kısmen otomatik yollarla toplanır. [Yer tutucu.]' },
+          { no: '02', baslik: 'İşleme amacı', metin: 'Talebinizin yanıtlanması, randevunuzun oluşturulması ve ön görüşme sürecinin yürütülmesi amacıyla işlenir. [Yer tutucu.]' },
+          { no: '03', baslik: 'Aktarım', metin: 'Verileriniz, yasal zorunluluklar dışında üçüncü kişilerle paylaşılmaz. Barındırma hizmeti aldığımız sunucular yurt içindedir. [Yer tutucu.]' },
+          { no: '04', baslik: 'Başvuru hakkı', metin: 'KVKK m.11 kapsamındaki taleplerinizi yazılı olarak veya kayıtlı e-posta ile iletebilirsiniz; başvurular en geç 30 gün içinde sonuçlandırılır. [Yer tutucu.]' }
+        ]
+      },
+      {
+        ad: 'Çerez Politikası', etiket: 'ÇEREZ', baslik: 'Çerez (Cookie) Politikası',
+        giris: 'Web sitemiz; deneyiminizi iyileştirmek, tercihlerinizi hatırlamak ve site trafiğini analiz etmek amacıyla çerezler kullanır. Zorunlu olmayan çerezler yalnızca açık rızanızla çalışır.',
+        bolumler: [
+          { no: '01', baslik: 'Zorunlu çerezler', metin: 'Oturum güvenliği ve dil tercihi gibi sitenin çalışması için gerekli çerezlerdir; devre dışı bırakılamaz. [Çerez tablosu — yer tutucu.]' },
+          { no: '02', baslik: 'Analitik çerezler', metin: 'Sayfa ziyaretleri ve kullanım istatistiklerini anonim olarak ölçer; yalnızca onay vermeniz hâlinde etkinleşir. [Yer tutucu.]' },
+          { no: '03', baslik: 'Tercih yönetimi', metin: 'Çerez tercihlerinizi sayfa altındaki çerez banner\'ından veya tarayıcı ayarlarınızdan dilediğiniz zaman değiştirebilirsiniz. [Yer tutucu.]' },
+          { no: '04', baslik: 'Üçüncü taraf çerezleri', metin: 'Gömülü harita ve video içerikleri kendi çerezlerini kullanabilir; bu hizmetlerin politikaları ilgili sağlayıcılara aittir. [Yer tutucu.]' }
+        ]
+      }
+    ];
+    const i = this.state.sekme, aktif = metinler[i];
+    return {
+      headerShadow: this.state.scrolled ? '0 2px 4px rgba(28,34,48,.05), 0 10px 28px rgba(28,34,48,.08)' : 'none',
+      sekmeler: metinler.map((m, idx) => {
+        const a = idx === i;
+        return { ad: m.ad, zemin: a ? '#FFFFFF' : 'transparent', renk: a ? '#1C2230' : '#5B6270', cizgi: a ? '#9C7C4A' : '#E4DFD5', sec: () => { this.setState({ sekme: idx }); window.scrollTo({ top: 0 }); } };
+      }),
+      aktifEtiket: aktif.etiket,
+      aktifBaslik: aktif.baslik,
+      aktifGiris: aktif.giris,
+      aktifBolumler: aktif.bolumler
+    };
+  }
+}
+</script>
+</body>
+</html>

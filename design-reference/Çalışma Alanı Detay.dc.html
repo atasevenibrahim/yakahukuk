@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F3EC;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:90;background:rgba(246,243,236,.94);backdrop-filter:blur(10px);border-bottom:1px solid #E4DFD5;box-shadow:{{ headerShadow }};transition:box-shadow .3s">
+  <div style="max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;row-gap:8px">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:12px;flex:none">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:42px;height:42px;object-fit:contain;display:block">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:2px;color:#1C2230;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2.6px;color:#5B6270">HUKUK &amp; DANIŞMANLIK</span>
+      </span>
+    </a>
+    <nav style="display:flex;align-items:center;flex-wrap:wrap;min-width:0;gap:6px 16px;margin-left:auto;font-size:14px;font-weight:500">
+      <a href="./Ana Sayfa.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ana Sayfa</a>
+      <a href="./Hakkımızda.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Hakkımızda</a>
+      <div style="position:relative" onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}">
+        <a href="./Çalışma Alanları.dc.html" style="color:#1C2230;padding:6px 0;border-bottom:2px solid #9C7C4A;display:flex;align-items:center;gap:6px">Çalışma Alanları <span style="font-size:9px;color:#5B6270;transform:translateY(1px)">▾</span></a>
+        <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:16px;animation:riseIn .25s ease-out both">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 12px 32px rgba(28,34,48,.09);padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;width:560px">
+              <sc-for list="{{ alanlar }}" as="alan" hint-placeholder-count="0">
+                <a href="#" style="font-size:13.5px;font-weight:500;color:#1C2230;padding:8px 10px;border-radius:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="background:#F6F3EC;color:#9C7C4A">{{ alan }}</a>
+              </sc-for>
+              <a href="./Çalışma Alanları.dc.html" style="grid-column:1 / -1;margin-top:8px;padding:10px;border-top:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:1px;color:#9C7C4A;text-align:center">TÜM ALANLARI GÖR →</a>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <a href="./Ekibimiz.dc.html" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Ekibimiz</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Makaleler</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">Basında Biz</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">SSS</a>
+      <a href="#" style="padding:6px 0;border-bottom:2px solid transparent" style-hover="color:#9C7C4A">İletişim</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:20px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <a href="#" style="color:#9C7C4A;font-weight:500;border-bottom:1px solid #9C7C4A;padding-bottom:1px">TR</a>
+        <span style="color:#E4DFD5">/</span>
+        <a href="#" style="color:#5B6270" style-hover="color:#9C7C4A">EN</a>
+      </div>
+      <a href="#" style="background:#1C2230;color:#F6F3EC;padding:12px 24px;border-radius:4px;font-size:15px;font-weight:600;transition:background .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:40px 32px 0">
+  <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#5B6270;animation:riseIn .4s ease-out both">
+    <a href="./Ana Sayfa.dc.html" style="color:#5B6270" style-hover="color:#9C7C4A">Ana Sayfa</a>
+    <span style="color:#E4DFD5">/</span>
+    <a href="./Çalışma Alanları.dc.html" style="color:#5B6270" style-hover="color:#9C7C4A">Çalışma Alanları</a>
+    <span style="color:#E4DFD5">/</span>
+    <span style="color:#1C2230;font-weight:500">Aile Hukuku</span>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:48px 32px 0">
+  <div style="max-width:720px">
+    <div style="display:flex;align-items:center;gap:14px;animation:riseIn .5s ease-out both">
+      <span style="position:relative;display:block;width:34px;height:1px;background:#9C7C4A;transform-origin:left;animation:drawLine .7s .2s ease-out both">
+        <span style="position:absolute;right:9px;top:-3px;width:8px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span>
+      </span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:3px;color:#5B6270">ÇALIŞMA ALANI</span>
+    </div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:500;line-height:1.08;margin:22px 0 0;animation:riseIn .55s .08s ease-out both">Aile Hukuku</h1>
+    <p style="font-size:18px;line-height:1.6;color:#5B6270;margin:22px 0 0;animation:riseIn .55s .16s ease-out both;text-wrap:pretty">Ailenizi ilgilendiren her uyuşmazlıkta; sakin, koruyucu ve çözüm odaklı bir temsil anlayışıyla yanınızdayız.</p>
+  </div>
+</div>
+
+<div style="max-width:1240px;margin:0 auto;padding:64px 32px 0;display:grid;grid-template-columns:1fr 380px;gap:72px;align-items:start">
+  <div style="max-width:720px">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;margin:0 0 16px">Bu alanda ne yapıyoruz?</h2>
+    <p style="font-size:16px;line-height:1.7;color:#5B6270;margin:0;text-wrap:pretty">Aile hukuku, hukukun en hassas alanıdır; çünkü dosyanın öbür tarafında hayatınız vardır. Süreci hızlandırmak kadar, sizi ve varsa çocuklarınızı korumak da önceliğimizdir. <span style="background:#EFEAE0;border-radius:3px;padding:0 4px">[Yer tutucu — alan açıklaması admin panelinden düzenlenecek.]</span></p>
+    <p style="font-size:16px;line-height:1.7;color:#5B6270;margin:14px 0 0;text-wrap:pretty">Her dosyada önce uzlaşma zeminini yoklar, dava kaçınılmazsa hakkınızı sonuna kadar savunuruz.</p>
+
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;margin:48px 0 20px">Tipik dava ve işler</h2>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div style="display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #E4DFD5">
+        <span style="flex:none;width:9px;height:9px;border:1.5px solid #9C7C4A;transform:rotate(45deg) translateY(-1px)"></span>
+        <span style="font-size:15.5px;line-height:1.6;color:#1C2230">Anlaşmalı ve çekişmeli boşanma davaları</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #E4DFD5">
+        <span style="flex:none;width:9px;height:9px;border:1.5px solid #9C7C4A;transform:rotate(45deg) translateY(-1px)"></span>
+        <span style="font-size:15.5px;line-height:1.6;color:#1C2230">Velayet, kişisel ilişki ve iştirak nafakası</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #E4DFD5">
+        <span style="flex:none;width:9px;height:9px;border:1.5px solid #9C7C4A;transform:rotate(45deg) translateY(-1px)"></span>
+        <span style="font-size:15.5px;line-height:1.6;color:#1C2230">Mal rejimi tasfiyesi ve katılma alacağı</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #E4DFD5">
+        <span style="flex:none;width:9px;height:9px;border:1.5px solid #9C7C4A;transform:rotate(45deg) translateY(-1px)"></span>
+        <span style="font-size:15.5px;line-height:1.6;color:#1C2230">Ailenin korunmasına yönelik tedbir kararları (6284)</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #E4DFD5;border-bottom:1px solid #E4DFD5">
+        <span style="flex:none;width:9px;height:9px;border:1.5px solid #9C7C4A;transform:rotate(45deg) translateY(-1px)"></span>
+        <span style="font-size:15.5px;line-height:1.6;color:#1C2230">Nişan, evlat edinme, soybağı ve vesayet işleri</span>
+      </div>
+    </div>
+
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;margin:48px 0 24px">Süreç nasıl ilerler?</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div style="border-top:1px solid #E4DFD5;padding-top:18px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#9C7C4A;letter-spacing:2px">01</span>
+        <h3 style="font-size:16.5px;font-weight:600;margin:10px 0 0">Görüşme</h3>
+        <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:6px 0 0">Dosyanızı ve beklentinizi gizlilik içinde dinleriz.</p>
+      </div>
+      <div style="border-top:1px solid #E4DFD5;padding-top:18px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#9C7C4A;letter-spacing:2px">02</span>
+        <h3 style="font-size:16.5px;font-weight:600;margin:10px 0 0">Değerlendirme</h3>
+        <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:6px 0 0">Hukuki durumu ve olasılıkları açıkça ortaya koyarız.</p>
+      </div>
+      <div style="border-top:1px solid #E4DFD5;padding-top:18px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#9C7C4A;letter-spacing:2px">03</span>
+        <h3 style="font-size:16.5px;font-weight:600;margin:10px 0 0">Strateji</h3>
+        <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:6px 0 0">Uzlaşma mı, dava mı? Yol haritasını birlikte çizeriz.</p>
+      </div>
+      <div style="border-top:1px solid #E4DFD5;padding-top:18px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#9C7C4A;letter-spacing:2px">04</span>
+        <h3 style="font-size:16.5px;font-weight:600;margin:10px 0 0">Takip</h3>
+        <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:6px 0 0">Her duruşma ve gelişmede sizi bilgilendiririz.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+      <p style="font-size:15px;line-height:1.6;color:#5B6270;margin:0">Aklınıza takılanlar mı var? Aile hukukuyla ilgili sık sorulan soruları derledik.</p>
+      <a href="#" style="flex:none;font-size:14.5px;font-weight:600;color:#9C7C4A;border-bottom:1px solid #9C7C4A;padding-bottom:2px">SSS'ye git →</a>
+    </div>
+  </div>
+
+  <div style="position:sticky;top:96px;display:flex;flex-direction:column;gap:20px">
+    <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-top:2px solid #9C7C4A;border-radius:6px;padding:28px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05)">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;margin:0">Bu konuda randevu alın</h3>
+      <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:10px 0 0">Ön görüşmede dosyanızı birlikte değerlendirelim.</p>
+      <a href="#" style="display:block;text-align:center;background:#1C2230;color:#F6F3EC;padding:13px 24px;border-radius:4px;font-size:15px;font-weight:600;margin-top:20px;transition:background .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid #E4DFD5;font-size:14px">
+        <a href="tel:03122158085" style="color:#1C2230" style-hover="color:#9C7C4A">0312 215 80 85</a>
+        <a href="/cdn-cgi/l/email-protection#7910171f163900181218110c120c12571a1614" style="color:#1C2230" style-hover="color:#9C7C4A"><span class="__cf_email__" data-cfemail="91f8fff7fed1e8f0faf0f9e4fae4fabff2fefc">[email&#160;protected]</span></a>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:1.5px;color:#9C7C4A">7/24 ULAŞILABİLİR</span>
+      </div>
+    </div>
+    <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:28px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05)">
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#5B6270;font-weight:500;margin:0 0 16px">İLGİLİ AVUKATLAR</h3>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <a href="./Ekip Üyesi Detay.dc.html" style="display:flex;align-items:center;gap:12px;color:#1C2230" style-hover="color:#9C7C4A">
+          <span style="flex:none;width:40px;height:40px;border-radius:50%;background:repeating-linear-gradient(45deg,#EFEAE0 0,#EFEAE0 6px,#F3EFE6 6px,#F3EFE6 12px);border:1px solid #E4DFD5"></span>
+          <span style="display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:14.5px;font-weight:600">Av. Yer Tutucu Bir</span>
+            <span style="font-size:12px;color:#5B6270">— Yer Tutucu —</span>
+          </span>
+        </a>
+        <a href="./Ekip Üyesi Detay.dc.html" style="display:flex;align-items:center;gap:12px;color:#1C2230" style-hover="color:#9C7C4A">
+          <span style="flex:none;width:40px;height:40px;border-radius:50%;background:repeating-linear-gradient(45deg,#EFEAE0 0,#EFEAE0 6px,#F3EFE6 6px,#F3EFE6 12px);border:1px solid #E4DFD5"></span>
+          <span style="display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:14.5px;font-weight:600">Av. Örnek İsim İki</span>
+            <span style="font-size:12px;color:#5B6270">— Yer Tutucu —</span>
+          </span>
+        </a>
+      </div>
+    </div>
+    <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:28px;box-shadow:0 1px 2px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05)">
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#5B6270;font-weight:500;margin:0 0 16px">İLGİLİ MAKALELER</h3>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <a href="#" style="display:flex;flex-direction:column;gap:3px;color:#1C2230" style-hover="color:#9C7C4A">
+          <span style="font-size:14px;font-weight:600;line-height:1.4">Anlaşmalı boşanmada süreç nasıl ilerler?</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">12 TEM 2026</span>
+        </a>
+        <a href="#" style="display:flex;flex-direction:column;gap:3px;color:#1C2230" style-hover="color:#9C7C4A">
+          <span style="font-size:14px;font-weight:600;line-height:1.4">Velayet kararlarında çocuğun üstün yararı</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">20 MAY 2026</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:120px;background:#161B27">
+  <div style="max-width:1240px;margin:0 auto;padding:88px 32px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap">
+    <div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:500;color:#F6F3EC;margin:0;text-wrap:balance">Hakkınız için ilk adımı atın.</h2>
+      <p style="font-size:16px;line-height:1.6;color:#9aa1af;margin:14px 0 0;max-width:520px">Ön görüşme için randevu oluşturun; ekibimiz aynı gün içinde dönüş yapar.</p>
+    </div>
+    <a href="#" style="flex:none;background:#F6F3EC;color:#1C2230;padding:16px 34px;border-radius:4px;font-size:16px;font-weight:600;transition:all .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Randevu Al</a>
+  </div>
+</div>
+
+<div style="background:#161B27;border-top:1px solid rgba(246,243,236,.08)">
+  <div style="max-width:1240px;margin:0 auto;padding:72px 32px 0;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:48px">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:40px;height:40px;object-fit:contain;filter:brightness(0) invert(.95)">
+        <span style="display:flex;flex-direction:column;gap:1px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2.4px;color:#9aa1af">HUKUK &amp; DANIŞMANLIK</span>
+        </span>
+      </div>
+      <p style="font-size:14px;line-height:1.7;color:#9aa1af;margin:20px 0 0;max-width:300px">Ankara Beştepe'de, hukukun her alanında titiz ve ulaşılabilir danışmanlık.</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#F6F3EC;margin:16px 0 0">"Dik duruş, dürüst hukuk."</p>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">HIZLI LİNKLER</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+        <a href="./Hakkımızda.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Hakkımızda</a>
+        <a href="./Ekibimiz.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ekibimiz</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Makaleler</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Basında Biz</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">SSS</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Randevu Al</a>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">ÇALIŞMA ALANLARI</h3>
+      <div style="display:flex;flex-direction:column;gap:11px;font-size:14px">
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Aile Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ceza Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Ticaret Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Sigorta Hukuku</a>
+        <a href="#" style="color:#dcd8cf" style-hover="color:#9C7C4A">Vergi Hukuku</a>
+        <a href="./Çalışma Alanları.dc.html" style="color:#dcd8cf" style-hover="color:#9C7C4A">Tüm alanlar →</a>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:2.5px;color:#9aa1af;font-weight:500;margin:0 0 18px">İLETİŞİM</h3>
+      <div style="display:flex;flex-direction:column;gap:13px;font-size:14px;line-height:1.6;color:#dcd8cf">
+        <span>Beştepe, Meriç Sk. No:54/A<br>Yenimahalle / Ankara</span>
+        <a href="tel:03122158085" style="color:#dcd8cf" style-hover="color:#9C7C4A">0312 215 80 85</a>
+        <a href="/cdn-cgi/l/email-protection#c0a9aea6af80b9a1aba1a8b5abb5abeea3afad" style="color:#dcd8cf" style-hover="color:#9C7C4A"><span class="__cf_email__" data-cfemail="a9c0c7cfc6e9d0c8c2c8c1dcc2dcc287cac6c4">[email&#160;protected]</span></a>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;color:#9C7C4A">7/24 ULAŞILABİLİR</span>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:1240px;margin:0 auto;padding:28px 32px 32px">
+    <div style="border-top:1px solid rgba(246,243,236,.1);margin-top:48px;padding-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#9aa1af">© 2026 YAKA Hukuk &amp; Danışmanlık. Tüm hakları saklıdır.</span>
+      <div style="display:flex;gap:22px;font-size:12.5px">
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">KVKK</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Aydınlatma Metni</a>
+        <a href="#" style="color:#9aa1af" style-hover="color:#9C7C4A">Çerez Politikası</a>
+        <span style="position:relative;display:block;width:22px;height:1px;background:#9C7C4A;align-self:center"><span style="position:absolute;right:6px;top:-2.5px;width:6px;height:1px;background:#9C7C4A;transform:rotate(-45deg)"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ whatsappGoster }}" hint-placeholder-val="{{ false }}">
+  <a href="#" aria-label="WhatsApp ile ulaşın" style="position:fixed;right:24px;bottom:24px;z-index:95;width:54px;height:54px;border-radius:50%;background:#1C2230;color:#F6F3EC;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(28,34,48,.25);transition:all .25s" style-hover="background:#9C7C4A;color:#FFFFFF;transform:translateY(-2px)">✆</a>
+</sc-if>
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{&quot;showWhatsApp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Öğeler&quot;}}">
+class Component extends DCLogic {
+  state = { megaOpen: false, scrolled: false };
+  componentDidMount() {
+    this._onScroll = () => {
+      const s = window.scrollY > 8;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+  }
+  renderVals() {
+    return {
+      alanlar: ['Aile Hukuku', 'Ceza Hukuku', 'Fikri Mülkiyet Hukuku', 'Göçmenlik ve Vatandaşlık Hukuku', 'İdari Hukuk', 'İflas Hukuku', 'İstinaf Hukuku', 'Kişisel Yaralanma ve Mülk Hasarı', 'Sigorta Hukuku', 'Ticaret Hukuku', 'Tüketici Hukuku', 'Vergi Hukuku'],
+      megaOpen: this.state.megaOpen,
+      openMega: () => this.setState({ megaOpen: true }),
+      closeMega: () => this.setState({ megaOpen: false }),
+      headerShadow: this.state.scrolled ? '0 2px 4px rgba(28,34,48,.05), 0 10px 28px rgba(28,34,48,.08)' : 'none',
+      whatsappGoster: this.props.showWhatsApp ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

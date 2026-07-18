@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F3EC;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:repeating-linear-gradient(45deg,#F6F3EC 0,#F6F3EC 60px,#F3EFE6 60px,#F3EFE6 120px)">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px">
+    <div style="width:440px;max-width:100%;animation:riseIn .5s ease-out both">
+      <div style="text-align:center;margin-bottom:28px">
+        <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:64px;height:64px;object-fit:contain">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;letter-spacing:3px;margin-top:10px">YAKA</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;color:#5B6270;margin-top:4px">YÖNETİM PANELİ</div>
+      </div>
+
+      <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-top:2px solid #9C7C4A;border-radius:6px;padding:36px;box-shadow:0 2px 4px rgba(28,34,48,.06),0 16px 40px rgba(28,34,48,.08)">
+
+        <sc-if value="{{ ekranGiris }}" hint-placeholder-val="{{ true }}">
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 6px">Yönetici girişi</h1>
+          <p style="font-size:14px;color:#5B6270;margin:0 0 26px">Devam etmek için hesabınızla oturum açın.</p>
+          <sc-if value="{{ genelHata }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FBF1F0;border:1px solid #E8C5C1;border-radius:4px;padding:12px 16px;margin-bottom:20px">
+              <p style="font-size:13.5px;color:#A23A32;margin:0">E-posta veya şifre hatalı. Lütfen tekrar deneyin.</p>
+            </div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <label style="font-size:13.5px;font-weight:600">E-posta</label>
+              <input type="email" value="{{ eposta }}" onChange="{{ epostaDegisti }}" placeholder="admin@yakahukuk.com" style="height:46px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline">
+                <label style="font-size:13.5px;font-weight:600">Şifre</label>
+                <button onClick="{{ sifremiUnuttum }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#9C7C4A;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px solid #9C7C4A">Şifremi unuttum</button>
+              </div>
+              <div style="position:relative">
+                <input type="{{ sifreTipi }}" value="{{ sifre }}" onChange="{{ sifreDegisti }}" placeholder="••••••••" style="width:100%;height:46px;padding:0 44px 0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+                <button onClick="{{ sifreGoster }}" aria-label="Şifreyi göster/gizle" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:#5B6270;background:none;border:none;padding:8px;cursor:pointer" style-hover="color:#9C7C4A">{{ sifreGosterMetin }}</button>
+              </div>
+            </div>
+            <div style="height:66px;border:1px dashed #E4DFD5;border-radius:4px;background:#FAF8F3;display:flex;align-items:center;justify-content:center">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:#5B6270">[ CAPTCHA doğrulaması ]</span>
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" checked="{{ hatirla }}" onChange="{{ hatirlaDegisti }}" style="width:17px;height:17px;accent-color:#9C7C4A;cursor:pointer">
+              <span style="font-size:13.5px;color:#5B6270">Beni hatırla</span>
+            </label>
+            <button onClick="{{ girisYap }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:14px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Giriş Yap</button>
+          </div>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:#5B6270;text-align:center;margin:22px 0 0">DEMO: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7213161f1b1c320b1319131a071907195c111d1f">[email&#160;protected]</a> / yaka2026</p>
+        </sc-if>
+
+        <sc-if value="{{ ekran2fa }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 6px">Doğrulama kodunu girin</h1>
+          <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:0 0 26px">Kimlik doğrulayıcı uygulamanızdaki 6 haneli kodu girin.</p>
+          <sc-if value="{{ hata2fa }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FBF1F0;border:1px solid #E8C5C1;border-radius:4px;padding:12px 16px;margin-bottom:20px">
+              <p style="font-size:13.5px;color:#A23A32;margin:0">Kod hatalı. Kalan deneme: {{ kalanDeneme }}</p>
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:10px;justify-content:center" data-totp>
+            <sc-for list="{{ kodKutulari }}" as="k" hint-placeholder-count="6">
+              <input type="text" value="{{ k.deger }}" onChange="{{ k.degisti }}" onKeyDown="{{ k.tus }}" maxLength="1" inputMode="numeric" style="width:50px;height:58px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:24px;color:#1C2230;border:1px solid {{ k.kenar }};border-radius:4px;outline:none;box-sizing:border-box;background:#FFFFFF" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+            </sc-for>
+          </div>
+          <button onClick="{{ dogrula }}" style="width:100%;font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:14px;cursor:pointer;margin-top:26px;transition:background .25s" style-hover="background:#9C7C4A">Doğrula</button>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
+            <button onClick="{{ yedekKod }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;color:#9C7C4A;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px solid #9C7C4A">Yedek kod kullan</button>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5B6270">Yeni kod: {{ sayac }} sn</span>
+          </div>
+          <p style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:#5B6270;text-align:center;margin:22px 0 0">DEMO KOD: 123456</p>
+        </sc-if>
+
+        <sc-if value="{{ ekranSifirla1 }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 6px">Şifre sıfırlama</h1>
+          <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:0 0 26px">Hesabınıza bağlı e-posta adresini girin; sıfırlama bağlantısı gönderelim.</p>
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <label style="font-size:13.5px;font-weight:600">E-posta</label>
+              <input type="email" value="{{ sifirlaEposta }}" onChange="{{ sifirlaEpostaDegisti }}" placeholder="admin@yakahukuk.com" style="height:46px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+            </div>
+            <button onClick="{{ baglantiGonder }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:14px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Bağlantı Gönder</button>
+            <button onClick="{{ girisEkrani }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#5B6270;background:none;border:none;padding:0;cursor:pointer;transition:color .2s" style-hover="color:#9C7C4A">← Girişe dön</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ekranSifirla2 }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:8px 0">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;border:1.5px solid #3F7A5B;color:#3F7A5B;font-size:22px">✉</span>
+            <h1 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;margin:18px 0 0">Bağlantı gönderildi.</h1>
+            <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:10px 0 0">E-postanızdaki bağlantıya tıklayarak yeni şifrenizi belirleyin. (Demo: aşağıdaki butonla devam edin.)</p>
+            <button onClick="{{ yeniSifreEkrani }}" style="font-family:Manrope,sans-serif;font-size:14px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:12px 24px;margin-top:22px;cursor:pointer;transition:all .2s" style-hover="background:#F6F3EC">Yeni şifre belirle →</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ekranSifirla3 }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin:0 0 6px">Yeni şifre belirleyin</h1>
+          <p style="font-size:14px;color:#5B6270;margin:0 0 26px">Güçlü bir şifre seçin; daha önce kullandıklarınızdan farklı olsun.</p>
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <label style="font-size:13.5px;font-weight:600">Yeni şifre</label>
+              <input type="password" value="{{ yeniSifre }}" onChange="{{ yeniSifreDegisti }}" placeholder="••••••••" style="height:46px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+              <div style="display:flex;gap:6px;margin-top:4px">
+                <span style="flex:1;height:4px;border-radius:2px;background:{{ guc1 }};transition:background .3s"></span>
+                <span style="flex:1;height:4px;border-radius:2px;background:{{ guc2 }};transition:background .3s"></span>
+                <span style="flex:1;height:4px;border-radius:2px;background:{{ guc3 }};transition:background .3s"></span>
+                <span style="flex:1;height:4px;border-radius:2px;background:{{ guc4 }};transition:background .3s"></span>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:{{ gucRenk }}">{{ gucMetin }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#5B6270">
+              <span style="display:flex;align-items:center;gap:8px"><span style="color:{{ kural1 }}">●</span> En az 10 karakter</span>
+              <span style="display:flex;align-items:center;gap:8px"><span style="color:{{ kural2 }}">●</span> Büyük ve küçük harf</span>
+              <span style="display:flex;align-items:center;gap:8px"><span style="color:{{ kural3 }}">●</span> En az bir rakam ve özel karakter</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <label style="font-size:13.5px;font-weight:600">Yeni şifre (tekrar)</label>
+              <input type="password" value="{{ yeniSifre2 }}" onChange="{{ yeniSifre2Degisti }}" placeholder="••••••••" style="height:46px;padding:0 14px;border:1px solid {{ eslesmeKenar }};border-radius:4px;font-family:Manrope,sans-serif;font-size:14.5px;color:#1C2230;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A;box-shadow:0 2px 8px rgba(156,124,74,.12)">
+              <sc-if value="{{ eslesmiyor }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#A23A32">Şifreler eşleşmiyor.</span></sc-if>
+            </div>
+            <button onClick="{{ sifreyiKaydet }}" style="font-family:Manrope,sans-serif;font-size:15px;font-weight:600;color:{{ kaydetRenk }};background:{{ kaydetZemin }};border:none;border-radius:4px;padding:14px;cursor:{{ kaydetImlec }};transition:background .25s">Şifreyi Kaydet</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ekranBasari }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:8px 0">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;border:1.5px solid #3F7A5B;color:#3F7A5B;font-size:22px">✓</span>
+            <h1 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;margin:18px 0 0">{{ basariBaslik }}</h1>
+            <p style="font-size:14px;line-height:1.6;color:#5B6270;margin:10px 0 0">{{ basariMetin }}</p>
+            <a href="./Admin Dashboard.dc.html" style="display:inline-block;background:#1C2230;color:#F6F3EC;padding:13px 28px;border-radius:4px;font-size:14.5px;font-weight:600;margin-top:22px;transition:background .25s" style-hover="background:#9C7C4A;color:#FFFFFF">Panele git →</a>
+          </div>
+        </sc-if>
+      </div>
+
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#5B6270;text-align:center;margin:24px 0 0">GÜVENLİ BAĞLANTI · <a href="./Ana Sayfa.dc.html" style="color:#9C7C4A">SİTEYE DÖN</a></p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    ekran: 'giris', eposta: '', sifre: '', sifreGizli: true, hatirla: false, genelHata: false,
+    kod: ['', '', '', '', '', ''], hata2fa: false, kalanDeneme: 3, sayac: 30,
+    sifirlaEposta: '', yeniSifre: '', yeniSifre2: '', basariTip: 'giris'
+  };
+  componentDidMount() {
+    this._int = setInterval(() => {
+      if (this.state.ekran === '2fa') this.setState({ sayac: this.state.sayac > 0 ? this.state.sayac - 1 : 30 });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._int); }
+  guc() {
+    const s = this.state.yeniSifre;
+    let p = 0;
+    if (s.length >= 10) p++;
+    if (/[a-z]/.test(s) && /[A-Z]/.test(s)) p++;
+    if (/\d/.test(s)) p++;
+    if (/[^a-zA-Z0-9]/.test(s)) p++;
+    return p;
+  }
+  renderVals() {
+    const st = this.state;
+    const p = this.guc();
+    const gucRenkler = ['#E4DFD5', '#A23A32', '#C08A3E', '#7A8A5B', '#3F7A5B'];
+    const gucAd = ['', 'ZAYIF', 'ORTA', 'İYİ', 'GÜÇLÜ'];
+    const eslesmiyor = st.yeniSifre2.length > 0 && st.yeniSifre !== st.yeniSifre2;
+    const kayitOlur = p >= 3 && st.yeniSifre === st.yeniSifre2 && st.yeniSifre.length > 0;
+    return {
+      ekranGiris: st.ekran === 'giris',
+      ekran2fa: st.ekran === '2fa',
+      ekranSifirla1: st.ekran === 's1',
+      ekranSifirla2: st.ekran === 's2',
+      ekranSifirla3: st.ekran === 's3',
+      ekranBasari: st.ekran === 'basari',
+      eposta: st.eposta, sifre: st.sifre, hatirla: st.hatirla, genelHata: st.genelHata,
+      sifreTipi: st.sifreGizli ? 'password' : 'text',
+      sifreGosterMetin: st.sifreGizli ? 'GÖSTER' : 'GİZLE',
+      sifreGoster: () => this.setState({ sifreGizli: !st.sifreGizli }),
+      epostaDegisti: e => this.setState({ eposta: e.target.value, genelHata: false }),
+      sifreDegisti: e => this.setState({ sifre: e.target.value, genelHata: false }),
+      hatirlaDegisti: e => this.setState({ hatirla: e.target.checked }),
+      girisYap: () => {
+        if (st.eposta.trim().toLowerCase() === 'admin@yakahukuk.com' && st.sifre === 'yaka2026') {
+          this.setState({ ekran: '2fa', genelHata: false, sayac: 30 });
+        } else this.setState({ genelHata: true });
+      },
+      sifremiUnuttum: () => this.setState({ ekran: 's1' }),
+      kodKutulari: st.kod.map((deger, i) => ({
+        deger,
+        kenar: deger ? '#9C7C4A' : '#E4DFD5',
+        degisti: e => {
+          const v = e.target.value.replace(/\D/g, '').slice(-1);
+          const kod = [...this.state.kod]; kod[i] = v;
+          this.setState({ kod, hata2fa: false });
+          if (v && i < 5) {
+            const kutular = document.querySelectorAll('[data-totp] input');
+            if (kutular[i + 1]) kutular[i + 1].focus();
+          }
+        },
+        tus: e => {
+          if (e.key === 'Backspace' && !this.state.kod[i] && i > 0) {
+            const kutular = document.querySelectorAll('[data-totp] input');
+            if (kutular[i - 1]) kutular[i - 1].focus();
+          }
+        }
+      })),
+      hata2fa: st.hata2fa, kalanDeneme: st.kalanDeneme, sayac: st.sayac,
+      dogrula: () => {
+        if (st.kod.join('') === '123456') this.setState({ ekran: 'basari', basariTip: 'giris' });
+        else this.setState({ hata2fa: true, kalanDeneme: Math.max(0, st.kalanDeneme - 1), kod: ['', '', '', '', '', ''] });
+      },
+      yedekKod: () => { this.setState({ kod: ['', '', '', '', '', ''], hata2fa: false }); },
+      sifirlaEposta: st.sifirlaEposta,
+      sifirlaEpostaDegisti: e => this.setState({ sifirlaEposta: e.target.value }),
+      baglantiGonder: () => this.setState({ ekran: 's2' }),
+      girisEkrani: () => this.setState({ ekran: 'giris' }),
+      yeniSifreEkrani: () => this.setState({ ekran: 's3' }),
+      yeniSifre: st.yeniSifre, yeniSifre2: st.yeniSifre2,
+      yeniSifreDegisti: e => this.setState({ yeniSifre: e.target.value }),
+      yeniSifre2Degisti: e => this.setState({ yeniSifre2: e.target.value }),
+      guc1: p >= 1 ? gucRenkler[p] : '#E4DFD5',
+      guc2: p >= 2 ? gucRenkler[p] : '#E4DFD5',
+      guc3: p >= 3 ? gucRenkler[p] : '#E4DFD5',
+      guc4: p >= 4 ? gucRenkler[p] : '#E4DFD5',
+      gucRenk: p > 0 ? gucRenkler[p] : '#5B6270',
+      gucMetin: st.yeniSifre ? gucAd[p] || 'ZAYIF' : ' ',
+      kural1: st.yeniSifre.length >= 10 ? '#3F7A5B' : '#E4DFD5',
+      kural2: /[a-z]/.test(st.yeniSifre) && /[A-Z]/.test(st.yeniSifre) ? '#3F7A5B' : '#E4DFD5',
+      kural3: /\d/.test(st.yeniSifre) && /[^a-zA-Z0-9]/.test(st.yeniSifre) ? '#3F7A5B' : '#E4DFD5',
+      eslesmiyor,
+      eslesmeKenar: eslesmiyor ? '#A23A32' : '#E4DFD5',
+      kaydetZemin: kayitOlur ? '#1C2230' : '#E4DFD5',
+      kaydetRenk: kayitOlur ? '#F6F3EC' : '#5B6270',
+      kaydetImlec: kayitOlur ? 'pointer' : 'not-allowed',
+      sifreyiKaydet: () => { if (kayitOlur) this.setState({ ekran: 'basari', basariTip: 'sifre' }); },
+      basariBaslik: st.basariTip === 'sifre' ? 'Şifreniz güncellendi.' : 'Giriş başarılı.',
+      basariMetin: st.basariTip === 'sifre' ? 'Yeni şifrenizle oturum açabilirsiniz.' : 'Yönetim paneline yönlendiriliyorsunuz.'
+    };
+  }
+}
+</script>
+</body>
+</html>
