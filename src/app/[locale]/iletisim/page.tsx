@@ -8,12 +8,9 @@ import { DarkCTA } from "@/components/site/DarkCTA";
 import { ContactForm } from "@/components/site/ContactForm";
 import { localizedPracticeAreas } from "@/content/practice-areas";
 import { site } from "@/content/site";
+import { getSiteSettings, phoneHref, emailHref, splitAddress } from "@/lib/site-settings";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
-
-const MAP_QUERY = encodeURIComponent(
-  `${site.address.line1}, ${site.address.line2}`,
-);
 
 export async function generateMetadata({
   params,
@@ -35,6 +32,9 @@ export default async function ContactPage({
   const t = await getTranslations("contactPage");
   const tActions = await getTranslations("actions");
   const subjectOptions = localizedPracticeAreas(locale as Locale).map((a) => a.title);
+  const settings = await getSiteSettings();
+  const [addressLine1, addressLine2] = splitAddress(settings.address);
+  const mapQuery = encodeURIComponent(`${addressLine1}, ${addressLine2}`);
 
   return (
     <>
@@ -53,7 +53,11 @@ export default async function ContactPage({
 
       <Container className="grid grid-cols-1 items-start gap-10 pt-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
         <Card className="p-8 sm:p-10">
-          <ContactForm subjectOptions={subjectOptions} />
+          <ContactForm
+            subjectOptions={subjectOptions}
+            phone={settings.phone}
+            phoneHref={phoneHref(settings.phone)}
+          />
         </Card>
 
         <div className="flex flex-col gap-5">
@@ -67,25 +71,25 @@ export default async function ContactPage({
                   {t("addressLabel")}
                 </span>
                 <span>
-                  {site.address.line1}
+                  {addressLine1}
                   <br />
-                  {site.address.line2}
+                  {addressLine2}
                 </span>
               </div>
               <div>
                 <span className="mb-0.5 block text-xs font-semibold text-muted">
                   {t("phoneLabel")}
                 </span>
-                <a href={site.phoneHref} className="font-semibold text-ink hover:text-gold">
-                  {site.phone}
+                <a href={phoneHref(settings.phone)} className="font-semibold text-ink hover:text-gold">
+                  {settings.phone}
                 </a>
               </div>
               <div>
                 <span className="mb-0.5 block text-xs font-semibold text-muted">
                   {t("emailLabel")}
                 </span>
-                <a href={site.emailHref} className="font-semibold text-ink hover:text-gold">
-                  {site.email}
+                <a href={emailHref(settings.email)} className="font-semibold text-ink hover:text-gold">
+                  {settings.email}
                 </a>
               </div>
               <div>
@@ -93,7 +97,7 @@ export default async function ContactPage({
                   {t("hoursLabel")}
                 </span>
                 <span className="font-mono text-[13px] tracking-[1.5px] text-gold">
-                  7/24 ULAŞILABİLİR
+                  {settings.hoursLabel}
                 </span>
               </div>
             </div>
@@ -102,7 +106,7 @@ export default async function ContactPage({
           <Card className="overflow-hidden">
             <iframe
               title={t("mapFallback")}
-              src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
+              src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
               className="h-[300px] w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -118,7 +122,7 @@ export default async function ContactPage({
               {t("whatsappButton")}
             </a>
             <a
-              href={site.phoneHref}
+              href={phoneHref(settings.phone)}
               className="flex items-center justify-center gap-2.5 rounded border border-gold px-4 py-3.5 text-[14.5px] font-semibold text-ink transition-colors hover:bg-gold hover:text-white"
             >
               <AppIcon name="phone" size={18} />

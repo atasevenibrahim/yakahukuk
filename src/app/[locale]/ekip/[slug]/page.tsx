@@ -11,7 +11,7 @@ import { DarkCTA } from "@/components/site/DarkCTA";
 import { teamMemberBySlug, teamSlugs } from "@/content/team";
 import { localizedArticles } from "@/content/articles";
 import { practiceAreas } from "@/content/practice-areas";
-import { site } from "@/content/site";
+import { getSiteSettings, phoneHref, emailHref } from "@/lib/site-settings";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
@@ -45,6 +45,7 @@ export default async function TeamMemberPage({
 
   const tActions = await getTranslations("actions");
   const tNav = await getTranslations("nav");
+  const settings = await getSiteSettings();
 
   const allArticles = localizedArticles(locale as Locale);
   const memberArticles = member.articleSlugs
@@ -82,11 +83,11 @@ export default async function TeamMemberPage({
                 İLETİŞİM
               </h3>
               <div className="flex flex-col gap-3 text-sm">
-                <a href={site.phoneHref} className="hover:text-gold">
-                  {site.phone}
+                <a href={phoneHref(settings.phone)} className="hover:text-gold">
+                  {settings.phone}
                 </a>
-                <a href={site.emailHref} className="hover:text-gold">
-                  {site.email}
+                <a href={emailHref(settings.email)} className="hover:text-gold">
+                  {settings.email}
                 </a>
               </div>
               <div className="my-[18px] border-t border-line" />

@@ -148,3 +148,18 @@ model AuditLog {
   userAgent String?
   createdAt DateTime @default(now())
 }
+
+// Tek satırlık kurum ayarları (Admin Ayarlar → Genel sekmesi). src/content/site.ts'in
+// yorumundaki "İleride SiteSettings tablosundan gelecek" notunun karşılığı.
+model SiteSettings {
+  id                 String   @id @default(cuid())
+  phone              String
+  email              String
+  address            String
+  hoursLabel         String
+  notificationEmails String[]
+  notifySound        Boolean  @default(true)
+  seoTitle           String
+  seoDescription     String
+  updatedAt          DateTime @updatedAt
+}

@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { BrandMark } from "./BrandMark";
 import { LangSwitcher } from "./LangSwitcher";
 import { MegaMenu, type MegaMenuArea } from "./MegaMenu";
+import { MobileMenu } from "./MobileMenu";
 
 type ExistingHref =
   | "/"
@@ -29,7 +30,15 @@ function navClass(active: boolean) {
   );
 }
 
-export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
+export function Header({
+  practiceAreas,
+  phone,
+  phoneHref,
+}: {
+  practiceAreas: MegaMenuArea[];
+  phone: string;
+  phoneHref: string;
+}) {
   const t = useTranslations("nav");
   const tActions = useTranslations("actions");
   const tAria = useTranslations("aria");
@@ -125,47 +134,13 @@ export function Header({ practiceAreas }: { practiceAreas: MegaMenuArea[] }) {
         </button>
       </Container>
 
-      {/* Mobil panel */}
-      {mobileOpen && (
-        <div className="border-t border-line bg-cream lg:hidden">
-          <Container className="flex flex-col gap-1 py-4">
-            <Link href="/" className={navClass(isActive.home)} onClick={closeMobile}>
-              {t("home")}
-            </Link>
-            <Link
-              href="/hakkimizda"
-              className={navClass(isActive.about)}
-              onClick={closeMobile}
-            >
-              {t("about")}
-            </Link>
-            <Link
-              href="/calisma-alanlari"
-              className={navClass(isActive.areas)}
-              onClick={closeMobile}
-            >
-              {t("practiceAreas")}
-            </Link>
-            <Link href="/ekip" className={navClass(isActive.team)} onClick={closeMobile}>
-              {t("team")}
-            </Link>
-            {trailingNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={navClass(item.active)}
-                onClick={closeMobile}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="mt-3 flex items-center justify-between gap-4 border-t border-line pt-4">
-              <LangSwitcher ariaLabel={tAria("language")} />
-              <Button href="/randevu-al" size="sm">{tActions("book")}</Button>
-            </div>
-          </Container>
-        </div>
-      )}
+      <MobileMenu
+        open={mobileOpen}
+        onClose={closeMobile}
+        practiceAreas={practiceAreas}
+        phone={phone}
+        phoneHref={phoneHref}
+      />
     </header>
   );
 }

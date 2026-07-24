@@ -23,7 +23,7 @@ const CONTENT_ITEMS = [
   "Medya",
 ];
 
-const SYSTEM_ITEMS = ["Ayarlar", "Diller & Çeviri", "Kullanıcılar & Roller", "İşlem Kayıtları", "Profil"];
+const SYSTEM_ITEMS = ["Diller & Çeviri", "Kullanıcılar & Roller"];
 
 export function AdminSidebar({
   newMessageCount,
@@ -51,7 +51,9 @@ export function AdminSidebar({
     { type: "section", label: "İÇERİK" },
     ...CONTENT_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
     { type: "section", label: "SİSTEM" },
+    { type: "link", label: "Ayarlar", href: "/admin/ayarlar" },
     ...SYSTEM_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
+    { type: "link", label: "Profil", href: "/admin/profil" },
   ];
 
   return (

@@ -8,6 +8,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SiteOverlays } from "@/components/site/SiteOverlays";
 import { BASE_URL } from "@/lib/metadata";
+import { getSiteSettings, phoneHref } from "@/lib/site-settings";
 import { cormorant, manrope, plexMono } from "../fonts";
 import "../globals.css";
 
@@ -23,16 +24,20 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const settings = await getSiteSettings();
+  // EN'in kendi (halihazırda doğru çevrilmiş) açıklaması korunur — settings tek dilli
+  // (TR) olduğu için EN'e uygulanırsa çeviri kaybı olur; yalnızca TR admin panelinden
+  // düzenlenebilir hale gelir.
   const description =
     locale === "en"
       ? "Meticulous, accessible legal counsel across twelve practice areas in Ankara Beştepe. An upright stance, honest law."
-      : "Ankara Beştepe'de on iki çalışma alanında titiz ve ulaşılabilir hukuki danışmanlık. Dik duruş, dürüst hukuk.";
+      : settings.seoDescription;
 
   return {
     metadataBase: new URL(BASE_URL),
     title: {
-      default: "YAKA Hukuk & Danışmanlık",
-      template: "%s · YAKA Hukuk & Danışmanlık",
+      default: settings.seoTitle,
+      template: `%s · ${settings.seoTitle}`,
     },
     description,
   };
@@ -58,6 +63,7 @@ export default async function LocaleLayout({
     href: a.href,
     slug: a.slug,
   }));
+  const settings = await getSiteSettings();
 
   return (
     <html
@@ -69,7 +75,11 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
-            <Header practiceAreas={areas} />
+            <Header
+              practiceAreas={areas}
+              phone={settings.phone}
+              phoneHref={phoneHref(settings.phone)}
+            />
             <main className="flex-1">{children}</main>
             <Footer practiceAreas={areas} />
           </div>

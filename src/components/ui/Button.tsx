@@ -28,6 +28,7 @@ export function Button({
   size = "md",
   block,
   className,
+  onClick,
   children,
 }: {
   href?: LinkHref | "#";
@@ -35,6 +36,7 @@ export function Button({
   size?: Size;
   block?: boolean;
   className?: string;
+  onClick?: () => void;
   children: React.ReactNode;
 }) {
   const classes = cn(
@@ -47,14 +49,14 @@ export function Button({
 
   if (href === "#") {
     return (
-      <a href="#" className={classes}>
+      <a href="#" className={classes} onClick={onClick}>
         {children}
       </a>
     );
   }
 
   return (
-    <Link href={href} className={classes}>
+    <Link href={href} className={classes} onClick={onClick}>
       {children}
     </Link>
   );

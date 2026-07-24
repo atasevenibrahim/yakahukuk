@@ -5,6 +5,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RandevuWizard, type DayOption } from "@/components/site/RandevuWizard";
 import { getUpcomingDaySlots } from "@/lib/booking";
 import { localizedPracticeAreas } from "@/content/practice-areas";
+import { getSiteSettings, phoneHref } from "@/lib/site-settings";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
@@ -31,6 +32,7 @@ export default async function RandevuAlPage({
 
   const areaTitles = localizedPracticeAreas(locale as Locale).map((a) => a.title);
   const upcoming = await getUpcomingDaySlots(5);
+  const settings = await getSiteSettings();
 
   const dayFmt = new Intl.DateTimeFormat("tr-TR", {
     timeZone: "Europe/Istanbul",
@@ -62,7 +64,12 @@ export default async function RandevuAlPage({
         </p>
       </div>
 
-      <RandevuWizard practiceAreaTitles={areaTitles} days={days} />
+      <RandevuWizard
+        practiceAreaTitles={areaTitles}
+        days={days}
+        phone={settings.phone}
+        phoneHref={phoneHref(settings.phone)}
+      />
     </Container>
   );
 }

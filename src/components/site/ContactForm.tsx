@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { cn } from "@/lib/cn";
-import { site } from "@/content/site";
 import { submitContactForm, type ContactFormInput } from "@/app/[locale]/iletisim/actions";
 
 const emptyForm: ContactFormInput = {
@@ -20,7 +19,15 @@ const emptyForm: ContactFormInput = {
 const inputClass =
   "h-12 w-full rounded border bg-surface px-4 font-sans text-[15px] text-ink outline-none focus:border-gold focus:shadow-[0_2px_8px_rgba(156,124,74,0.12)] box-border";
 
-export function ContactForm({ subjectOptions }: { subjectOptions: string[] }) {
+export function ContactForm({
+  subjectOptions,
+  phone,
+  phoneHref,
+}: {
+  subjectOptions: string[];
+  phone: string;
+  phoneHref: string;
+}) {
   const t = useTranslations("contactPage");
   const [form, setForm] = useState<ContactFormInput>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormInput, boolean>>>({});
@@ -61,8 +68,8 @@ export function ContactForm({ subjectOptions }: { subjectOptions: string[] }) {
           {t("successText")}
           <br />
           {t("successUrgent")}{" "}
-          <a href={site.phoneHref} className="border-b border-gold text-gold">
-            {site.phone}
+          <a href={phoneHref} className="border-b border-gold text-gold">
+            {phone}
           </a>
         </p>
         <button

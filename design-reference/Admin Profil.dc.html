@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EDE4;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh">
+  <div style="width:248px;flex:none;background:#161B27;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:11px;padding:20px 22px;border-bottom:1px solid rgba(246,243,236,.08)">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:34px;height:34px;object-fit:contain;filter:brightness(0) invert(.95)">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#9aa1af">YÖNETİM PANELİ</span>
+      </span>
+    </a>
+    <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="9">
+        <sc-if value="{{ m.bolum }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:2.5px;color:#5B6270;padding:16px 12px 6px">{{ m.ad }}</span>
+        </sc-if>
+        <sc-if value="{{ m.link }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:13.5px;font-weight:500;color:{{ m.renk }};background:{{ m.zemin }};border-left:2px solid {{ m.cizgi }};transition:all .2s" style-hover="background:rgba(246,243,236,.06);color:#F6F3EC">
+            <span style="flex:none;width:12px;height:12px;border:1.5px solid {{ m.ikonRenk }};transform:rotate(45deg);border-radius:{{ m.ikonKose }}"></span>
+            {{ m.ad }}
+          </a>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <a href="./Admin Giriş.dc.html" style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid rgba(246,243,236,.08);font-size:13px;color:#9aa1af;transition:color .2s" style-hover="color:#F6F3EC">← Çıkış yap</a>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:50;background:rgba(240,237,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid #E4DFD5;padding:14px 32px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">PANEL / PROFİL</span>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin:2px 0 0">Profil &amp; Hesap</h1>
+    </div>
+
+    <div style="flex:1;padding:24px 32px">
+      <div style="max-width:1000px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <h2 style="font-size:14px;font-weight:700;margin:0 0 18px">Hesap bilgileri</h2>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+              <span style="width:64px;height:64px;border-radius:50%;background:#1C2230;color:#F6F3EC;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">YT</span>
+              <button onClick="{{ avatarDegistir }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#9C7C4A;background:none;border:1px dashed #9C7C4A;border-radius:4px;padding:9px 16px;cursor:pointer" style-hover="background:#FAF8F3">Avatar değiştir</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">Ad Soyad</label><input type="text" value="Av. Yer Tutucu" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">E-posta</label><input type="text" value="admin@yakahukuk.com" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">Arayüz dili</label>
+                <select style="height:42px;padding:0 12px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;cursor:pointer"><option>Türkçe</option><option>English</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <h2 style="font-size:14px;font-weight:700;margin:0 0 16px">Şifre değiştir</h2>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <input type="password" placeholder="Mevcut şifre" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <input type="password" value="{{ yeniSifre }}" onChange="{{ yeniSifreDegisti }}" placeholder="Yeni şifre" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                <div style="display:flex;gap:6px">
+                  <span style="flex:1;height:4px;border-radius:2px;background:{{ guc1 }};transition:background .3s"></span>
+                  <span style="flex:1;height:4px;border-radius:2px;background:{{ guc2 }};transition:background .3s"></span>
+                  <span style="flex:1;height:4px;border-radius:2px;background:{{ guc3 }};transition:background .3s"></span>
+                  <span style="flex:1;height:4px;border-radius:2px;background:{{ guc4 }};transition:background .3s"></span>
+                </div>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:{{ gucRenk }}">{{ gucMetin }}</span>
+              </div>
+              <button onClick="{{ sifreKaydet }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:12px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Şifreyi güncelle</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-top:2px solid #9C7C4A;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">
+              <h2 style="font-size:14px;font-weight:700;margin:0">İki adımlı doğrulama (2FA)</h2>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:{{ fa2Renk }};border:1px solid {{ fa2Kenar }};border-radius:999px;padding:3px 10px;background:{{ fa2Zemin }}">{{ fa2Durum }}</span>
+            </div>
+            <sc-if value="{{ fa2Kapali }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:13px;line-height:1.6;color:#5B6270;margin:0 0 16px">Hesabınızı korumak için kimlik doğrulayıcı uygulamayla 2FA kurun.</p>
+              <button onClick="{{ fa2Kur }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:12px 22px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">2FA kurulumunu başlat</button>
+            </sc-if>
+            <sc-if value="{{ fa2Kurulum }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                <div style="flex:none;width:132px;height:132px;border:1px solid #E4DFD5;border-radius:4px;background:repeating-conic-gradient(#1C2230 0% 25%, #FFFFFF 0% 50%) 50%/14px 14px;display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;color:#1C2230;background:#FFFFFF;padding:3px 6px;border:1px solid #E4DFD5">QR KOD</span>
+                </div>
+                <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:10px">
+                  <p style="font-size:12.5px;line-height:1.6;color:#5B6270;margin:0">1. QR kodu doğrulayıcı uygulamanızla tarayın.<br>2. Üretilen 6 haneli kodu girin.</p>
+                  <input type="text" value="{{ dogrulamaKodu }}" onChange="{{ kodDegisti }}" placeholder="000000" maxLength="6" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:16px;letter-spacing:4px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                  <button onClick="{{ fa2Dogrula }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:11px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Doğrula ve etkinleştir</button>
+                  <p style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#5B6270;margin:0">DEMO KOD: 123456</p>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ fa2Yedek }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(156,124,74,.06);border:1px solid rgba(156,124,74,.3);border-radius:4px;padding:16px 18px;margin-bottom:14px">
+                <p style="font-size:12.5px;font-weight:700;color:#9C7C4A;margin:0 0 10px">⚠ Yedek kodlarınız — yalnızca BİR KEZ gösterilir</p>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+                  <sc-for list="{{ yedekKodlar }}" as="y" hint-placeholder-count="8">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:1px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:3px;padding:6px 10px;text-align:center">{{ y }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button onClick="{{ kodIndir }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:10px 16px;cursor:pointer" style-hover="background:#FAF8F3">İndir</button>
+                <button onClick="{{ kodYazdir }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:10px 16px;cursor:pointer" style-hover="background:#FAF8F3">Yazdır</button>
+                <button onClick="{{ fa2Tamamla }}" style="margin-left:auto;font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:10px 18px;cursor:pointer" style-hover="background:#9C7C4A">Kodları sakladım, bitir</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ fa2Aktif }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:13px;line-height:1.6;color:#5B6270;margin:0 0 14px">2FA etkin. Her girişte doğrulayıcı kodunuz istenir.</p>
+              <button onClick="{{ fa2Kaldir }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#A23A32;background:#FFFFFF;border:1px solid #E8C5C1;border-radius:4px;padding:10px 16px;cursor:pointer" style-hover="background:#FBF1F0">2FA'yı devre dışı bırak</button>
+            </sc-if>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <h2 style="font-size:14px;font-weight:700;margin:0;padding:18px 24px;border-bottom:1px solid #E4DFD5">Son girişler</h2>
+            <sc-for list="{{ girisler }}" as="g" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:12px 24px;border-bottom:1px solid #F0EDE4">
+                <span style="display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:13px;font-weight:600">{{ g.cihaz }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5B6270">{{ g.ip }} · {{ g.yer }}</span>
+                </span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:{{ g.renk }}">{{ g.zaman }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ toastGoster }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99;background:#1C2230;color:#F6F3EC;border-radius:4px;padding:13px 24px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(28,34,48,.25);animation:riseIn .3s ease-out both">{{ toastMetin }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fa2: 'kapali', dogrulamaKodu: '', yeniSifre: '', toast: '' };
+  componentWillUnmount() { clearTimeout(this._t); }
+  toast(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2500); }
+  renderVals() {
+    const st = this.state;
+    const menu = [
+      { link: true, ad: 'Dashboard', href: './Admin Dashboard.dc.html' },
+      { link: true, ad: 'Gelen Talepler', href: './Admin Gelen Talepler.dc.html' },
+      { link: true, ad: 'Randevular', href: './Admin Randevular.dc.html' },
+      { bolum: true, ad: 'İÇERİK' },
+      { link: true, ad: 'İçerik Yönetimi', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Makaleler', href: './Admin Makaleler.dc.html' },
+      { bolum: true, ad: 'SİSTEM' },
+      { link: true, ad: 'Ayarlar', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Profil', href: '#', aktif: true }
+    ];
+    let p = 0;
+    const s = st.yeniSifre;
+    if (s.length >= 10) p++;
+    if (/[a-z]/.test(s) && /[A-Z]/.test(s)) p++;
+    if (/\d/.test(s)) p++;
+    if (/[^a-zA-Z0-9]/.test(s)) p++;
+    const gucRenkler = ['#E4DFD5', '#A23A32', '#C08A3E', '#7A8A5B', '#3F7A5B'];
+    const gucAd = ['', 'ZAYIF', 'ORTA', 'İYİ', 'GÜÇLÜ'];
+    const fa2Stil = st.fa2 === 'aktif' ? { d: 'ETKİN', r: '#3F7A5B', k: '#CDE0D4', z: 'rgba(63,122,91,.06)' } : { d: 'KAPALI', r: '#5B6270', k: '#E4DFD5', z: 'transparent' };
+    return {
+      menu: menu.map(m => ({ ...m, renk: m.aktif ? '#F6F3EC' : '#9aa1af', zemin: m.aktif ? 'rgba(246,243,236,.08)' : 'transparent', cizgi: m.aktif ? '#9C7C4A' : 'transparent', ikonRenk: m.aktif ? '#9C7C4A' : '#5B6270', ikonKose: m.aktif ? '0' : '50%' })),
+      avatarDegistir: () => this.toast('Avatar yükleme açılacak'),
+      yeniSifre: st.yeniSifre,
+      yeniSifreDegisti: e => this.setState({ yeniSifre: e.target.value }),
+      guc1: p >= 1 ? gucRenkler[p] : '#E4DFD5',
+      guc2: p >= 2 ? gucRenkler[p] : '#E4DFD5',
+      guc3: p >= 3 ? gucRenkler[p] : '#E4DFD5',
+      guc4: p >= 4 ? gucRenkler[p] : '#E4DFD5',
+      gucRenk: p > 0 ? gucRenkler[p] : '#5B6270',
+      gucMetin: s ? gucAd[p] || 'ZAYIF' : ' ',
+      sifreKaydet: () => { if (p >= 3) { this.setState({ yeniSifre: '' }); this.toast('Şifreniz güncellendi'); } else this.toast('Şifre yeterince güçlü değil'); },
+      fa2Durum: fa2Stil.d, fa2Renk: fa2Stil.r, fa2Kenar: fa2Stil.k, fa2Zemin: fa2Stil.z,
+      fa2Kapali: st.fa2 === 'kapali',
+      fa2Kurulum: st.fa2 === 'kurulum',
+      fa2Yedek: st.fa2 === 'yedek',
+      fa2Aktif: st.fa2 === 'aktif',
+      fa2Kur: () => this.setState({ fa2: 'kurulum' }),
+      dogrulamaKodu: st.dogrulamaKodu,
+      kodDegisti: e => this.setState({ dogrulamaKodu: e.target.value.replace(/\D/g, '').slice(0, 6) }),
+      fa2Dogrula: () => { if (st.dogrulamaKodu === '123456') this.setState({ fa2: 'yedek' }); else this.toast('Kod hatalı, tekrar deneyin'); },
+      yedekKodlar: ['K7F2-9D1A', 'M3B8-X0E4', 'Q5C1-77JZ', 'R9T6-2LNH', 'W4V0-8PSK', 'A1G3-D6MY', 'Z8H5-E2CQ', 'B6J9-U4RT'],
+      kodIndir: () => this.toast('Yedek kodlar indirildi (.txt)'),
+      kodYazdir: () => this.toast('Yazdırma penceresi açılacak'),
+      fa2Tamamla: () => { this.setState({ fa2: 'aktif' }); this.toast('2FA etkinleştirildi'); },
+      fa2Kaldir: () => { this.setState({ fa2: 'kapali' }); this.toast('2FA devre dışı bırakıldı'); },
+      girisler: [
+        { cihaz: 'Chrome · macOS', ip: '88.241.xx.xx', yer: 'Ankara, TR', zaman: 'BUGÜN 09:02', renk: '#3F7A5B' },
+        { cihaz: 'Safari · iPhone', ip: '88.241.xx.xx', yer: 'Ankara, TR', zaman: 'DÜN 21:14', renk: '#5B6270' },
+        { cihaz: 'Chrome · Windows', ip: '78.190.xx.xx', yer: 'Ankara, TR', zaman: '15 TEM 08:55', renk: '#5B6270' },
+        { cihaz: 'Chrome · macOS', ip: '88.241.xx.xx', yer: 'Ankara, TR', zaman: '14 TEM 09:01', renk: '#5B6270' }
+      ],
+      toastGoster: !!st.toast,
+      toastMetin: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

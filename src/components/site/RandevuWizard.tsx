@@ -30,9 +30,13 @@ const steps = [
 export function RandevuWizard({
   practiceAreaTitles,
   days,
+  phone,
+  phoneHref,
 }: {
   practiceAreaTitles: string[];
   days: DayOption[];
+  phone: string;
+  phoneHref: string;
 }) {
   const [step, setStep] = useState(1);
   const [konu, setKonu] = useState("");
@@ -423,8 +427,8 @@ export function RandevuWizard({
             </div>
             <p className="mt-6 text-[13.5px] text-muted">
               Değişiklik için:{" "}
-              <a href={site.phoneHref} className="border-b border-gold text-gold">
-                {site.phone}
+              <a href={phoneHref} className="border-b border-gold text-gold">
+                {phone}
               </a>
             </p>
             <div className="mt-6">
@@ -448,8 +452,8 @@ export function RandevuWizard({
         <span>{site.location}</span>
         <span className="text-line">·</span>
         <span>
-          <a href={site.phoneHref} className="text-gold">
-            {site.phone}
+          <a href={phoneHref} className="text-gold">
+            {phone}
           </a>{" "}
           — 7/24
         </span>

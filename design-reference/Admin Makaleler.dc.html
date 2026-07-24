@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EDE4;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh">
+  <div style="width:248px;flex:none;background:#161B27;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:11px;padding:20px 22px;border-bottom:1px solid rgba(246,243,236,.08)">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:34px;height:34px;object-fit:contain;filter:brightness(0) invert(.95)">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#9aa1af">YÖNETİM PANELİ</span>
+      </span>
+    </a>
+    <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="12">
+        <sc-if value="{{ m.bolum }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:2.5px;color:#5B6270;padding:16px 12px 6px">{{ m.ad }}</span>
+        </sc-if>
+        <sc-if value="{{ m.link }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:13.5px;font-weight:500;color:{{ m.renk }};background:{{ m.zemin }};border-left:2px solid {{ m.cizgi }};transition:all .2s" style-hover="background:rgba(246,243,236,.06);color:#F6F3EC">
+            <span style="flex:none;width:12px;height:12px;border:1.5px solid {{ m.ikonRenk }};transform:rotate(45deg);border-radius:{{ m.ikonKose }}"></span>
+            {{ m.ad }}
+          </a>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <a href="./Admin Giriş.dc.html" style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid rgba(246,243,236,.08);font-size:13px;color:#9aa1af;transition:color .2s" style-hover="color:#F6F3EC">← Çıkış yap</a>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:50;background:rgba(240,237,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid #E4DFD5;padding:14px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">PANEL / MAKALELER{{ ustEk }}</span>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin:2px 0 0">{{ ustBaslik }}</h1>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:10px">
+        <sc-if value="{{ listeGorunumu }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ yeniMakale }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:11px 22px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">+ Yeni Makale</button>
+        </sc-if>
+        <sc-if value="{{ editorGorunumu }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ listeyeDon }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:4px;padding:11px 20px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">← Listeye dön</button>
+          <a href="./Makale Detay.dc.html" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#1C2230;background:#FFFFFF;border:1px solid #9C7C4A;border-radius:4px;padding:11px 20px;transition:all .2s" style-hover="background:#9C7C4A;color:#FFFFFF">Önizleme ↗</a>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:24px 32px">
+      <sc-if value="{{ listeGorunumu }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <sc-for list="{{ durumFiltreleri }}" as="d" hint-placeholder-count="4">
+            <button onClick="{{ d.sec }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid {{ d.kenar }};background:{{ d.zemin }};color:{{ d.renk }};cursor:pointer;transition:all .2s">{{ d.ad }}</button>
+          </sc-for>
+          <input type="text" value="{{ arama }}" onChange="{{ aramaDegisti }}" placeholder="Başlık ara…" style="margin-left:auto;width:240px;height:38px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);overflow-x:auto">
+          <div style="display:grid;grid-template-columns:56px minmax(180px,1fr) 110px 116px 92px 76px;gap:12px;min-width:740px;align-items:center;padding:12px 20px;border-bottom:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#5B6270">
+            <span>KAPAK</span><span>BAŞLIK</span><span>KATEGORİ</span><span>DURUM</span><span>TARİH</span><span>DİL</span>
+          </div>
+          <sc-if value="{{ bosDurum }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:56px 24px;text-align:center">
+              <span style="display:inline-block;width:16px;height:16px;border:1.5px solid #9C7C4A;transform:rotate(45deg)"></span>
+              <p style="font-size:14.5px;font-weight:600;margin:16px 0 0">Eşleşen makale yok.</p>
+            </div>
+          </sc-if>
+          <sc-for list="{{ makaleler }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.duzenle }}" style="display:grid;grid-template-columns:56px minmax(180px,1fr) 110px 116px 92px 76px;gap:12px;min-width:740px;align-items:center;width:100%;box-sizing:border-box;text-align:left;font-family:Manrope,sans-serif;padding:12px 20px;border:none;border-bottom:1px solid #F0EDE4;background:#FFFFFF;cursor:pointer;transition:background .2s" style-hover="background:#FAF8F3">
+              <span style="width:56px;height:38px;border-radius:3px;background:repeating-linear-gradient(45deg,#EFEAE0 0,#EFEAE0 6px,#F3EFE6 6px,#F3EFE6 12px);border:1px solid #E4DFD5"></span>
+              <span style="font-size:13.5px;font-weight:600;color:#1C2230;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.baslik }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:#9C7C4A">{{ m.kategori }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:{{ m.durumRenk }};border:1px solid {{ m.durumKenar }};border-radius:999px;padding:3px 10px;background:{{ m.durumZemin }};justify-self:start">{{ m.durum }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">{{ m.tarih }}</span>
+              <span style="display:flex;gap:5px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#3F7A5B;border:1px solid #CDE0D4;border-radius:999px;padding:2px 7px">TR</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:{{ m.enRenk }};border:1px solid {{ m.enKenar }};border-radius:999px;padding:2px 7px">EN</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ editorGorunumu }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:24px">
+              <div style="display:flex;gap:4px;border-bottom:1px solid #E4DFD5;margin-bottom:20px">
+                <sc-for list="{{ dilSekmeleri }}" as="d" hint-placeholder-count="2">
+                  <button onClick="{{ d.sec }}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;padding:10px 20px;border:none;border-bottom:2px solid {{ d.cizgi }};background:none;color:{{ d.renk }};cursor:pointer;transition:all .2s">{{ d.ad }}<sc-if value="{{ d.eksik }}" hint-placeholder-val="{{ false }}"><span style="margin-left:6px;font-size:8.5px;color:#A23A32;border:1px solid #E8C5C1;border-radius:999px;padding:1px 6px">EKSİK</span></sc-if></button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">Başlık</label>
+                  <input type="text" value="{{ f.baslik }}" onChange="{{ baslikDegisti }}" style="height:44px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:14px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">Slug</label>
+                  <input type="text" value="{{ f.slug }}" onChange="{{ slugDegisti }}" style="height:44px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#5B6270;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">İçerik</label>
+                  <div style="border:1px solid #E4DFD5;border-radius:4px;overflow:hidden">
+                    <div style="display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid #E4DFD5;background:#FAF8F3;flex-wrap:wrap">
+                      <sc-for list="{{ araclar }}" as="a" hint-placeholder-count="10">
+                        <button onClick="{{ a.tikla }}" title="{{ a.ipucu }}" style="min-width:32px;height:30px;border-radius:3px;border:1px solid transparent;background:none;font-family:{{ a.font }};font-size:13px;font-weight:{{ a.agirlik }};font-style:{{ a.stil }};color:#5B6270;cursor:pointer;transition:all .15s" style-hover="background:#FFFFFF;border-color:#E4DFD5;color:#1C2230">{{ a.ad }}</button>
+                      </sc-for>
+                    </div>
+                    <textarea value="{{ f.icerik }}" onChange="{{ icerikDegisti }}" rows="12" style="width:100%;padding:16px;border:none;font-family:Manrope,sans-serif;font-size:14.5px;line-height:1.7;color:#1C2230;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:24px">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 16px">SEO</h2>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">Meta başlık</label>
+                  <input type="text" value="{{ f.metaBaslik }}" onChange="{{ metaBaslikDegisti }}" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">OG görsel</label>
+                  <button style="height:42px;border:1px dashed #E4DFD5;border-radius:4px;background:#FAF8F3;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270;cursor:pointer" style-hover="border-color:#9C7C4A">MEDYADAN SEÇ</button>
+                </div>
+                <div style="grid-column:1 / -1;display:flex;flex-direction:column;gap:7px">
+                  <label style="font-size:13px;font-weight:600">Meta açıklama</label>
+                  <textarea value="{{ f.metaAciklama }}" onChange="{{ metaAciklamaDegisti }}" rows="2" style="padding:12px 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;line-height:1.6;outline:none;resize:vertical;box-sizing:border-box" style-focus="border-color:#9C7C4A"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:20px">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Yayın</h2>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ yayinSecenekleri }}" as="y" hint-placeholder-count="3">
+                  <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid {{ y.kenar }};border-radius:4px;background:{{ y.zemin }};cursor:pointer;transition:all .2s">
+                    <input type="radio" checked="{{ y.aktif }}" onChange="{{ y.sec }}" style="accent-color:#9C7C4A;cursor:pointer">
+                    <span style="font-size:13px;font-weight:600">{{ y.ad }}</span>
+                  </label>
+                </sc-for>
+                <label style="display:flex;align-items:center;gap:10px;margin-top:6px;cursor:pointer">
+                  <input type="checkbox" checked="{{ f.oneCikar }}" onChange="{{ oneCikarDegisti }}" style="width:16px;height:16px;accent-color:#9C7C4A;cursor:pointer">
+                  <span style="font-size:13px;color:#5B6270">Ana sayfada öne çıkar</span>
+                </label>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:20px">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Kapak görseli</h2>
+              <div style="height:130px;border:1px dashed #E4DFD5;border-radius:4px;background:repeating-linear-gradient(45deg,#FAF8F3 0,#FAF8F3 10px,#F6F3EC 10px,#F6F3EC 20px);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="border-color:#9C7C4A">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:999px;padding:5px 12px">GÖRSEL SEÇ / SÜRÜKLE</span>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);padding:20px">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Kategori</h2>
+              <select value="{{ f.kategori }}" onChange="{{ kategoriDegisti }}" style="width:100%;height:42px;padding:0 12px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;cursor:pointer;box-sizing:border-box">
+                <option>Aile Hukuku</option><option>Ceza Hukuku</option><option>Ticaret Hukuku</option><option>Sigorta Hukuku</option><option>Vergi Hukuku</option><option>Tüketici Hukuku</option><option>İdari Hukuk</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:sticky;bottom:16px;margin-top:20px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 -2px 16px rgba(28,34,48,.08);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <span style="font-size:13px;color:{{ kayitRenk }}">{{ kayitDurumu }}</span>
+          <div style="display:flex;gap:10px">
+            <button onClick="{{ geriAl }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:4px;padding:11px 20px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">Değişiklikleri geri al</button>
+            <button onClick="{{ kaydet }}" style="font-family:Manrope,sans-serif;font-size:13.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:11px 26px;cursor:pointer;transition:background .25s" style-hover="background:#9C7C4A">Kaydet</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ toastGoster }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99;background:#1C2230;color:#F6F3EC;border-radius:4px;padding:13px 24px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(28,34,48,.25);animation:riseIn .3s ease-out both">{{ toastMetin }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    gorunum: 'liste', filtre: 'Tümü', arama: '', dil: 'TR', toast: '', degisti: false,
+    f: { baslik: 'Anlaşmalı boşanmada süreç nasıl ilerler?', slug: 'anlasmali-bosanmada-surec', icerik: 'Anlaşmalı boşanma, tarafların boşanmanın tüm sonuçlarında uzlaştığı en hızlı boşanma yoludur. Doğru hazırlanmış bir protokolle çoğu zaman tek celsede sonuçlanır.\n\n[İçerik gövdesi — zengin metin editörü temsilidir.]', metaBaslik: 'Anlaşmalı Boşanma Süreci | YAKA Hukuk', metaAciklama: 'Protokol hazırlığından duruşma gününe, adım adım anlaşmalı boşanma süreci.', kategori: 'Aile Hukuku', yayin: 'Hemen yayınla', oneCikar: true }
+  };
+  componentWillUnmount() { clearTimeout(this._t); }
+  toast(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2500); }
+  setF(k, v) { this.setState({ f: { ...this.state.f, [k]: v }, degisti: true }); }
+  renderVals() {
+    const st = this.state;
+    const menu = [
+      { link: true, ad: 'Dashboard', href: './Admin Dashboard.dc.html' },
+      { link: true, ad: 'Gelen Talepler', href: './Admin Gelen Talepler.dc.html' },
+      { link: true, ad: 'Randevular', href: './Admin Randevular.dc.html' },
+      { bolum: true, ad: 'İÇERİK' },
+      { link: true, ad: 'Çalışma Alanları', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Ekip', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Makaleler', href: '#', aktif: true },
+      { link: true, ad: 'Basında Biz', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yorumlar', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'SSS', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Yasal Metinler', href: './Admin İçerik.dc.html' },
+      { bolum: true, ad: 'SİSTEM' },
+      { link: true, ad: 'Ayarlar', href: './Admin Ayarlar.dc.html' },
+      { link: true, ad: 'Profil', href: './Admin Profil.dc.html' }
+    ];
+    const veriler = [
+      { baslik: 'Anlaşmalı boşanmada süreç nasıl ilerler?', kategori: 'AİLE', durum: 'YAYINDA', tarih: '12 TEM 26', en: true },
+      { baslik: 'Şirket kuruluşunda sözleşme titizliği neden önemli?', kategori: 'TİCARET', durum: 'YAYINDA', tarih: '28 HAZ 26', en: true },
+      { baslik: 'Vergi incelemesinde mükellefin hakları nelerdir?', kategori: 'VERGİ', durum: 'YAYINDA', tarih: '15 HAZ 26', en: false },
+      { baslik: 'Poliçe reddi durumunda sigortalının yol haritası', kategori: 'SİGORTA', durum: 'YAYINDA', tarih: '03 HAZ 26', en: false },
+      { baslik: 'Kira uyuşmazlıklarında arabuluculuk şartı', kategori: 'TİCARET', durum: 'ZAMANLANDI', tarih: '22 TEM 26', en: false },
+      { baslik: 'İşe iade davalarında süreler', kategori: 'İDARİ', durum: 'TASLAK', tarih: '—', en: false },
+      { baslik: 'E-ticarette cayma hakkı rehberi', kategori: 'TÜKETİCİ', durum: 'TASLAK', tarih: '—', en: false }
+    ];
+    const durumStil = d => d === 'YAYINDA' ? { r: '#3F7A5B', k: '#CDE0D4', z: 'rgba(63,122,91,.06)' } : d === 'ZAMANLANDI' ? { r: '#9C7C4A', k: '#9C7C4A', z: 'rgba(156,124,74,.08)' } : { r: '#5B6270', k: '#E4DFD5', z: 'transparent' };
+    const q = st.arama.toLocaleLowerCase('tr');
+    const filtreli = veriler.filter(v => (st.filtre === 'Tümü' || v.durum === st.filtre) && (!q || v.baslik.toLocaleLowerCase('tr').includes(q)));
+    return {
+      menu: menu.map(m => ({ ...m, renk: m.aktif ? '#F6F3EC' : '#9aa1af', zemin: m.aktif ? 'rgba(246,243,236,.08)' : 'transparent', cizgi: m.aktif ? '#9C7C4A' : 'transparent', ikonRenk: m.aktif ? '#9C7C4A' : '#5B6270', ikonKose: m.aktif ? '0' : '50%' })),
+      listeGorunumu: st.gorunum === 'liste',
+      editorGorunumu: st.gorunum === 'editor',
+      ustEk: st.gorunum === 'editor' ? ' / DÜZENLE' : '',
+      ustBaslik: st.gorunum === 'editor' ? 'Makale Düzenle' : 'Makaleler',
+      yeniMakale: () => { this.setState({ gorunum: 'editor', f: { ...st.f, baslik: '', slug: '', icerik: '', metaBaslik: '', metaAciklama: '' } }); },
+      listeyeDon: () => this.setState({ gorunum: 'liste' }),
+      durumFiltreleri: ['Tümü', 'YAYINDA', 'TASLAK', 'ZAMANLANDI'].map(ad => {
+        const aktif = ad === st.filtre;
+        return { ad: ad === 'Tümü' ? 'Tümü' : ad.charAt(0) + ad.slice(1).toLocaleLowerCase('tr'), zemin: aktif ? '#1C2230' : '#FFFFFF', renk: aktif ? '#F6F3EC' : '#1C2230', kenar: aktif ? '#1C2230' : '#E4DFD5', sec: () => this.setState({ filtre: ad }) };
+      }),
+      arama: st.arama,
+      aramaDegisti: e => this.setState({ arama: e.target.value }),
+      bosDurum: filtreli.length === 0,
+      makaleler: filtreli.map(v => {
+        const s = durumStil(v.durum);
+        return { ...v, durumRenk: s.r, durumKenar: s.k, durumZemin: s.z, enRenk: v.en ? '#3F7A5B' : '#A23A32', enKenar: v.en ? '#CDE0D4' : '#E8C5C1', duzenle: () => this.setState({ gorunum: 'editor' }) };
+      }),
+      dilSekmeleri: ['TR', 'EN'].map(ad => {
+        const aktif = ad === st.dil;
+        return { ad, eksik: ad === 'EN', cizgi: aktif ? '#9C7C4A' : 'transparent', renk: aktif ? '#1C2230' : '#5B6270', sec: () => this.setState({ dil: ad }) };
+      }),
+      araclar: [
+        { ad: 'B', ipucu: 'Kalın', font: 'Manrope', agirlik: '800', stil: 'normal' },
+        { ad: 'I', ipucu: 'İtalik', font: "'Cormorant Garamond',serif", agirlik: '500', stil: 'italic' },
+        { ad: 'H1', ipucu: 'Başlık', font: "'IBM Plex Mono',monospace", agirlik: '500', stil: 'normal' },
+        { ad: 'H2', ipucu: 'Alt başlık', font: "'IBM Plex Mono',monospace", agirlik: '400', stil: 'normal' },
+        { ad: '¶', ipucu: 'Paragraf', font: 'Manrope', agirlik: '400', stil: 'normal' },
+        { ad: '≡', ipucu: 'Liste', font: 'Manrope', agirlik: '400', stil: 'normal' },
+        { ad: '❝', ipucu: 'Alıntı', font: 'Manrope', agirlik: '400', stil: 'normal' },
+        { ad: '🔗', ipucu: 'Link', font: 'Manrope', agirlik: '400', stil: 'normal' },
+        { ad: '▦', ipucu: 'Görsel ekle', font: 'Manrope', agirlik: '400', stil: 'normal' },
+        { ad: '—', ipucu: 'Ayraç', font: 'Manrope', agirlik: '400', stil: 'normal' }
+      ].map(a => ({ ...a, tikla: () => this.toast(a.ipucu + ' aracı (temsili)') })),
+      f: st.f,
+      baslikDegisti: e => this.setF('baslik', e.target.value),
+      slugDegisti: e => this.setF('slug', e.target.value),
+      icerikDegisti: e => this.setF('icerik', e.target.value),
+      metaBaslikDegisti: e => this.setF('metaBaslik', e.target.value),
+      metaAciklamaDegisti: e => this.setF('metaAciklama', e.target.value),
+      kategoriDegisti: e => this.setF('kategori', e.target.value),
+      oneCikarDegisti: e => this.setF('oneCikar', e.target.checked),
+      yayinSecenekleri: ['Hemen yayınla', 'Taslak olarak kaydet', 'İleri tarihe zamanla'].map(ad => {
+        const aktif = ad === st.f.yayin;
+        return { ad, aktif, kenar: aktif ? '#9C7C4A' : '#E4DFD5', zemin: aktif ? 'rgba(156,124,74,.06)' : '#FFFFFF', sec: () => this.setF('yayin', ad) };
+      }),
+      kayitDurumu: st.degisti ? 'Kaydedilmemiş değişiklikler var' : 'Tüm değişiklikler kayıtlı',
+      kayitRenk: st.degisti ? '#9C7C4A' : '#5B6270',
+      kaydet: () => { this.setState({ degisti: false }); this.toast(st.f.yayin === 'Hemen yayınla' ? 'Yayınlandı' : st.f.yayin === 'Taslak olarak kaydet' ? 'Taslak kaydedildi' : 'Zamanlandı'); },
+      geriAl: () => { this.setState({ degisti: false }); this.toast('Değişiklikler geri alındı'); },
+      toastGoster: !!st.toast,
+      toastMetin: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

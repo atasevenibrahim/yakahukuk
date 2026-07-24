@@ -8,7 +8,13 @@ import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/cn";
 
 /** TR / EN dil seçici — aynı sayfada kalarak dili değiştirir (localized pathnames dahil). */
-export function LangSwitcher({ ariaLabel }: { ariaLabel: string }) {
+export function LangSwitcher({
+  ariaLabel,
+  onDark,
+}: {
+  ariaLabel: string;
+  onDark?: boolean;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
@@ -29,7 +35,7 @@ export function LangSwitcher({ ariaLabel }: { ariaLabel: string }) {
     >
       {routing.locales.map((locale, index) => (
         <Fragment key={locale}>
-          {index > 0 && <span className="text-line">/</span>}
+          {index > 0 && <span className={onDark ? "text-on-dark-muted" : "text-line"}>/</span>}
           <button
             type="button"
             onClick={() => switchTo(locale)}
@@ -38,7 +44,9 @@ export function LangSwitcher({ ariaLabel }: { ariaLabel: string }) {
               "cursor-pointer bg-transparent pb-px transition-colors",
               locale === active
                 ? "border-b border-gold font-medium text-gold"
-                : "text-muted hover:text-gold",
+                : onDark
+                  ? "text-on-dark-muted hover:text-cream"
+                  : "text-muted hover:text-gold",
             )}
           >
             {locale.toUpperCase()}

@@ -82,7 +82,38 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   availability_saved: "müsaitlik ayarlarını güncelledi",
   blocked_date_added: "kapalı gün ekledi",
   blocked_date_removed: "kapalı günü kaldırdı",
+  profile_updated: "profilini güncelledi",
+  password_changed: "şifresini değiştirdi",
+  "2fa_enabled": "2FA'yı etkinleştirdi",
+  "2fa_disabled": "2FA'yı devre dışı bıraktı",
+  site_settings_updated: "site ayarlarını güncelledi",
 };
+
+/** Basit tarayıcı/İS çıkarımı — tam bir UA-parser yerine, "Son girişler" listesi için yeterli. */
+export function describeUserAgent(userAgent: string | null): string {
+  if (!userAgent) return "Bilinmeyen cihaz";
+  const browser = /Edg\//.test(userAgent)
+    ? "Edge"
+    : /Chrome\//.test(userAgent)
+      ? "Chrome"
+      : /Firefox\//.test(userAgent)
+        ? "Firefox"
+        : /Safari\//.test(userAgent)
+          ? "Safari"
+          : "Tarayıcı";
+  const os = /Windows/.test(userAgent)
+    ? "Windows"
+    : /Mac OS X/.test(userAgent)
+      ? "macOS"
+      : /iPhone|iPad/.test(userAgent)
+        ? "iOS"
+        : /Android/.test(userAgent)
+          ? "Android"
+          : /Linux/.test(userAgent)
+            ? "Linux"
+            : "Bilinmeyen İS";
+  return `${browser} · ${os}`;
+}
 
 export function describeAuditAction(action: string): string {
   return AUDIT_ACTION_LABELS[action] ?? action;

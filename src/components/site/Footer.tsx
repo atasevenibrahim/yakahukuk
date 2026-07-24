@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
 import { AppIcon } from "@/components/ui/AppIcon";
-import { site } from "@/content/site";
+import { getSiteSettings, phoneHref, emailHref, splitAddress } from "@/lib/site-settings";
 import { cn } from "@/lib/cn";
 import { BrandMark } from "./BrandMark";
 
@@ -20,6 +20,8 @@ export async function Footer({
   const t = await getTranslations("footer");
   const tNav = await getTranslations("nav");
   const tActions = await getTranslations("actions");
+  const settings = await getSiteSettings();
+  const [addressLine1, addressLine2] = splitAddress(settings.address);
 
   return (
     <footer className="border-t border-white/[0.08] bg-ink-deep">
@@ -84,15 +86,15 @@ export async function Footer({
           <h3 className={colHeading}>{t("contact")}</h3>
           <div className="flex flex-col gap-[13px] text-sm leading-relaxed text-on-dark">
             <span>
-              {site.address.line1}
+              {addressLine1}
               <br />
-              {site.address.line2}
+              {addressLine2}
             </span>
-            <a href={site.phoneHref} className="transition-colors hover:text-gold">
-              {site.phone}
+            <a href={phoneHref(settings.phone)} className="transition-colors hover:text-gold">
+              {settings.phone}
             </a>
-            <a href={site.emailHref} className="transition-colors hover:text-gold">
-              {site.email}
+            <a href={emailHref(settings.email)} className="transition-colors hover:text-gold">
+              {settings.email}
             </a>
             <span className="font-mono text-xs tracking-[1.5px] text-gold">
               {t("reachable")}

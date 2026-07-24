@@ -15,7 +15,7 @@ import {
 } from "@/content/practice-areas";
 import { articlesByPracticeArea } from "@/content/articles";
 import { teamMemberBySlug } from "@/content/team";
-import { site } from "@/content/site";
+import { getSiteSettings, phoneHref, emailHref } from "@/lib/site-settings";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
@@ -58,6 +58,7 @@ export default async function PracticeAreaDetailPage({
 
   const tActions = await getTranslations("actions");
   const tNav = await getTranslations("nav");
+  const settings = await getSiteSettings();
 
   const relatedTeam = relatedTeamSlugsForArea(slug)
     .map((memberSlug) => teamMemberBySlug(memberSlug, locale as Locale))
@@ -168,14 +169,14 @@ export default async function PracticeAreaDetailPage({
               {tActions("book")}
             </Button>
             <div className="mt-5 flex flex-col gap-2.5 border-t border-line pt-5 text-sm">
-              <a href={site.phoneHref} className="hover:text-gold">
-                {site.phone}
+              <a href={phoneHref(settings.phone)} className="hover:text-gold">
+                {settings.phone}
               </a>
-              <a href={site.emailHref} className="hover:text-gold">
-                {site.email}
+              <a href={emailHref(settings.email)} className="hover:text-gold">
+                {settings.email}
               </a>
               <span className="font-mono text-[11.5px] tracking-[1.5px] text-gold">
-                7/24 ULAŞILABİLİR
+                {settings.hoursLabel}
               </span>
             </div>
           </Card>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EDE4;color:#1C2230;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1C2230;text-decoration:none}a:hover{color:#9C7C4A}
+@keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh">
+  <div style="width:248px;flex:none;background:#161B27;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto">
+    <a href="./Ana Sayfa.dc.html" style="display:flex;align-items:center;gap:11px;padding:20px 22px;border-bottom:1px solid rgba(246,243,236,.08)">
+      <img src="./assets/yaka-logo.png" alt="YAKA logo" style="width:34px;height:34px;object-fit:contain;filter:brightness(0) invert(.95)">
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:2px;color:#F6F3EC;line-height:1">YAKA</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#9aa1af">YÖNETİM PANELİ</span>
+      </span>
+    </a>
+    <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="12">
+        <sc-if value="{{ m.bolum }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:2.5px;color:#5B6270;padding:16px 12px 6px">{{ m.ad }}</span>
+        </sc-if>
+        <sc-if value="{{ m.link }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:13.5px;font-weight:500;color:{{ m.renk }};background:{{ m.zemin }};border-left:2px solid {{ m.cizgi }};transition:all .2s" style-hover="background:rgba(246,243,236,.06);color:#F6F3EC">
+            <span style="flex:none;width:12px;height:12px;border:1.5px solid {{ m.ikonRenk }};transform:rotate(45deg);border-radius:{{ m.ikonKose }}"></span>
+            {{ m.ad }}
+          </a>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <a href="./Admin Giriş.dc.html" style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid rgba(246,243,236,.08);font-size:13px;color:#9aa1af;transition:color .2s" style-hover="color:#F6F3EC">← Çıkış yap</a>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:50;background:rgba(240,237,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid #E4DFD5;padding:14px 32px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:2px;color:#5B6270">PANEL / SİSTEM</span>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin:2px 0 0">Sistem &amp; Ayarlar</h1>
+    </div>
+
+    <div style="flex:1;padding:24px 32px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        <sc-for list="{{ sekmeler }}" as="s" hint-placeholder-count="6">
+          <button onClick="{{ s.sec }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid {{ s.kenar }};background:{{ s.zemin }};color:{{ s.renk }};cursor:pointer;transition:all .2s">{{ s.ad }}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ sGenel }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;max-width:1000px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <h2 style="font-size:14px;font-weight:700;margin:0 0 16px">İletişim bilgileri</h2>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">Telefon</label><input type="text" value="0312 215 80 85" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">E-posta</label><input type="text" value="info@yakahukuk.com" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">Adres</label><textarea rows="2" style="padding:12px 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;line-height:1.6;outline:none;resize:vertical;box-sizing:border-box" style-focus="border-color:#9C7C4A">Beştepe, Meriç Sk. No:54/A Yenimahalle / Ankara</textarea></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12.5px;font-weight:600">Çalışma saati etiketi</label><input type="text" value="7/24 ULAŞILABİLİR" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Bildirimler</h2>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
+                <input type="checkbox" checked="{{ ses }}" onChange="{{ sesDegisti }}" style="width:16px;height:16px;accent-color:#9C7C4A;cursor:pointer">
+                <span style="font-size:13.5px">Yeni talep geldiğinde ses çal</span>
+              </label>
+              <span style="display:block;font-size:12.5px;font-weight:600;margin-bottom:8px">Bildirim e-posta adresleri</span>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <sc-for list="{{ epostalar }}" as="e" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:8px;border:1px solid #F0EDE4;border-radius:4px;padding:8px 12px">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ e.adres }}</span>
+                    <button onClick="{{ e.cikar }}" style="border:none;background:none;color:#C9C4B8;font-size:13px;cursor:pointer" style-hover="color:#A23A32">✕</button>
+                  </div>
+                </sc-for>
+                <button onClick="{{ epostaEkle }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#9C7C4A;background:none;border:1px dashed #9C7C4A;border-radius:4px;padding:9px;cursor:pointer" style-hover="background:#FAF8F3">+ Adres ekle</button>
+                <p style="font-size:11.5px;line-height:1.5;color:#5B6270;margin:6px 0 0">Gelen talepler ileride bu adreslere de e-posta ile iletilecek; ayar şimdiden hazır.</p>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+              <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Site meta / SEO</h2>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <input type="text" value="YAKA Hukuk & Danışmanlık | Ankara" style="height:42px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+                <textarea rows="2" style="padding:12px 14px;border:1px solid #E4DFD5;border-radius:4px;font-family:Manrope,sans-serif;font-size:13.5px;line-height:1.6;outline:none;resize:vertical;box-sizing:border-box" style-focus="border-color:#9C7C4A">Ankara Beştepe'de dik duruşlu, dürüst hukuk. 12 çalışma alanında titiz danışmanlık.</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sMedya }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1000px">
+          <div style="border:2px dashed #E4DFD5;border-radius:6px;background:#FAF8F3;padding:36px;text-align:center;margin-bottom:20px;cursor:pointer;transition:border-color .2s" style-hover="border-color:#9C7C4A">
+            <span style="display:inline-block;width:16px;height:16px;border:1.5px solid #9C7C4A;transform:rotate(45deg)"></span>
+            <p style="font-size:14.5px;font-weight:600;margin:14px 0 0">Dosyaları buraya sürükleyin veya tıklayıp seçin</p>
+            <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270;margin:8px 0 0">JPG · PNG · WEBP · PDF — maks. 10 MB</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <input type="text" placeholder="Medya ara…" style="width:240px;height:38px;padding:0 14px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:13px;outline:none;box-sizing:border-box" style-focus="border-color:#9C7C4A">
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px">
+            <sc-for list="{{ medyalar }}" as="md" hint-placeholder-count="8">
+              <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;overflow:hidden;transition:all .2s" style-hover="box-shadow:0 4px 14px rgba(28,34,48,.09)">
+                <div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EFEAE0 0,#EFEAE0 8px,#F3EFE6 8px,#F3EFE6 16px);display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#5B6270;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:999px;padding:3px 8px">{{ md.tip }}</span>
+                </div>
+                <div style="padding:10px 12px">
+                  <p style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ md.ad }}</p>
+                  <div style="display:flex;gap:8px;margin-top:8px">
+                    <button onClick="{{ md.kopyala }}" style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;color:#9C7C4A;background:none;border:none;padding:0;cursor:pointer;border-bottom:1px solid #9C7C4A">Link kopyala</button>
+                    <button onClick="{{ md.sil }}" style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;color:#A23A32;background:none;border:none;padding:0;cursor:pointer;margin-left:auto">Sil</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sDiller }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1000px;display:flex;flex-direction:column;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;padding:24px;box-shadow:0 1px 2px rgba(28,34,48,.05)">
+            <h2 style="font-size:14px;font-weight:700;margin:0 0 14px">Aktif diller</h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:10px;border:1px solid #9C7C4A;background:rgba(156,124,74,.06);border-radius:4px;padding:10px 16px;font-size:13.5px;font-weight:600">Türkçe <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#9C7C4A">VARSAYILAN</span></span>
+              <span style="display:flex;align-items:center;gap:10px;border:1px solid #E4DFD5;background:#FFFFFF;border-radius:4px;padding:10px 16px;font-size:13.5px;font-weight:600">İngilizce <button style="border:none;background:none;color:#C9C4B8;cursor:pointer;font-size:12px" style-hover="color:#A23A32">✕</button></span>
+              <button onClick="{{ dilEkle }}" style="font-family:Manrope,sans-serif;font-size:13px;font-weight:600;color:#9C7C4A;background:none;border:1px dashed #9C7C4A;border-radius:4px;padding:10px 18px;cursor:pointer" style-hover="background:#FAF8F3">+ Dil ekle</button>
+            </div>
+            <p style="font-size:11.5px;line-height:1.5;color:#5B6270;margin:12px 0 0">Not: Arapça gibi RTL bir dil eklenirse arayüz yönü otomatik ayarlanır.</p>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);overflow-x:auto">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid #E4DFD5;flex-wrap:wrap">
+              <h2 style="font-size:14px;font-weight:700;margin:0">Arayüz çevirileri</h2>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#5B6270;cursor:pointer"><input type="checkbox" checked="{{ eksikFiltre }}" onChange="{{ eksikFiltreDegisti }}" style="width:15px;height:15px;accent-color:#9C7C4A;cursor:pointer">Yalnızca eksik çeviriler</label>
+            </div>
+            <div style="display:grid;grid-template-columns:200px 1fr 1fr;gap:12px;min-width:640px;padding:10px 24px;border-bottom:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#5B6270"><span>ANAHTAR</span><span>TÜRKÇE</span><span>İNGİLİZCE</span></div>
+            <sc-for list="{{ ceviriler }}" as="c" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:200px 1fr 1fr;gap:12px;min-width:640px;align-items:center;padding:10px 24px;border-bottom:1px solid #F0EDE4">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">{{ c.anahtar }}</span>
+                <span style="font-size:13px">{{ c.tr }}</span>
+                <sc-if value="{{ c.enVar }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px">{{ c.en }}</span></sc-if>
+                <sc-if value="{{ c.enYok }}" hint-placeholder-val="{{ false }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#A23A32;border:1px solid #E8C5C1;border-radius:999px;padding:3px 10px;justify-self:start">EN EKSİK</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sKullanicilar }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1000px;display:flex;flex-direction:column;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);overflow-x:auto">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid #E4DFD5;flex-wrap:wrap">
+              <h2 style="font-size:14px;font-weight:700;margin:0">Kullanıcılar</h2>
+              <button onClick="{{ kullaniciEkle }}" style="font-family:Manrope,sans-serif;font-size:12.5px;font-weight:600;color:#F6F3EC;background:#1C2230;border:none;border-radius:4px;padding:9px 18px;cursor:pointer" style-hover="background:#9C7C4A">+ Yeni kullanıcı</button>
+            </div>
+            <sc-for list="{{ kullanicilar }}" as="k" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:auto 1fr 130px 110px 130px auto;gap:14px;min-width:720px;align-items:center;padding:12px 24px;border-bottom:1px solid #F0EDE4">
+                <span style="width:34px;height:34px;border-radius:50%;background:#1C2230;color:#F6F3EC;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ k.bas }}</span>
+                <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:13.5px;font-weight:600">{{ k.ad }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5B6270">{{ k.eposta }}</span></span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#9C7C4A;border:1px solid #9C7C4A;border-radius:999px;padding:3px 10px;background:rgba(156,124,74,.06);justify-self:start">{{ k.rol }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:{{ k.durumRenk }};justify-self:start">● {{ k.durum }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5B6270">{{ k.sonGiris }}</span>
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ k.sifirla2fa }}" style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;color:#5B6270;background:none;border:1px solid #E4DFD5;border-radius:4px;padding:6px 10px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">2FA sıfırla</button>
+                  <button onClick="{{ k.sifreSifirla }}" style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;color:#5B6270;background:none;border:1px solid #E4DFD5;border-radius:4px;padding:6px 10px;cursor:pointer" style-hover="border-color:#9C7C4A;color:#9C7C4A">Şifre sıfırla</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);overflow-x:auto">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid #E4DFD5;flex-wrap:wrap">
+              <h2 style="font-size:14px;font-weight:700;margin:0">Rol izin matrisi — <span style="color:#9C7C4A">Editör</span></h2>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ roller }}" as="r" hint-placeholder-count="3">
+                  <button onClick="{{ r.sec }}" style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid {{ r.kenar }};background:{{ r.zemin }};color:{{ r.renk }};cursor:pointer">{{ r.ad }}</button>
+                </sc-for>
+                <button onClick="{{ rolEkle }}" style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;color:#9C7C4A;background:none;border:1px dashed #9C7C4A;border-radius:999px;padding:7px 14px;cursor:pointer">+ Özel rol</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr repeat(4,90px);gap:8px;min-width:600px;padding:10px 24px;border-bottom:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#5B6270"><span>MODÜL</span><span style="text-align:center">GÖRÜNTÜLE</span><span style="text-align:center">EKLE</span><span style="text-align:center">DÜZENLE</span><span style="text-align:center">SİL</span></div>
+            <sc-for list="{{ izinler }}" as="iz" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:1fr repeat(4,90px);gap:8px;min-width:600px;align-items:center;padding:9px 24px;border-bottom:1px solid #F0EDE4">
+                <span style="font-size:13px;font-weight:600">{{ iz.modul }}</span>
+                <span style="text-align:center"><input type="checkbox" checked="{{ iz.g }}" style="width:15px;height:15px;accent-color:#9C7C4A;cursor:pointer"></span>
+                <span style="text-align:center"><input type="checkbox" checked="{{ iz.e }}" style="width:15px;height:15px;accent-color:#9C7C4A;cursor:pointer"></span>
+                <span style="text-align:center"><input type="checkbox" checked="{{ iz.d }}" style="width:15px;height:15px;accent-color:#9C7C4A;cursor:pointer"></span>
+                <span style="text-align:center"><input type="checkbox" checked="{{ iz.s }}" style="width:15px;height:15px;accent-color:#9C7C4A;cursor:pointer"></span>
+              </div>
+            </sc-for>
+            <p style="font-size:11.5px;color:#5B6270;padding:12px 24px;margin:0">Süper Admin rolü tam yetkilidir ve silinemez.</p>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sAudit }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:1000px;background:#FFFFFF;border:1px solid #E4DFD5;border-radius:6px;box-shadow:0 1px 2px rgba(28,34,48,.05);overflow-x:auto">
+          <div style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-bottom:1px solid #E4DFD5;flex-wrap:wrap">
+            <h2 style="font-size:14px;font-weight:700;margin:0">İşlem kayıtları</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;color:#5B6270;border:1px solid #E4DFD5;border-radius:999px;padding:3px 10px">SALT OKUNUR</span>
+            <select style="margin-left:auto;height:36px;padding:0 10px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:12.5px;outline:none;cursor:pointer"><option>Tüm modüller</option><option>Makaleler</option><option>Randevu</option><option>Kullanıcılar</option></select>
+            <select style="height:36px;padding:0 10px;border:1px solid #E4DFD5;border-radius:4px;background:#FFFFFF;font-family:Manrope,sans-serif;font-size:12.5px;outline:none;cursor:pointer"><option>Son 7 gün</option><option>Son 30 gün</option></select>
+          </div>
+          <div style="display:grid;grid-template-columns:140px 130px 1fr 120px 110px;gap:12px;min-width:720px;padding:10px 24px;border-bottom:1px solid #E4DFD5;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#5B6270"><span>TARİH-SAAT</span><span>KULLANICI</span><span>EYLEM</span><span>MODÜL</span><span>IP</span></div>
+          <sc-for list="{{ kayitlar }}" as="ka" hint-placeholder-count="7">
+            <div style="display:grid;grid-template-columns:140px 130px 1fr 120px 110px;gap:12px;min-width:720px;align-items:baseline;padding:10px 24px;border-bottom:1px solid #F0EDE4">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5B6270">{{ ka.zaman }}</span>
+              <span style="font-size:12.5px;font-weight:600">{{ ka.kim }}</span>
+              <span style="font-size:12.5px;color:#5B6270">{{ ka.eylem }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1px;color:#9C7C4A">{{ ka.modul }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5B6270">{{ ka.ip }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ toastGoster }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99;background:#1C2230;color:#F6F3EC;border-radius:4px;padding:13px 24px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(28,34,48,.25);animation:riseIn .3s ease-out both">{{ toastMetin }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sekme: 'Genel', ses: true, eksikFiltre: false, rol: 'Editör', toast: '', epostalar: ['info@yakahukuk.com', 'avukat@yakahukuk.com'] };
+  componentWillUnmount() { clearTimeout(this._t); }
+  toast(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2500); }
+  renderVals() {
+    const st = this.state;
+    const menu = [
+      { link: true, ad: 'Dashboard', href: './Admin Dashboard.dc.html' },
+      { link: true, ad: 'Gelen Talepler', href: './Admin Gelen Talepler.dc.html' },
+      { link: true, ad: 'Randevular', href: './Admin Randevular.dc.html' },
+      { bolum: true, ad: 'İÇERİK' },
+      { link: true, ad: 'İçerik Yönetimi', href: './Admin İçerik.dc.html' },
+      { link: true, ad: 'Makaleler', href: './Admin Makaleler.dc.html' },
+      { bolum: true, ad: 'SİSTEM' },
+      { link: true, ad: 'Ayarlar', href: '#', aktif: true },
+      { link: true, ad: 'Profil', href: './Admin Profil.dc.html' }
+    ];
+    const cevirilerTum = [
+      { anahtar: 'nav.randevu_al', tr: 'Randevu Al', en: 'Book Appointment', enVar: true },
+      { anahtar: 'nav.calisma_alanlari', tr: 'Çalışma Alanları', en: 'Practice Areas', enVar: true },
+      { anahtar: 'hero.slogan', tr: 'Dik duruş, dürüst hukuk.', en: '', enVar: false },
+      { anahtar: 'footer.7_24', tr: '7/24 Ulaşılabilir', en: 'Available 24/7', enVar: true },
+      { anahtar: 'sss.baslik', tr: 'Merak ettikleriniz, net yanıtlar.', en: '', enVar: false },
+      { anahtar: 'cta.ilk_adim', tr: 'Hakkınız için ilk adımı atın.', en: '', enVar: false }
+    ];
+    return {
+      menu: menu.map(m => ({ ...m, renk: m.aktif ? '#F6F3EC' : '#9aa1af', zemin: m.aktif ? 'rgba(246,243,236,.08)' : 'transparent', cizgi: m.aktif ? '#9C7C4A' : 'transparent', ikonRenk: m.aktif ? '#9C7C4A' : '#5B6270', ikonKose: m.aktif ? '0' : '50%' })),
+      sekmeler: ['Genel', 'Medya', 'Diller & Çeviri', 'Kullanıcılar & Roller', 'İşlem Kayıtları'].map(ad => {
+        const aktif = ad === st.sekme;
+        return { ad, zemin: aktif ? '#1C2230' : '#FFFFFF', renk: aktif ? '#F6F3EC' : '#1C2230', kenar: aktif ? '#1C2230' : '#E4DFD5', sec: () => this.setState({ sekme: ad }) };
+      }),
+      sGenel: st.sekme === 'Genel',
+      sMedya: st.sekme === 'Medya',
+      sDiller: st.sekme === 'Diller & Çeviri',
+      sKullanicilar: st.sekme === 'Kullanıcılar & Roller',
+      sAudit: st.sekme === 'İşlem Kayıtları',
+      ses: st.ses,
+      sesDegisti: e => { this.setState({ ses: e.target.checked }); this.toast(e.target.checked ? 'Bildirim sesi açıldı' : 'Bildirim sesi kapatıldı'); },
+      epostalar: st.epostalar.map((adres, i) => ({ adres, cikar: () => { this.setState({ epostalar: st.epostalar.filter((_, j) => j !== i) }); this.toast('Adres kaldırıldı'); } })),
+      epostaEkle: () => { this.setState({ epostalar: [...st.epostalar, 'yeni@yakahukuk.com'] }); this.toast('Adres eklendi'); },
+      medyalar: [
+        { ad: 'ofis-dis-cephe.jpg', tip: 'JPG' }, { ad: 'ekip-toplu.jpg', tip: 'JPG' }, { ad: 'av-yer-tutucu-portre.png', tip: 'PNG' },
+        { ad: 'makale-bosanma-kapak.webp', tip: 'WEBP' }, { ad: 'logo-kurumsal.png', tip: 'PNG' }, { ad: 'brosur-2026.pdf', tip: 'PDF' },
+        { ad: 'toplanti-odasi.jpg', tip: 'JPG' }, { ad: 'kutuphane-detay.jpg', tip: 'JPG' }
+      ].map(m => ({ ...m, kopyala: () => this.toast('Bağlantı kopyalandı'), sil: () => this.toast('Silme onayı istenecek') })),
+      dilEkle: () => this.toast('Dil ekleme — dil listesi açılacak'),
+      eksikFiltre: st.eksikFiltre,
+      eksikFiltreDegisti: e => this.setState({ eksikFiltre: e.target.checked }),
+      ceviriler: cevirilerTum.filter(c => !st.eksikFiltre || !c.enVar).map(c => ({ ...c, enYok: !c.enVar })),
+      kullanicilar: [
+        { bas: 'YT', ad: 'Av. Yer Tutucu', eposta: 'admin@yakahukuk.com', rol: 'SÜPER ADMİN', durum: 'AKTİF', durumRenk: '#3F7A5B', sonGiris: 'BUGÜN 09:02' },
+        { bas: 'EE', ad: 'Editör E.', eposta: 'editor@yakahukuk.com', rol: 'EDİTÖR', durum: 'AKTİF', durumRenk: '#3F7A5B', sonGiris: 'DÜN 16:44' },
+        { bas: 'GS', ad: 'G. Stajyer', eposta: 'stajyer@yakahukuk.com', rol: 'GÖRÜNTÜLEYİCİ', durum: 'PASİF', durumRenk: '#5B6270', sonGiris: '02 TEM 11:20' }
+      ].map(k => ({ ...k, sifirla2fa: () => this.toast(k.ad + ' için 2FA sıfırlandı'), sifreSifirla: () => this.toast(k.ad + ' için şifre sıfırlama e-postası gönderildi') })),
+      roller: ['Süper Admin', 'Editör', 'Görüntüleyici'].map(ad => {
+        const aktif = ad === st.rol;
+        return { ad, kenar: aktif ? '#1C2230' : '#E4DFD5', zemin: aktif ? '#1C2230' : '#FFFFFF', renk: aktif ? '#F6F3EC' : '#1C2230', sec: () => this.setState({ rol: ad }) };
+      }),
+      rolEkle: () => this.toast('Özel rol oluşturma açılacak'),
+      izinler: [
+        { modul: 'Makaleler', g: true, e: true, d: true, s: false },
+        { modul: 'Çalışma Alanları', g: true, e: true, d: true, s: false },
+        { modul: 'Ekip', g: true, e: false, d: true, s: false },
+        { modul: 'Randevular', g: true, e: false, d: false, s: false },
+        { modul: 'Yasal Metinler', g: true, e: false, d: false, s: false },
+        { modul: 'Kullanıcılar & Roller', g: false, e: false, d: false, s: false }
+      ],
+      kullaniciEkle: () => this.toast('Yeni kullanıcı formu açılacak'),
+      kayitlar: [
+        { zaman: '18 TEM 11:42', kim: 'Av. Yer Tutucu', eylem: 'Makale güncellendi: "Anlaşmalı boşanmada süreç"', modul: 'MAKALELER', ip: '88.241.xx.xx' },
+        { zaman: '18 TEM 09:15', kim: 'Editör E.', eylem: 'SSS maddesi eklendi', modul: 'SSS', ip: '78.190.xx.xx' },
+        { zaman: '17 TEM 17:03', kim: 'Av. Yer Tutucu', eylem: 'Randevu onaylandı (E. Kaya)', modul: 'RANDEVU', ip: '88.241.xx.xx' },
+        { zaman: '17 TEM 14:28', kim: 'Editör E.', eylem: 'Yorum onaylandı (G. Ç.)', modul: 'YORUMLAR', ip: '78.190.xx.xx' },
+        { zaman: '17 TEM 10:11', kim: 'Av. Yer Tutucu', eylem: 'Müsaitlik ayarı değiştirildi', modul: 'RANDEVU', ip: '88.241.xx.xx' },
+        { zaman: '16 TEM 15:36', kim: 'Editör E.', eylem: 'Medya yüklendi: ofis-dis-cephe.jpg', modul: 'MEDYA', ip: '78.190.xx.xx' },
+        { zaman: '16 TEM 09:00', kim: 'Av. Yer Tutucu', eylem: 'Oturum açıldı (2FA)', modul: 'GÜVENLİK', ip: '88.241.xx.xx' }
+      ],
+      toastGoster: !!st.toast,
+      toastMetin: st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
