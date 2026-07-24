@@ -30,9 +30,12 @@ export default async function RandevuAlPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const areaTitles = localizedPracticeAreas(locale as Locale).map((a) => a.title);
-  const upcoming = await getUpcomingDaySlots(5);
-  const settings = await getSiteSettings();
+  const [areas, upcoming, settings] = await Promise.all([
+    localizedPracticeAreas(locale as Locale),
+    getUpcomingDaySlots(5),
+    getSiteSettings(),
+  ]);
+  const areaTitles = areas.map((a) => a.title);
 
   const dayFmt = new Intl.DateTimeFormat("tr-TR", {
     timeZone: "Europe/Istanbul",

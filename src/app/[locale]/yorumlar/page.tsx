@@ -24,7 +24,7 @@ export default async function TestimonialsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const tActions = await getTranslations("actions");
-  const items = localizedTestimonials(locale as Locale);
+  const items = await localizedTestimonials(locale as Locale);
 
   return (
     <>

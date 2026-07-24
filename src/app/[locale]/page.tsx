@@ -13,6 +13,7 @@ import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
 import { localizedPracticeAreas } from "@/content/practice-areas";
 import { localizedArticles } from "@/content/articles";
 import { localizedTestimonials } from "@/content/testimonials";
+import { getHomeHero } from "@/content/hero";
 import { site } from "@/content/site";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
@@ -63,11 +64,15 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations("actions");
 
-  const featured = localizedPracticeAreas(locale as Locale).filter(
-    (area) => area.featured,
-  );
-  const articles = localizedArticles(locale as Locale).slice(0, 3);
-  const testimonials = localizedTestimonials(locale as Locale);
+  const [allAreas, allArticles, testimonials, hero] = await Promise.all([
+    localizedPracticeAreas(locale as Locale),
+    localizedArticles(locale as Locale),
+    localizedTestimonials(locale as Locale),
+    getHomeHero(),
+  ]);
+  const featured = allAreas.filter((area) => area.featured);
+  const articles = allArticles.filter((a) => a.featured).slice(0, 3);
+  const headlineLines = hero.headline.split("\n");
 
   return (
     <>
@@ -76,13 +81,15 @@ export default async function HomePage({
         <div>
           <Eyebrow label={site.location} draw className="animate-rise" />
           <h1 className="mt-6 font-serif text-[44px] font-medium leading-[1.05] text-balance sm:text-[56px] md:text-[68px]">
-            Dik duruş,
-            <br />
-            dürüst hukuk.
+            {headlineLines.map((line, i) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                {line}
+              </span>
+            ))}
           </h1>
           <p className="mt-6 max-w-[480px] text-lg leading-relaxed text-pretty text-muted">
-            YAKA Hukuk &amp; Danışmanlık, hakkınızı sakin ve sağlam bir duruşla
-            savunur. Süreci bilerek ilerlersiniz; işin titizliği bize aittir.
+            {hero.subtext}
           </p>
           <div className="mt-9 flex flex-wrap gap-3.5">
             <Button href="/randevu-al" size="lg">{t("book")}</Button>
@@ -279,8 +286,8 @@ export default async function HomePage({
       </Reveal>
 
       <DarkCTA
-        title="Hakkınız için ilk adımı atın."
-        text="Ön görüşme için randevu oluşturun; ekibimiz aynı gün içinde dönüş yapar."
+        title={hero.closingCtaTitle}
+        text={hero.closingCtaText}
         buttonLabel={t("book")}
       />
     </>

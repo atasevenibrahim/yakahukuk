@@ -3,8 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { istanbulDateKey, dateFromKey } from "@/lib/booking";
-import { articles } from "@/content/articles";
-import { practiceAreas } from "@/content/practice-areas";
+import { getArticlesRaw } from "@/content/articles";
+import { getPracticeAreasRaw } from "@/content/practice-areas";
 import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import {
   timeAgo,
@@ -30,6 +30,8 @@ export default async function AdminDashboardPage() {
     recentAppointments,
     upcomingAppointments,
     auditEntries,
+    articles,
+    practiceAreas,
   ] = await Promise.all([
     prisma.appointment.count({ where: { status: "PENDING" } }),
     prisma.appointment.count({ where: { status: "PENDING", createdAt: { gte: todayStart } } }),
@@ -43,6 +45,8 @@ export default async function AdminDashboardPage() {
       take: 3,
     }),
     prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 4 }),
+    getArticlesRaw(),
+    getPracticeAreasRaw(),
   ]);
 
   const areaLabel = (slug: string | null) =>

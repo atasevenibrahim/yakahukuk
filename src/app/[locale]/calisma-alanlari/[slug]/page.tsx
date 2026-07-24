@@ -27,8 +27,9 @@ const steps = [
   { no: "04", title: "Takip", text: "Her duruşma ve gelişmede sizi bilgilendiririz." },
 ];
 
-export function generateStaticParams() {
-  return practiceAreaSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await practiceAreaSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -37,7 +38,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const area = practiceAreaBySlug(slug, locale as Locale);
+  const area = await practiceAreaBySlug(slug, locale as Locale);
   if (!area) return {};
   return {
     title: area.title,
@@ -53,18 +54,24 @@ export default async function PracticeAreaDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const area = practiceAreaBySlug(slug, locale as Locale);
+  const area = await practiceAreaBySlug(slug, locale as Locale);
   if (!area) notFound();
 
   const tActions = await getTranslations("actions");
   const tNav = await getTranslations("nav");
-  const settings = await getSiteSettings();
+  const [settings, relatedTeamSlugs, relatedArticleItems] = await Promise.all([
+    getSiteSettings(),
+    relatedTeamSlugsForArea(slug),
+    articlesByPracticeArea(slug, locale as Locale, 2),
+  ]);
 
-  const relatedTeam = relatedTeamSlugsForArea(slug)
-    .map((memberSlug) => teamMemberBySlug(memberSlug, locale as Locale))
+  const relatedTeam = (
+    await Promise.all(
+      relatedTeamSlugs.map((memberSlug) => teamMemberBySlug(memberSlug, locale as Locale)),
+    )
+  )
     .filter((m): m is NonNullable<typeof m> => Boolean(m))
     .slice(0, 2);
-  const relatedArticleItems = articlesByPracticeArea(slug, locale as Locale, 2);
 
   return (
     <>

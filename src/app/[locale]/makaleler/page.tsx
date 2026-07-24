@@ -25,7 +25,7 @@ export default async function ArticlesPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const articles = localizedArticles(locale as Locale);
+  const articles = await localizedArticles(locale as Locale);
 
   return (
     <>

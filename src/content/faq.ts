@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -12,7 +14,8 @@ export type FaqCategory = {
   items: FaqItem[];
 };
 
-export const faqCategories: FaqCategory[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 4 kategori, gerçek veri artık Admin İçerik'te.
+const FALLBACK_FAQ: FaqCategory[] = [
   {
     slug: "genel",
     t: { tr: { name: "Genel" } },
@@ -159,13 +162,27 @@ export const faqCategories: FaqCategory[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş) SSS kategorileri (iç içe maddelerle) — DB'den, başarısız olursa yedekten. */
+export const getFaqCategoriesRaw = safeQuery(async (): Promise<FaqCategory[]> => {
+  const rows = await prisma.faqCategory.findMany({
+    orderBy: { order: "asc" },
+    include: { items: { where: { published: true }, orderBy: { order: "asc" } } },
+  });
+  return rows.map((cat) => ({
+    slug: cat.slug,
+    t: cat.t as FaqCategory["t"],
+    items: cat.items.map((item) => ({ slug: item.slug, t: item.t as FaqItem["t"] })),
+  }));
+}, FALLBACK_FAQ);
+
 export type LocalizedFaqCategory = {
   slug: string;
   name: string;
   items: { slug: string; question: string; answer: string }[];
 };
 
-export function localizedFaq(locale: Locale): LocalizedFaqCategory[] {
+export async function localizedFaq(locale: Locale): Promise<LocalizedFaqCategory[]> {
+  const faqCategories = await getFaqCategoriesRaw();
   return faqCategories.map((cat) => ({
     slug: cat.slug,
     name: pick(cat.t, locale).name,

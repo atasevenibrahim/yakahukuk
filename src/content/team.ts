@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -11,6 +13,7 @@ export type TeamMember = {
   areas: string[]; // detay: çalışma alanı başlıkları
   languages: string[]; // detay: konuşulan diller (büyük harf)
   articleSlugs: string[]; // detay: ilişkili makaleler
+  portraitUrl?: string | null;
   t: Localized<{
     role: string; // eyebrow (büyük harf) — "KURUCU AVUKAT"
     roleShort: string; // kartta görünen kısa unvan
@@ -30,7 +33,8 @@ const placeholderEducation: EducationEntry[] = [
   { period: "[YIL–YIL]", text: "Özel Hukuk, Yüksek Lisans — [Üniversite adı, yer tutucu]" },
 ];
 
-export const team: TeamMember[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 6 ekip üyesi, gerçek veri artık Admin İçerik'te.
+const FALLBACK_TEAM: TeamMember[] = [
   {
     slug: "av-yer-tutucu-bir",
     name: "Av. Yer Tutucu Bir",
@@ -139,9 +143,41 @@ export const team: TeamMember[] = [
   },
 ];
 
-export type LocalizedTeamMember = ReturnType<typeof localizeMember>;
+/** Ham (locale seçilmemiş) ekip listesi — DB'den, başarısız olursa statik yedekten. */
+export const getTeamRaw = safeQuery(async (): Promise<TeamMember[]> => {
+  const rows = await prisma.teamMember.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    bar: r.bar,
+    tags: r.tags,
+    areas: r.areas,
+    languages: r.languages,
+    articleSlugs: r.articleSlugs,
+    portraitUrl: r.portraitUrl,
+    t: r.t as TeamMember["t"],
+  }));
+}, FALLBACK_TEAM);
 
-function localizeMember(member: TeamMember, locale: Locale) {
+export type LocalizedTeamMember = {
+  slug: string;
+  name: string;
+  bar: string;
+  tags: string[];
+  areas: string[];
+  languages: string[];
+  articleSlugs: string[];
+  portraitUrl?: string | null;
+  role: string;
+  roleShort: string;
+  bio: string[];
+  education: EducationEntry[];
+};
+
+function localizeMember(member: TeamMember, locale: Locale): LocalizedTeamMember {
   return {
     slug: member.slug,
     name: member.name,
@@ -150,19 +186,23 @@ function localizeMember(member: TeamMember, locale: Locale) {
     areas: member.areas,
     languages: member.languages,
     articleSlugs: member.articleSlugs,
+    portraitUrl: member.portraitUrl,
     ...pick(member.t, locale),
   };
 }
 
-export function localizedTeam(locale: Locale) {
+export async function localizedTeam(locale: Locale): Promise<LocalizedTeamMember[]> {
+  const team = await getTeamRaw();
   return team.map((member) => localizeMember(member, locale));
 }
 
-export function teamMemberBySlug(slug: string, locale: Locale) {
+export async function teamMemberBySlug(slug: string, locale: Locale) {
+  const team = await getTeamRaw();
   const member = team.find((m) => m.slug === slug);
   return member ? localizeMember(member, locale) : undefined;
 }
 
-export function teamSlugs(): string[] {
+export async function teamSlugs(): Promise<string[]> {
+  const team = await getTeamRaw();
   return team.map((m) => m.slug);
 }

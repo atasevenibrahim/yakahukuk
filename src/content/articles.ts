@@ -1,4 +1,6 @@
 import { getPathname } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -12,11 +14,17 @@ export type Article = {
   slug: string;
   practiceAreaSlug: string;
   category: string; // görünen etiket (TR, büyük harf)
-  date: string; // "12 TEM 2026"
-  isoDate: string;
+  publishedAt: Date; // date/isoDate artık buradan formatlanır
   readMinutes: number;
   tags: string[];
-  t: Localized<{ title: string; excerpt: string; body: ArticleBlock[] }>;
+  featured: boolean;
+  t: Localized<{
+    title: string;
+    excerpt: string;
+    body: ArticleBlock[];
+    metaTitle?: string;
+    metaDescription?: string;
+  }>;
 };
 
 // Admin panelindeki zengin metin editörü gelene kadar kullanılan yer tutucu gövde.
@@ -30,15 +38,16 @@ function placeholderBody(intro: string): ArticleBlock[] {
   ];
 }
 
-export const articles: Article[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 9 makale, gerçek veri artık Admin Makaleler'de.
+const FALLBACK_ARTICLES: Article[] = [
   {
     slug: "anlasmali-bosanmada-surec",
     practiceAreaSlug: "aile-hukuku",
     category: "AİLE HUKUKU",
-    date: "12 TEM 2026",
-    isoDate: "2026-07-12",
+    publishedAt: new Date("2026-07-12"),
     readMinutes: 6,
     tags: ["BOŞANMA", "PROTOKOL", "AİLE MAHKEMESİ"],
+    featured: true,
     t: {
       tr: {
         title: "Anlaşmalı boşanmada süreç nasıl ilerler?",
@@ -85,10 +94,10 @@ export const articles: Article[] = [
     slug: "sirket-kurulusunda-sozlesme-titizligi",
     practiceAreaSlug: "ticaret-hukuku",
     category: "TİCARET HUKUKU",
-    date: "28 HAZ 2026",
-    isoDate: "2026-06-28",
+    publishedAt: new Date("2026-06-28"),
     readMinutes: 8,
     tags: ["ŞİRKET KURULUŞU", "SÖZLEŞME", "TİCARET SİCİLİ"],
+    featured: true,
     t: {
       tr: {
         title: "Şirket kuruluşunda sözleşme titizliği neden önemli?",
@@ -104,10 +113,10 @@ export const articles: Article[] = [
     slug: "vergi-incelemesinde-mukellefin-haklari",
     practiceAreaSlug: "vergi-hukuku",
     category: "VERGİ HUKUKU",
-    date: "15 HAZ 2026",
-    isoDate: "2026-06-15",
+    publishedAt: new Date("2026-06-15"),
     readMinutes: 5,
     tags: ["VERGİ İNCELEMESİ", "UZLAŞMA", "MÜKELLEF HAKLARI"],
+    featured: true,
     t: {
       tr: {
         title: "Vergi incelemesinde mükellefin hakları nelerdir?",
@@ -123,10 +132,10 @@ export const articles: Article[] = [
     slug: "police-reddinde-sigortalinin-yol-haritasi",
     practiceAreaSlug: "sigorta-hukuku",
     category: "SİGORTA HUKUKU",
-    date: "03 HAZ 2026",
-    isoDate: "2026-06-03",
+    publishedAt: new Date("2026-06-03"),
     readMinutes: 7,
     tags: ["POLİÇE REDDİ", "TAHKİM", "TAZMİNAT"],
+    featured: false,
     t: {
       tr: {
         title: "Poliçe reddi durumunda sigortalının yol haritası",
@@ -142,10 +151,10 @@ export const articles: Article[] = [
     slug: "velayet-kararlarinda-cocugun-ustun-yarari",
     practiceAreaSlug: "aile-hukuku",
     category: "AİLE HUKUKU",
-    date: "20 MAY 2026",
-    isoDate: "2026-05-20",
+    publishedAt: new Date("2026-05-20"),
     readMinutes: 6,
     tags: ["VELAYET", "ÇOCUĞUN ÜSTÜN YARARI"],
+    featured: false,
     t: {
       tr: {
         title: "Velayet kararlarında çocuğun üstün yararı",
@@ -161,10 +170,10 @@ export const articles: Article[] = [
     slug: "ifadeye-cagrildiniz-haklarinizi-biliyor-musunuz",
     practiceAreaSlug: "ceza-hukuku",
     category: "CEZA HUKUKU",
-    date: "08 MAY 2026",
-    isoDate: "2026-05-08",
+    publishedAt: new Date("2026-05-08"),
     readMinutes: 4,
     tags: ["İFADE", "MÜDAFİ", "SUSMA HAKKI"],
+    featured: false,
     t: {
       tr: {
         title: "İfadeye çağrıldınız: haklarınızı biliyor musunuz?",
@@ -180,10 +189,10 @@ export const articles: Article[] = [
     slug: "ayipli-malda-tuketicinin-secimlik-haklari",
     practiceAreaSlug: "tuketici-hukuku",
     category: "TÜKETİCİ HUKUKU",
-    date: "24 NİS 2026",
-    isoDate: "2026-04-24",
+    publishedAt: new Date("2026-04-24"),
     readMinutes: 5,
     tags: ["AYIPLI MAL", "SEÇİMLİK HAK"],
+    featured: false,
     t: {
       tr: {
         title: "Ayıplı malda tüketicinin seçimlik hakları",
@@ -198,10 +207,10 @@ export const articles: Article[] = [
     slug: "idari-isleme-karsi-dava-acma-sureleri",
     practiceAreaSlug: "idari-hukuk",
     category: "İDARİ HUKUK",
-    date: "10 NİS 2026",
-    isoDate: "2026-04-10",
+    publishedAt: new Date("2026-04-10"),
     readMinutes: 6,
     tags: ["İDARİ DAVA", "DAVA SÜRESİ"],
+    featured: false,
     t: {
       tr: {
         title: "İdari işleme karşı dava açma süreleri",
@@ -217,10 +226,10 @@ export const articles: Article[] = [
     slug: "ticari-sozlesmelerde-cezai-sart-nasil-kurgulanir",
     practiceAreaSlug: "ticaret-hukuku",
     category: "TİCARET HUKUKU",
-    date: "27 MAR 2026",
-    isoDate: "2026-03-27",
+    publishedAt: new Date("2026-03-27"),
     readMinutes: 7,
     tags: ["CEZAİ ŞART", "TİCARİ SÖZLEŞME"],
+    featured: false,
     t: {
       tr: {
         title: "Ticari sözleşmelerde cezai şart nasıl kurgulanır?",
@@ -234,29 +243,58 @@ export const articles: Article[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş, yalnızca yayındaki) makale listesi — DB'den, başarısız olursa yedekten. */
+export const getArticlesRaw = safeQuery(async (): Promise<Article[]> => {
+  const rows = await prisma.article.findMany({
+    where: { status: "PUBLISHED" },
+    orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
+  });
+  return rows.map((r) => ({
+    slug: r.slug,
+    practiceAreaSlug: r.practiceAreaSlug ?? "",
+    category: r.category,
+    publishedAt: r.publishAt ?? r.createdAt,
+    readMinutes: r.readMinutes,
+    tags: r.tags,
+    featured: r.featured,
+    t: r.t as Article["t"],
+  }));
+}, FALLBACK_ARTICLES);
+
 export type LocalizedArticle = {
   slug: string;
   practiceAreaSlug: string;
   category: string;
-  date: string;
-  isoDate: string;
+  date: string; // "12 TEM 2026"
+  isoDate: string; // "2026-07-12"
   readMinutes: number;
   tags: string[];
+  featured: boolean;
   title: string;
   excerpt: string;
   body: ArticleBlock[];
+  metaTitle?: string;
+  metaDescription?: string;
   href: string;
 };
+
+const DATE_FMT = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: "Europe/Istanbul",
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
 
 function localizeArticle(a: Article, locale: Locale): LocalizedArticle {
   return {
     slug: a.slug,
     practiceAreaSlug: a.practiceAreaSlug,
     category: a.category,
-    date: a.date,
-    isoDate: a.isoDate,
+    date: DATE_FMT.format(a.publishedAt).toUpperCase(),
+    isoDate: a.publishedAt.toISOString().slice(0, 10),
     readMinutes: a.readMinutes,
     tags: a.tags,
+    featured: a.featured,
     href: getPathname({
       href: { pathname: "/makaleler/[slug]", params: { slug: a.slug } },
       locale,
@@ -265,25 +303,29 @@ function localizeArticle(a: Article, locale: Locale): LocalizedArticle {
   };
 }
 
-export function localizedArticles(locale: Locale): LocalizedArticle[] {
+export async function localizedArticles(locale: Locale): Promise<LocalizedArticle[]> {
+  const articles = await getArticlesRaw();
   return articles.map((a) => localizeArticle(a, locale));
 }
 
-export function articleBySlug(slug: string, locale: Locale) {
+export async function articleBySlug(slug: string, locale: Locale) {
+  const articles = await getArticlesRaw();
   const a = articles.find((item) => item.slug === slug);
   return a ? localizeArticle(a, locale) : undefined;
 }
 
-export function articleSlugs(): string[] {
+export async function articleSlugs(): Promise<string[]> {
+  const articles = await getArticlesRaw();
   return articles.map((a) => a.slug);
 }
 
 /** Belirli bir çalışma alanındaki makaleler (Çalışma Alanı Detay sidebar'ı için). */
-export function articlesByPracticeArea(
+export async function articlesByPracticeArea(
   practiceAreaSlug: string,
   locale: Locale,
   limit = 2,
-): LocalizedArticle[] {
+): Promise<LocalizedArticle[]> {
+  const articles = await getArticlesRaw();
   return articles
     .filter((a) => a.practiceAreaSlug === practiceAreaSlug)
     .slice(0, limit)
@@ -291,11 +333,12 @@ export function articlesByPracticeArea(
 }
 
 /** Aynı çalışma alanındaki diğer makaleler (kendisi hariç). */
-export function relatedArticles(
+export async function relatedArticles(
   slug: string,
   locale: Locale,
   limit = 3,
-): LocalizedArticle[] {
+): Promise<LocalizedArticle[]> {
+  const articles = await getArticlesRaw();
   const current = articles.find((a) => a.slug === slug);
   if (!current) return [];
   return articles

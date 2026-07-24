@@ -13,12 +13,13 @@ import {
   articleSlugs,
   relatedArticles,
 } from "@/content/articles";
-import { team, teamMemberBySlug } from "@/content/team";
+import { getTeamRaw, teamMemberBySlug } from "@/content/team";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
-export function generateStaticParams() {
-  return articleSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await articleSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -27,11 +28,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const article = articleBySlug(slug, locale as Locale);
+  const article = await articleBySlug(slug, locale as Locale);
   if (!article) return {};
   return {
-    title: article.title,
-    description: article.excerpt,
+    title: article.metaTitle || article.title,
+    description: article.metaDescription || article.excerpt,
     alternates: alternates({ pathname: "/makaleler/[slug]", params: { slug } }),
   };
 }
@@ -43,16 +44,21 @@ export default async function ArticleDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const article = articleBySlug(slug, locale as Locale);
+  const article = await articleBySlug(slug, locale as Locale);
   if (!article) notFound();
 
   const tActions = await getTranslations("actions");
   const tNav = await getTranslations("nav");
   const tArticles = await getTranslations("articlesPage");
 
+  const [team, related] = await Promise.all([
+    getTeamRaw(),
+    relatedArticles(slug, locale as Locale, 3),
+  ]);
   const authorEntry = team.find((m) => m.articleSlugs.includes(slug));
-  const author = authorEntry ? teamMemberBySlug(authorEntry.slug, locale as Locale) : undefined;
-  const related = relatedArticles(slug, locale as Locale, 3);
+  const author = authorEntry
+    ? await teamMemberBySlug(authorEntry.slug, locale as Locale)
+    : undefined;
 
   return (
     <>

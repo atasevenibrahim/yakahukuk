@@ -10,13 +10,14 @@ import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { teamMemberBySlug, teamSlugs } from "@/content/team";
 import { localizedArticles } from "@/content/articles";
-import { practiceAreas } from "@/content/practice-areas";
+import { getPracticeAreasRaw } from "@/content/practice-areas";
 import { getSiteSettings, phoneHref, emailHref } from "@/lib/site-settings";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
-export function generateStaticParams() {
-  return teamSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await teamSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -25,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const member = teamMemberBySlug(slug, locale as Locale);
+  const member = await teamMemberBySlug(slug, locale as Locale);
   if (!member) return {};
   return {
     title: member.name,
@@ -40,14 +41,17 @@ export default async function TeamMemberPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const member = teamMemberBySlug(slug, locale as Locale);
+  const member = await teamMemberBySlug(slug, locale as Locale);
   if (!member) notFound();
 
   const tActions = await getTranslations("actions");
   const tNav = await getTranslations("nav");
-  const settings = await getSiteSettings();
+  const [settings, allArticles, practiceAreas] = await Promise.all([
+    getSiteSettings(),
+    localizedArticles(locale as Locale),
+    getPracticeAreasRaw(),
+  ]);
 
-  const allArticles = localizedArticles(locale as Locale);
   const memberArticles = member.articleSlugs
     .map((articleSlug) => allArticles.find((a) => a.slug === articleSlug))
     .filter((a): a is (typeof allArticles)[number] => Boolean(a));

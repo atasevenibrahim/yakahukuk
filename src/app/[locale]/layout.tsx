@@ -58,12 +58,15 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const dir = RTL_LOCALES.has(locale) ? "rtl" : "ltr";
-  const areas = localizedPracticeAreas(locale).map((a) => ({
+  const [localizedAreas, settings] = await Promise.all([
+    localizedPracticeAreas(locale),
+    getSiteSettings(),
+  ]);
+  const areas = localizedAreas.map((a) => ({
     title: a.title,
     href: a.href,
     slug: a.slug,
   }));
-  const settings = await getSiteSettings();
 
   return (
     <html

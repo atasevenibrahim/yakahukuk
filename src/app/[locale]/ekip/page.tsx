@@ -30,7 +30,7 @@ export default async function TeamPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const team = localizedTeam(locale as Locale);
+  const team = await localizedTeam(locale as Locale);
 
   return (
     <>

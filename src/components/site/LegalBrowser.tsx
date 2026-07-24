@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { LocalizedLegalDocument } from "@/content/legal";
-import { legalLastUpdated } from "@/content/legal";
 import { cn } from "@/lib/cn";
 
 export function LegalBrowser({ documents }: { documents: LocalizedLegalDocument[] }) {
@@ -45,7 +44,7 @@ export function LegalBrowser({ documents }: { documents: LocalizedLegalDocument[
           <span className="font-mono text-[10.5px] tracking-[2px] text-gold">
             SON GÜNCELLEME
           </span>
-          <p className="mt-2 text-[13.5px] text-muted">{legalLastUpdated}</p>
+          <p className="mt-2 text-[13.5px] text-muted">{doc.lastUpdated}</p>
         </div>
       </div>
 

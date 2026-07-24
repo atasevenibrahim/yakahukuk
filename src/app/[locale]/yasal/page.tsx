@@ -24,7 +24,7 @@ export default async function LegalPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const documents = localizedLegal(locale as Locale);
+  const documents = await localizedLegal(locale as Locale);
 
   return (
     <Container className="pb-20 pt-20">

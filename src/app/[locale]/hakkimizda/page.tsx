@@ -66,7 +66,7 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const team = localizedTeam(locale as Locale).slice(0, 3);
+  const team = (await localizedTeam(locale as Locale)).slice(0, 3);
 
   return (
     <>

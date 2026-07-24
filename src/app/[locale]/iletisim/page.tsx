@@ -31,8 +31,11 @@ export default async function ContactPage({
   setRequestLocale(locale);
   const t = await getTranslations("contactPage");
   const tActions = await getTranslations("actions");
-  const subjectOptions = localizedPracticeAreas(locale as Locale).map((a) => a.title);
-  const settings = await getSiteSettings();
+  const [areas, settings] = await Promise.all([
+    localizedPracticeAreas(locale as Locale),
+    getSiteSettings(),
+  ]);
+  const subjectOptions = areas.map((a) => a.title);
   const [addressLine1, addressLine2] = splitAddress(settings.address);
   const mapQuery = encodeURIComponent(`${addressLine1}, ${addressLine2}`);
 

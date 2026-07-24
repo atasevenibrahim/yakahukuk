@@ -2,26 +2,27 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { istanbulDateKey } from "@/lib/booking";
-import { practiceAreas } from "@/content/practice-areas";
+import { getPracticeAreasRaw } from "@/content/practice-areas";
 import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { RandevularBrowser } from "./RandevularBrowser";
 import type { CalendarAppointment, BlockedDateItem } from "./types";
 
 export const metadata: Metadata = { title: "Randevu Yönetimi" };
 
-function areaLabel(slug: string | null): string {
-  if (!slug) return "Genel";
-  return practiceAreas.find((a) => a.slug === slug)?.t.tr.title ?? slug;
-}
-
 export default async function RandevularPage() {
   const user = await getSessionUser();
 
-  const [appointments, rules, blockedDates] = await Promise.all([
+  const [appointments, rules, blockedDates, practiceAreas] = await Promise.all([
     prisma.appointment.findMany({ orderBy: [{ date: "asc" }, { startTime: "asc" }] }),
     prisma.availabilityRule.findMany(),
     prisma.blockedDate.findMany({ orderBy: { date: "asc" } }),
+    getPracticeAreasRaw(),
   ]);
+
+  function areaLabel(slug: string | null): string {
+    if (!slug) return "Genel";
+    return practiceAreas.find((a) => a.slug === slug)?.t.tr.title ?? slug;
+  }
 
   const calendarAppointments: CalendarAppointment[] = appointments.map((a) => ({
     id: a.id,

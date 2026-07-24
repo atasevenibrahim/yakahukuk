@@ -27,7 +27,7 @@ export default async function PressPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const items = localizedPress(locale as Locale);
+  const items = await localizedPress(locale as Locale);
 
   return (
     <>

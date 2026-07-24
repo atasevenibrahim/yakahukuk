@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { practiceAreas } from "@/content/practice-areas";
+import { getPracticeAreasRaw } from "@/content/practice-areas";
 import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { timeAgo, messageStatusBadge, appointmentStatusBadge } from "@/lib/admin/format";
 import { GelenTaleplerBrowser } from "./GelenTaleplerBrowser";
@@ -23,18 +23,19 @@ function fullDateTime(date: Date): string {
     .toUpperCase();
 }
 
-function areaLabel(slug: string | null): string {
-  if (!slug) return "Genel";
-  return practiceAreas.find((a) => a.slug === slug)?.t.tr.title ?? slug;
-}
-
 export default async function GelenTaleplerPage() {
   const user = await getSessionUser();
 
-  const [messages, appointments] = await Promise.all([
+  const [messages, appointments, practiceAreas] = await Promise.all([
     prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } }),
     prisma.appointment.findMany({ orderBy: { createdAt: "desc" } }),
+    getPracticeAreasRaw(),
   ]);
+
+  function areaLabel(slug: string | null): string {
+    if (!slug) return "Genel";
+    return practiceAreas.find((a) => a.slug === slug)?.t.tr.title ?? slug;
+  }
 
   const items: InboxItem[] = [
     ...messages.map((m) => ({ kind: "message" as const, createdAt: m.createdAt, record: m })),

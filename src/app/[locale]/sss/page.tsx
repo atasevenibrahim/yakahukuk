@@ -26,7 +26,7 @@ export default async function FaqPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const categories = localizedFaq(locale as Locale);
+  const categories = await localizedFaq(locale as Locale);
 
   return (
     <>

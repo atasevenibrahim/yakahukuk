@@ -1,8 +1,10 @@
 import type { IconName } from "@/lib/icons";
 import { getPathname } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
-import { team } from "./team";
+import { getTeamRaw } from "./team";
 
 export type PracticeArea = {
   slug: string;
@@ -16,8 +18,9 @@ export type PracticeArea = {
   }>;
 };
 
-// 12 çalışma alanı — mega menü sırası (mockup ile aynı).
-export const practiceAreas: PracticeArea[] = [
+// DB'ye ulaşılamazsa (ör. build anında) düşülecek statik yedek — 12 çalışma alanı, mega menü
+// sırasıyla aynı. Gerçek veri artık Admin İçerik üzerinden `PracticeArea` tablosunda yönetilir.
+const FALLBACK_PRACTICE_AREAS: PracticeArea[] = [
   {
     slug: "aile-hukuku",
     icon: "heart",
@@ -296,6 +299,20 @@ export const practiceAreas: PracticeArea[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş) çalışma alanı listesi — DB'den, başarısız olursa statik yedekten. */
+export const getPracticeAreasRaw = safeQuery(async (): Promise<PracticeArea[]> => {
+  const rows = await prisma.practiceArea.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+  return rows.map((r) => ({
+    slug: r.slug,
+    icon: r.icon as IconName,
+    featured: r.featured,
+    t: r.t as PracticeArea["t"],
+  }));
+}, FALLBACK_PRACTICE_AREAS);
+
 export type LocalizedPracticeArea = {
   slug: string;
   icon: IconName;
@@ -320,22 +337,26 @@ function localizeArea(area: PracticeArea, locale: Locale): LocalizedPracticeArea
   };
 }
 
-export function localizedPracticeAreas(locale: Locale): LocalizedPracticeArea[] {
-  return practiceAreas.map((area) => localizeArea(area, locale));
+export async function localizedPracticeAreas(locale: Locale): Promise<LocalizedPracticeArea[]> {
+  const areas = await getPracticeAreasRaw();
+  return areas.map((area) => localizeArea(area, locale));
 }
 
-export function practiceAreaBySlug(slug: string, locale: Locale) {
-  const area = practiceAreas.find((a) => a.slug === slug);
+export async function practiceAreaBySlug(slug: string, locale: Locale) {
+  const areas = await getPracticeAreasRaw();
+  const area = areas.find((a) => a.slug === slug);
   return area ? localizeArea(area, locale) : undefined;
 }
 
-export function practiceAreaSlugs(): string[] {
-  return practiceAreas.map((a) => a.slug);
+export async function practiceAreaSlugs(): Promise<string[]> {
+  const areas = await getPracticeAreasRaw();
+  return areas.map((a) => a.slug);
 }
 
 /** Bir çalışma alanının (TR başlığı üzerinden) ilgili ekip üyesi slug'ları. */
-export function relatedTeamSlugsForArea(areaSlug: string): string[] {
-  const area = practiceAreas.find((a) => a.slug === areaSlug);
+export async function relatedTeamSlugsForArea(areaSlug: string): Promise<string[]> {
+  const [areas, team] = await Promise.all([getPracticeAreasRaw(), getTeamRaw()]);
+  const area = areas.find((a) => a.slug === areaSlug);
   if (!area) return [];
   const trTitle = area.t.tr.title;
   return team.filter((m) => m.areas.includes(trTitle)).map((m) => m.slug);

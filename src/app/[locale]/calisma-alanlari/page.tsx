@@ -28,7 +28,7 @@ export default async function PracticeAreasPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("actions");
-  const areas = localizedPracticeAreas(locale as Locale);
+  const areas = await localizedPracticeAreas(locale as Locale);
 
   return (
     <>

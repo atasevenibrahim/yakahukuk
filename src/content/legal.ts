@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -5,15 +7,16 @@ export type LegalSection = { no: string; title: string; text: string };
 
 export type LegalDocument = {
   slug: "kvkk" | "aydinlatma" | "cerez";
+  updatedAt: Date;
   t: Localized<{ tabLabel: string; tag: string; title: string; intro: string; sections: LegalSection[] }>;
 };
 
-// Son güncelleme tarihi admin panelinden yönetilecek; şimdilik yer tutucu.
-export const legalLastUpdated = "[GG.AA.YYYY — yer tutucu]";
-
-export const legalDocuments: LegalDocument[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 3 belge, gerçek veri artık Admin İçerik'te.
+const FALLBACK_UPDATED_AT = new Date("2026-07-01T00:00:00Z");
+const FALLBACK_LEGAL: LegalDocument[] = [
   {
     slug: "kvkk",
+    updatedAt: FALLBACK_UPDATED_AT,
     t: {
       tr: {
         tabLabel: "KVKK Politikası",
@@ -48,6 +51,7 @@ export const legalDocuments: LegalDocument[] = [
   },
   {
     slug: "aydinlatma",
+    updatedAt: FALLBACK_UPDATED_AT,
     t: {
       tr: {
         tabLabel: "Aydınlatma Metni",
@@ -82,6 +86,7 @@ export const legalDocuments: LegalDocument[] = [
   },
   {
     slug: "cerez",
+    updatedAt: FALLBACK_UPDATED_AT,
     t: {
       tr: {
         tabLabel: "Çerez Politikası",
@@ -116,6 +121,16 @@ export const legalDocuments: LegalDocument[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş) yasal belge listesi — DB'den, başarısız olursa statik yedekten. */
+export const getLegalDocumentsRaw = safeQuery(async (): Promise<LegalDocument[]> => {
+  const rows = await prisma.legalDocument.findMany({ orderBy: { order: "asc" } });
+  return rows.map((r) => ({
+    slug: r.slug as LegalDocument["slug"],
+    updatedAt: r.updatedAt,
+    t: r.t as LegalDocument["t"],
+  }));
+}, FALLBACK_LEGAL);
+
 export type LocalizedLegalDocument = {
   slug: LegalDocument["slug"];
   tabLabel: string;
@@ -123,11 +138,20 @@ export type LocalizedLegalDocument = {
   title: string;
   intro: string;
   sections: LegalSection[];
+  lastUpdated: string; // "12 TEM 2026" — belgenin kendi updatedAt'inden formatlanır
 };
 
-export function localizedLegal(locale: Locale): LocalizedLegalDocument[] {
+export async function localizedLegal(locale: Locale): Promise<LocalizedLegalDocument[]> {
+  const legalDocuments = await getLegalDocumentsRaw();
+  const dateFmt = new Intl.DateTimeFormat("tr-TR", {
+    timeZone: "Europe/Istanbul",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
   return legalDocuments.map((doc) => ({
     slug: doc.slug,
+    lastUpdated: dateFmt.format(doc.updatedAt).toUpperCase(),
     ...pick(doc.t, locale),
   }));
 }

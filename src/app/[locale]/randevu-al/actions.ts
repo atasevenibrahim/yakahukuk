@@ -5,7 +5,7 @@ import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isSlotAvailable, computeEndTime, dateFromKey } from "@/lib/booking";
-import { practiceAreas } from "@/content/practice-areas";
+import { getPracticeAreasRaw } from "@/content/practice-areas";
 
 const KVKK_TEXT_VERSION = "v1-2026";
 
@@ -61,7 +61,11 @@ export async function submitAppointment(
   }
 
   const endTime = await computeEndTime(date, data.saat);
-  const [locale, headerList] = await Promise.all([getLocale(), headers()]);
+  const [locale, headerList, practiceAreas] = await Promise.all([
+    getLocale(),
+    headers(),
+    getPracticeAreasRaw(),
+  ]);
   const matchedArea = practiceAreas.find((a) => a.t.tr.title === data.konu);
 
   try {

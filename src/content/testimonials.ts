@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -10,8 +12,8 @@ export type Testimonial = {
   t: Localized<{ quote: string }>;
 };
 
-// Mockup'taki (Yorumlar.dc.html) 9 yorum birebir taşındı.
-export const testimonials: Testimonial[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 9 yorum, gerçek veri artık Admin İçerik'te.
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
   {
     practiceAreaSlug: "ticaret-hukuku",
     areaLabel: "TİCARET",
@@ -131,6 +133,22 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş) yorum listesi — DB'den, başarısız olursa statik yedekten. */
+export const getTestimonialsRaw = safeQuery(async (): Promise<Testimonial[]> => {
+  const rows = await prisma.testimonial.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+  return rows.map((r) => ({
+    practiceAreaSlug: r.practiceAreaSlug,
+    areaLabel: r.areaLabel,
+    initials: r.initials,
+    monthLabel: r.monthLabel,
+    rating: r.rating,
+    t: r.t as Testimonial["t"],
+  }));
+}, FALLBACK_TESTIMONIALS);
+
 export type LocalizedTestimonial = {
   practiceAreaSlug: string;
   areaLabel: string;
@@ -153,6 +171,7 @@ function localizeTestimonial(item: Testimonial, locale: Locale): LocalizedTestim
   };
 }
 
-export function localizedTestimonials(locale: Locale): LocalizedTestimonial[] {
+export async function localizedTestimonials(locale: Locale): Promise<LocalizedTestimonial[]> {
+  const testimonials = await getTestimonialsRaw();
   return testimonials.map((item) => localizeTestimonial(item, locale));
 }

@@ -1,4 +1,6 @@
 import { getPathname } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
+import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -7,11 +9,12 @@ export type PressItem = {
   date: string;
   isoDate: string;
   tag: "BASIN" | "DUYURU";
-  source?: string; // dış kaynak adı (yalnızca tag === "BASIN" için anlamlı)
+  source?: string | null; // dış kaynak adı (yalnızca tag === "BASIN" için anlamlı)
   t: Localized<{ title: string; excerpt: string; content: string }>;
 };
 
-export const pressItems: PressItem[] = [
+// DB'ye ulaşılamazsa düşülecek statik yedek — 5 basın kaydı, gerçek veri artık Admin İçerik'te.
+const FALLBACK_PRESS: PressItem[] = [
   {
     slug: "hukuk-gundemi-dosyasinda-yaka-hukuk",
     date: "02 TEM 2026",
@@ -93,12 +96,28 @@ export const pressItems: PressItem[] = [
   },
 ];
 
+/** Ham (locale seçilmemiş) basın listesi — DB'den, başarısız olursa statik yedekten. */
+export const getPressItemsRaw = safeQuery(async (): Promise<PressItem[]> => {
+  const rows = await prisma.pressItem.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+  return rows.map((r) => ({
+    slug: r.slug,
+    date: r.date,
+    isoDate: r.isoDate.toISOString().slice(0, 10),
+    tag: r.tag as "BASIN" | "DUYURU",
+    source: r.source,
+    t: r.t as PressItem["t"],
+  }));
+}, FALLBACK_PRESS);
+
 export type LocalizedPressItem = {
   slug: string;
   date: string;
   isoDate: string;
   tag: "BASIN" | "DUYURU";
-  source?: string;
+  source?: string | null;
   title: string;
   excerpt: string;
   content: string;
@@ -120,15 +139,18 @@ function localizePress(item: PressItem, locale: Locale): LocalizedPressItem {
   };
 }
 
-export function localizedPress(locale: Locale): LocalizedPressItem[] {
+export async function localizedPress(locale: Locale): Promise<LocalizedPressItem[]> {
+  const pressItems = await getPressItemsRaw();
   return pressItems.map((item) => localizePress(item, locale));
 }
 
-export function pressItemBySlug(slug: string, locale: Locale) {
+export async function pressItemBySlug(slug: string, locale: Locale) {
+  const pressItems = await getPressItemsRaw();
   const item = pressItems.find((p) => p.slug === slug);
   return item ? localizePress(item, locale) : undefined;
 }
 
-export function pressSlugs(): string[] {
+export async function pressSlugs(): Promise<string[]> {
+  const pressItems = await getPressItemsRaw();
   return pressItems.map((p) => p.slug);
 }

@@ -10,8 +10,9 @@ import { pressItemBySlug, pressSlugs } from "@/content/press";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
 
-export function generateStaticParams() {
-  return pressSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await pressSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -20,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const item = pressItemBySlug(slug, locale as Locale);
+  const item = await pressItemBySlug(slug, locale as Locale);
   if (!item) return {};
   return {
     title: item.title,
@@ -36,7 +37,7 @@ export default async function PressDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const item = pressItemBySlug(slug, locale as Locale);
+  const item = await pressItemBySlug(slug, locale as Locale);
   if (!item) notFound();
 
   const tActions = await getTranslations("actions");

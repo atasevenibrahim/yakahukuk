@@ -163,3 +163,127 @@ model SiteSettings {
   seoDescription     String
   updatedAt          DateTime @updatedAt
 }
+
+// --- İçerik (Admin İçerik / Admin Makaleler) ---
+// `t` sütunları src/content/types.ts'teki Localized<T> = {tr: T} & Partial<Record<Locale,T>>
+// şeklini birebir Json olarak taşır; pick() DB'den gelen nesnede de aynen çalışır.
+
+model PracticeArea {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  icon      String // IconName'in 30 değerinden biri (src/lib/icons.ts) — action'da doğrulanır
+  featured  Boolean  @default(false)
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  t         Json // Localized<{title, excerpt, whatWeDo: string[], typicalCases: string[]}>
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamMember {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  bar          String
+  tags         String[]
+  areas        String[] // TR çalışma alanı başlıkları (slug değil — mevcut string-eşleşme korunur)
+  languages    String[]
+  articleSlugs String[]
+  portraitUrl  String?
+  published    Boolean  @default(true)
+  order        Int      @default(0)
+  t            Json // Localized<{role, roleShort, bio: string[], education: {period,text}[]}>
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PressItem {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  date      String
+  isoDate   DateTime
+  tag       String // "BASIN" | "DUYURU"
+  source    String?
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  t         Json // Localized<{title, excerpt, content}>
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id               String   @id @default(cuid())
+  practiceAreaSlug String
+  areaLabel        String
+  initials         String
+  monthLabel       String
+  rating           Int
+  published        Boolean  @default(true) // mockup'ın ONAYLI/BEKLİYOR durumu
+  order            Int      @default(0)
+  t                Json // Localized<{quote}>
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model FaqCategory {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  order     Int       @default(0)
+  t         Json // Localized<{name}>
+  items     FaqItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model FaqItem {
+  id         String      @id @default(cuid())
+  slug       String      @unique
+  categoryId String
+  category   FaqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  published  Boolean     @default(true)
+  order      Int         @default(0)
+  t          Json // Localized<{question, answer}>
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model LegalDocument {
+  id        String   @id @default(cuid())
+  slug      String   @unique // "kvkk" | "aydinlatma" | "cerez"
+  order     Int      @default(0)
+  t         Json // Localized<{tabLabel, tag, title, intro, sections: {no,title,text}[]}>
+  updatedAt DateTime @updatedAt
+}
+
+// Tek satırlık ana sayfa hero içeriği (SiteSettings ile aynı desen). Mockup'ın Ana Sayfa/Hero
+// modülünün kapsamıyla sınırlı ("YAKA kimdir" değerleri/süreç adımları admin'e açılmıyor).
+model HomeHero {
+  id              String   @id @default(cuid())
+  headline        String
+  subtext         String
+  closingCtaTitle String
+  closingCtaText  String
+  updatedAt       DateTime @updatedAt
+}
+
+enum ArticleStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
+model Article {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  practiceAreaSlug String?
+  category         String
+  readMinutes      Int           @default(5)
+  tags             String[]
+  coverImageUrl    String?
+  featured         Boolean       @default(false)
+  status           ArticleStatus @default(DRAFT)
+  publishAt        DateTime?
+  t                Json // Localized<{title, excerpt, body: ArticleBlock[], metaTitle?, metaDescription?}>
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
