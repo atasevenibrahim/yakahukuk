@@ -87,6 +87,13 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   "2fa_enabled": "2FA'yı etkinleştirdi",
   "2fa_disabled": "2FA'yı devre dışı bıraktı",
   site_settings_updated: "site ayarlarını güncelledi",
+  content_item_created: "içerik kaydı ekledi",
+  content_item_updated: "içerik kaydını güncelledi",
+  content_item_deleted: "içerik kaydını sildi",
+  content_reordered: "içerik sıralamasını güncelledi",
+  article_created: "makale ekledi",
+  article_updated: "makaleyi güncelledi",
+  article_deleted: "makaleyi sildi",
 };
 
 /** Basit tarayıcı/İS çıkarımı — tam bir UA-parser yerine, "Son girişler" listesi için yeterli. */

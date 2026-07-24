@@ -11,17 +11,18 @@ type NavItem =
   | { type: "section"; label: string }
   | { type: "disabled"; label: string };
 
-const CONTENT_ITEMS = [
-  "Çalışma Alanları",
-  "Ekip",
-  "Makaleler",
-  "Basında Biz",
-  "Yorumlar",
-  "SSS",
-  "Yasal Metinler",
-  "Ana Sayfa / Hero",
-  "Medya",
+const CONTENT_LINKS: { label: string; href: string }[] = [
+  { label: "Çalışma Alanları", href: "/admin/icerik/calisma-alanlari" },
+  { label: "Ekip", href: "/admin/icerik/ekip" },
+  { label: "Makaleler", href: "/admin/makaleler" },
+  { label: "Basında Biz", href: "/admin/icerik/basinda-biz" },
+  { label: "Yorumlar", href: "/admin/icerik/yorumlar" },
+  { label: "SSS", href: "/admin/icerik/sss" },
+  { label: "Yasal Metinler", href: "/admin/icerik/yasal-metinler" },
+  { label: "Ana Sayfa / Hero", href: "/admin/icerik/ana-sayfa" },
 ];
+
+const CONTENT_DISABLED_ITEMS = ["Medya"];
 
 const SYSTEM_ITEMS = ["Diller & Çeviri", "Kullanıcılar & Roller"];
 
@@ -49,7 +50,8 @@ export function AdminSidebar({
       badge: pendingAppointmentCount || undefined,
     },
     { type: "section", label: "İÇERİK" },
-    ...CONTENT_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
+    ...CONTENT_LINKS.map((item): NavItem => ({ type: "link", label: item.label, href: item.href })),
+    ...CONTENT_DISABLED_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
     { type: "section", label: "SİSTEM" },
     { type: "link", label: "Ayarlar", href: "/admin/ayarlar" },
     ...SYSTEM_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
