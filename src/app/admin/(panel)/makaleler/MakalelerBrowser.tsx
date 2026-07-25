@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { MediaField } from "@/components/admin/medya/MediaField";
 import { AiPanel } from "@/components/admin/makaleler/AiPanel";
+import { ArticleEditor } from "@/components/admin/makaleler/ArticleEditor";
+import type { LinkTargetOption } from "@/components/admin/makaleler/LinkDialog";
+import { useBodyStream } from "@/components/admin/makaleler/useBodyStream";
 import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
 import { VerificationPanel } from "@/components/admin/makaleler/VerificationPanel";
 import { checkPublishGate } from "@/lib/ai/citations";
@@ -32,28 +35,6 @@ const STATUS_STYLE: Record<ArticleStatus, { color: string; border: string; bg: s
 
 const FILTERS: ("Tümü" | ArticleStatus)[] = ["Tümü", "PUBLISHED", "DRAFT", "SCHEDULED"];
 
-type ToolAction = "line" | "cursor" | "wrap";
-
-const TOOLS: {
-  label: string;
-  hint: string;
-  action: ToolAction;
-  value: string;
-  /** wrap: seçimin sonuna eklenen kapanış (yoksa `value` tekrar kullanılır) */
-  close?: string;
-}[] = [
-  { label: "H2", hint: "Başlık", action: "line", value: "## " },
-  { label: "H3", hint: "Alt başlık", action: "line", value: "### " },
-  { label: "¶", hint: "Paragraf arası", action: "cursor", value: "\n\n" },
-  { label: "≡", hint: "Liste", action: "line", value: "- " },
-  { label: "1.", hint: "Sıralı liste", action: "line", value: "1. " },
-  { label: "❝", hint: "Alıntı", action: "line", value: "> " },
-  { label: "B", hint: "Kalın", action: "wrap", value: "**" },
-  { label: "I", hint: "İtalik", action: "wrap", value: "*" },
-  { label: "🔗", hint: "Link", action: "wrap", value: "[", close: "](/yol)" },
-  { label: "—", hint: "Uzun çizgi", action: "cursor", value: "—" },
-];
-
 function blankForm(): ArticleFormData {
   return {
     id: null,
@@ -76,10 +57,12 @@ export function MakalelerBrowser({
   initialList,
   initialForms,
   practiceAreaOptions,
+  linkTargets,
 }: {
   initialList: ArticleListItem[];
   initialForms: Record<string, ArticleFormData>;
   practiceAreaOptions: { value: string; label: string }[];
+  linkTargets: LinkTargetOption[];
 }) {
   const [list, setList] = useState(initialList);
   const [forms, setForms] = useState(initialForms);
@@ -93,7 +76,8 @@ export function MakalelerBrowser({
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  // Gövde üretimi burada tutuluyor ki yükleme ekranı editörün üstünde çıkabilsin.
+  const body = useBodyStream();
 
   function showToast(message: string) {
     setToast(message);
@@ -139,13 +123,12 @@ export function MakalelerBrowser({
     setDirty(true);
   }
 
-  /**
-   * AI akışının gövde parçalarını sona ekler. Fonksiyonel güncelleme şart: parçalar hızlı
-   * ardışık geliyor ve her biri bir öncekinin sonucunu görmek zorunda.
-   */
-  function appendTrBody(delta: string) {
-    setEditForm((f) => ({ ...f, tr: { ...f.tr, body: f.tr.body + delta } }));
-    setDirty(true);
+  /** AI gövde üretimini başlatır; metin tamamlandığında tek seferde forma düşer. */
+  function handleGenerateBody() {
+    void body.start(
+      { title: editForm.tr.title, areaSlug: editForm.practiceAreaSlug },
+      { onComplete: (text) => setLocaleField("tr", "body", text) },
+    );
   }
 
   function currentBody() {
@@ -154,49 +137,6 @@ export function MakalelerBrowser({
 
   function updateBody(value: string) {
     setLocaleField(dil === "TR" ? "tr" : "en", "body", value);
-  }
-
-  function runTool(tool: (typeof TOOLS)[number]) {
-    const el = bodyRef.current;
-    const value = currentBody();
-    if (!el) {
-      updateBody(tool.action === "cursor" ? value + tool.value : value);
-      return;
-    }
-
-    const start = el.selectionStart ?? value.length;
-    const end = el.selectionEnd ?? start;
-
-    // İmleci/seçimi düzenlemeden sonra doğru yere koyar.
-    const restore = (from: number, to: number) =>
-      requestAnimationFrame(() => {
-        el.focus();
-        el.setSelectionRange(from, to);
-      });
-
-    if (tool.action === "wrap") {
-      const open = tool.value;
-      const close = tool.close ?? tool.value;
-      const selected = value.slice(start, end);
-      const next = value.slice(0, start) + open + selected + close + value.slice(end);
-      updateBody(next);
-      // Seçim varsa sarılmış metni seçili bırak; yoksa imleci işaretlerin arasına al.
-      if (selected) restore(start + open.length, start + open.length + selected.length);
-      else restore(start + open.length, start + open.length);
-      return;
-    }
-
-    if (tool.action === "line") {
-      const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-      const next = value.slice(0, lineStart) + tool.value + value.slice(lineStart);
-      updateBody(next);
-      restore(start + tool.value.length, end + tool.value.length);
-      return;
-    }
-
-    const next = value.slice(0, start) + tool.value + value.slice(end);
-    updateBody(next);
-    restore(start + tool.value.length, start + tool.value.length);
   }
 
   async function handleSave() {
@@ -256,6 +196,17 @@ export function MakalelerBrowser({
     }));
     setDirty(true);
   }
+
+  /**
+   * Kaydedilmemiş değişiklik varken sekmeyi kapatmaya karşı koruma. Önceden hiç yoktu —
+   * sekme kapanınca yazılan her şey gidiyordu.
+   */
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
 
   const deleteTargetTitle = deleteTarget ? list.find((a) => a.id === deleteTarget)?.title : null;
   const hasEnLive = Object.values(editForm.en).some((v) => (typeof v === "string" ? v.trim() : false));
@@ -458,34 +409,33 @@ export function MakalelerBrowser({
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[13px] font-semibold">İçerik{dil === "EN" ? " (EN)" : ""}</label>
-                      <div className="overflow-hidden rounded border border-line">
-                        <div className="flex flex-wrap gap-0.5 border-b border-line bg-[#FAF8F3] p-2">
-                          {TOOLS.map((tool) => (
-                            <button
-                              key={tool.label}
-                              type="button"
-                              title={tool.hint}
-                              onClick={() => runTool(tool)}
-                              className="flex h-[30px] min-w-[32px] items-center justify-center rounded border border-transparent px-1.5 text-[13px] text-muted transition-colors hover:border-line hover:bg-white hover:text-ink"
-                            >
-                              {tool.label}
-                            </button>
-                          ))}
-                        </div>
-                        <textarea
-                          ref={bodyRef}
-                          value={currentBody()}
-                          onChange={(e) => updateBody(e.target.value)}
-                          rows={14}
-                          className="w-full resize-y border-none px-4 py-4 text-[14.5px] leading-[1.7] text-ink outline-none"
-                        />
-                      </div>
-                      <p className="m-0 text-[11.5px] leading-relaxed text-muted">
-                        Markdown: <code>## başlık</code>, <code>### alt başlık</code>,{" "}
-                        <code>- liste</code>, <code>1. sıralı</code>, <code>&gt; alıntı</code>,{" "}
-                        <code>**kalın**</code>, <code>*italik*</code>,{" "}
-                        <code>[metin](/yol)</code>. Bloklar arasına boş satır bırakın.
-                      </p>
+                      <ArticleEditor
+                        // Dil değişince editör sıfırdan kurulmalı; aksi hâlde TR içeriği
+                        // EN sekmesinde görünmeye devam eder.
+                        key={`${selectedId ?? "yeni"}-${dil}`}
+                        value={currentBody()}
+                        onChange={updateBody}
+                        linkTargets={linkTargets}
+                        draftKey={`${selectedId ?? "yeni"}-${dil}`}
+                        generation={
+                          dil === "TR"
+                            ? {
+                                active: body.streaming,
+                                startedAt: body.startedAt,
+                                charCount: body.text.length,
+                                onCancel: body.stop,
+                              }
+                            : undefined
+                        }
+                      />
+                      {body.error && (
+                        <p
+                          className="m-0 rounded border px-3 py-2 text-[11.5px] leading-relaxed"
+                          style={{ borderColor: "#E8C5C1", background: "#FBF1F0", color: "#A23A32" }}
+                        >
+                          {body.error}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -671,7 +621,8 @@ export function MakalelerBrowser({
                   setField={setField}
                   setLocaleField={setLocaleField}
                   setLocaleBlock={setLocaleBlock}
-                  appendTrBody={appendTrBody}
+                  onGenerateBody={handleGenerateBody}
+                  generating={body.streaming}
                   showToast={showToast}
                 />
 

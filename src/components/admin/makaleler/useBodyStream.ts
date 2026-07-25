@@ -18,16 +18,20 @@ type StreamEvent =
 export type StreamInput = { title: string; areaSlug: string; instruction?: string };
 
 export type UseBodyStream = {
+  /** Akış sürerken biriken metin. Üretim bitene kadar forma YAZILMAZ. */
   text: string;
   streaming: boolean;
   error: string | null;
+  /** Akışın başladığı an (ms) — yükleme ekranındaki süre sayacı bunu kullanır. */
+  startedAt: number | null;
   /**
-   * `onDelta` verildiğinde her parça çağrıya da iletilir. Bu, akışı hook'un kendi state'i
-   * yerine doğrudan çağıranın veri kaynağına (ör. makale formuna) yazmayı sağlar — böylece
-   * iki ayrı state'i efektle senkronlamak ve buna bağlı render döngüsü riski ortadan kalkar.
-   * Geri çağrı `start` çağrıldığı anda kapanışa alınır, yani her zaman güncel.
+   * Metin akarken forma yazılmaz; tamamlandığında `onComplete` ile tek seferde teslim edilir.
+   *
+   * Neden: (1) kullanıcı üretim boyunca yükleme ekranı görmek istiyor, (2) yarım markdown'ı
+   * görsel editöre (TipTap) akıtmak her parçada yeniden ayrıştırma gerektirir ve imleci
+   * zıplatır. İkisi birden bu tasarımı zorunlu kılıyor.
    */
-  start: (input: StreamInput, options?: { onDelta?: (delta: string) => void }) => Promise<void>;
+  start: (input: StreamInput, options?: { onComplete?: (text: string) => void }) => Promise<void>;
   stop: () => void;
   setText: (value: string) => void;
   reset: () => void;
@@ -37,6 +41,7 @@ export function useBodyStream(): UseBodyStream {
   const [text, setText] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const stop = useCallback(() => {
@@ -51,7 +56,7 @@ export function useBodyStream(): UseBodyStream {
   }, []);
 
   const start = useCallback(
-    async (input: StreamInput, options?: { onDelta?: (delta: string) => void }) => {
+    async (input: StreamInput, options?: { onComplete?: (text: string) => void }) => {
       // Önceki akış sürüyorsa iptal et — iki akış aynı metne yazmasın.
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -60,6 +65,12 @@ export function useBodyStream(): UseBodyStream {
       setStreaming(true);
       setError(null);
       setText("");
+      setStartedAt(Date.now());
+
+      // Biriken metin ref'te tutulur: `text` state'i asenkron güncellendiği için akış
+      // bitiminde `onComplete`'e geçilecek tam metni state'ten okumak yarış koşulu yaratır.
+      let collected = "";
+      let failed = false;
 
       try {
         const response = await fetch("/admin/api/ai/govde", {
@@ -75,10 +86,12 @@ export function useBodyStream(): UseBodyStream {
             (detail as { error?: string } | null)?.error ??
               `Sunucu ${response.status} döndü. Tekrar deneyin.`,
           );
+          failed = true;
           return;
         }
         if (!response.body) {
           setError("Sunucu boş yanıt verdi. Tekrar deneyin.");
+          failed = true;
           return;
         }
 
@@ -104,24 +117,35 @@ export function useBodyStream(): UseBodyStream {
               continue; // bozuk satırı sessizce atla, akışı bozmayalım
             }
             if (event.type === "text") {
-              setText((current) => current + event.text);
-              options?.onDelta?.(event.text);
+              collected += event.text;
+              // Yükleme ekranı ilerlemeyi (karakter sayısını) gösterebilsin diye state de
+              // güncellenir; forma yazma işi bitişte `onComplete` ile yapılır.
+              setText(collected);
             } else if (event.type === "error") {
               setError(event.message);
+              failed = true;
             }
           }
         }
       } catch (err) {
-        // Kullanıcı "Durdur"a bastıysa bu bir hata değil.
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setError("Bağlantı kesildi. Tekrar deneyin — yazılan metin ekranda kaldı.");
+        // Kullanıcı "Durdur"a bastıysa bu bir hata değil; yarım metin teslim edilmez.
+        if (err instanceof DOMException && err.name === "AbortError") {
+          failed = true;
+          return;
+        }
+        setError("Bağlantı kesildi. Tekrar deneyin.");
+        failed = true;
       } finally {
         setStreaming(false);
+        setStartedAt(null);
         abortRef.current = null;
+        // Metin yalnızca eksiksiz tamamlandıysa teslim edilir — yarım bir makale forma
+        // yazılıp kullanıcıyı "bu kadar mı?" diye düşündürmesin.
+        if (!failed && collected.trim()) options?.onComplete?.(collected);
       }
     },
     [],
   );
 
-  return { text, streaming, error, start, stop, setText, reset };
+  return { text, streaming, error, startedAt, start, stop, setText, reset };
 }

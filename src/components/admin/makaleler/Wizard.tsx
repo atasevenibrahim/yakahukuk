@@ -8,6 +8,8 @@ import { saveArticle } from "@/app/admin/(panel)/makaleler/actions";
 import type { ArticleFormData } from "@/app/admin/(panel)/makaleler/types";
 import { BASE_URL } from "@/lib/metadata";
 import { readMinutesOf } from "@/lib/seo/score";
+import { ArticleEditor } from "./ArticleEditor";
+import type { LinkTargetOption } from "./LinkDialog";
 import { SeoPanel } from "./SeoPanel";
 import { SuggestionList } from "./SuggestionList";
 import { VerificationPanel } from "./VerificationPanel";
@@ -39,8 +41,10 @@ function emptySeo(): SeoSuggestions {
 
 export function Wizard({
   practiceAreaOptions,
+  linkTargets,
 }: {
   practiceAreaOptions: { value: string; label: string }[];
+  linkTargets: LinkTargetOption[];
 }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(0);
@@ -57,6 +61,8 @@ export function Wizard({
 
   // 3. adım
   const body = useBodyStream();
+  /** Üretim tamamlanınca buraya düşer; kullanıcı bundan sonra editörde düzenler. */
+  const [draftBody, setDraftBody] = useState("");
   const [instruction, setInstruction] = useState("");
 
   // 4. adım
@@ -89,13 +95,16 @@ export function Wizard({
   async function runBody(extra?: string) {
     setError(null);
     setStep(2);
-    await body.start({ title, areaSlug, instruction: extra });
+    await body.start(
+      { title, areaSlug, instruction: extra },
+      { onComplete: setDraftBody },
+    );
   }
 
   async function runSeo() {
     setError(null);
     setBusy(true);
-    const result = await suggestSeo(title, body.text);
+    const result = await suggestSeo(title, draftBody);
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
@@ -117,7 +126,7 @@ export function Wizard({
     const result = await translateToEn({
       title,
       excerpt,
-      body: body.text,
+      body: draftBody,
       metaTitle,
       metaDescription,
     });
@@ -137,7 +146,7 @@ export function Wizard({
       slug: "",
       practiceAreaSlug: areaSlug,
       // Markdown biçimlendirmesi hariç tutularak gerçek kelime sayısından hesaplanır.
-      readMinutes: readMinutesOf(body.text),
+      readMinutes: readMinutesOf(draftBody),
       tags,
       coverImageUrl: "",
       featured: false,
@@ -146,7 +155,7 @@ export function Wizard({
       focusKeyword,
       // Sihirbaz taslak kaydeder; doğrulama işaretleri editörde tek tek konur.
       verifiedClaims: [],
-      tr: { title, excerpt, body: body.text, metaTitle, metaDescription },
+      tr: { title, excerpt, body: draftBody, metaTitle, metaDescription },
       en: en ?? { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
     };
 
@@ -319,12 +328,17 @@ export function Wizard({
           </p>
 
           <div className="mt-5 flex flex-col gap-4">
-            <textarea
-              value={body.text}
-              onChange={(e) => body.setText(e.target.value)}
-              rows={20}
-              placeholder={body.streaming ? "" : "Metin burada görünecek…"}
-              className={`${textareaClass} font-mono text-[13.5px] leading-[1.75]`}
+            <ArticleEditor
+              value={draftBody}
+              onChange={setDraftBody}
+              linkTargets={linkTargets}
+              draftKey="sihirbaz"
+              generation={{
+                active: body.streaming,
+                startedAt: body.startedAt,
+                charCount: body.text.length,
+                onCancel: body.stop,
+              }}
             />
 
             {body.error && (
@@ -377,7 +391,7 @@ export function Wizard({
               <button
                 type="button"
                 onClick={runSeo}
-                disabled={busy || body.streaming || !body.text.trim()}
+                disabled={busy || body.streaming || !draftBody.trim()}
                 className="rounded bg-ink px-[26px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold disabled:opacity-50"
               >
                 {busy ? "SEO üretiliyor…" : "SEO alanlarını doldur →"}
@@ -495,7 +509,7 @@ export function Wizard({
               input={{
                 title,
                 slug: "",
-                body: body.text,
+                body: draftBody,
                 excerpt,
                 metaTitle,
                 metaDescription,
@@ -512,7 +526,7 @@ export function Wizard({
               Bu iddiaları kaydettikten sonra editörde tek tek teyit edip işaretleyeceksiniz —
               yayınlamanın şartı budur.
             </p>
-            <VerificationPanel text={body.text} />
+            <VerificationPanel text={draftBody} />
           </div>
 
           <div className={cardClass}>
@@ -561,7 +575,7 @@ export function Wizard({
             <button
               type="button"
               onClick={handleSave}
-              disabled={busy || !title.trim() || !body.text.trim()}
+              disabled={busy || !title.trim() || !draftBody.trim()}
               className="rounded bg-ink px-[26px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold disabled:opacity-50"
             >
               {busy ? "Kaydediliyor…" : "Taslak olarak kaydet"}

@@ -10,7 +10,6 @@ import {
 import type { LinkSuggestion, SeoSuggestions } from "@/lib/ai/article";
 import type { ArticleFormData, ArticleLocaleForm } from "@/app/admin/(panel)/makaleler/types";
 import { SuggestionList } from "./SuggestionList";
-import { useBodyStream } from "./useBodyStream";
 
 /**
  * Editördeki yapay zeka yan paneli.
@@ -34,7 +33,8 @@ export function AiPanel({
   setField,
   setLocaleField,
   setLocaleBlock,
-  appendTrBody,
+  onGenerateBody,
+  generating,
   showToast,
 }: {
   form: ArticleFormData;
@@ -42,8 +42,9 @@ export function AiPanel({
   setField: <K extends keyof ArticleFormData>(key: K, value: ArticleFormData[K]) => void;
   setLocaleField: (locale: "tr" | "en", key: keyof ArticleLocaleForm, value: string) => void;
   setLocaleBlock: (locale: "tr" | "en", block: ArticleLocaleForm) => void;
-  /** Akan gövde parçalarını TR gövdesinin sonuna ekler (fonksiyonel güncelleme gerektirir). */
-  appendTrBody: (delta: string) => void;
+  /** Gövde üretimini başlatır; akış durumu üst bileşende tutulur. */
+  onGenerateBody: () => void;
+  generating: boolean;
   showToast: (message: string) => void;
 }) {
   const [busy, setBusy] = useState<string | null>(null);
@@ -52,7 +53,6 @@ export function AiPanel({
   const [seo, setSeo] = useState<SeoSuggestions>(emptySeo());
   const [links, setLinks] = useState<LinkSuggestion[] | null>(null);
   const [confirmRegenerate, setConfirmRegenerate] = useState(false);
-  const body = useBodyStream();
 
   const locale = dil === "TR" ? "tr" : "en";
   const current = form[locale];
@@ -97,10 +97,8 @@ export function AiPanel({
 
   // --- Gövde ----------------------------------------------------------------
   /**
-   * Akış doğrudan forma yazar (`onDelta` → `appendTrBody`). Hook'un kendi `text` state'ini
-   * efektle forma senkronlamak, `setEditForm` her çağrıda yeni nesne ürettiği için sonsuz
-   * render döngüsü riski taşıyordu; tek veri kaynağına yazmak bu sorunu tamamen ortadan
-   * kaldırıyor.
+   * Üretimi tetikler. Akış durumu MakalelerBrowser'da tutuluyor ki yükleme ekranı gövde
+   * editörünün üstünde çıkabilsin — panel dar bir kenar çubuğu, orası doğru yer değil.
    */
   function handleBody() {
     if (!guardArea()) return;
@@ -110,11 +108,7 @@ export function AiPanel({
     }
     setConfirmRegenerate(false);
     setError(null);
-    setLocaleField("tr", "body", ""); // üzerine yazılacağı onaylandı, alanı temizle
-    void body.start(
-      { title: form.tr.title, areaSlug: form.practiceAreaSlug },
-      { onDelta: appendTrBody },
-    );
+    onGenerateBody();
   }
 
   // --- SEO ------------------------------------------------------------------
@@ -230,14 +224,14 @@ export function AiPanel({
             {busy === "titles" ? "Üretiliyor…" : "Başlık önerisi al"}
           </button>
 
-          {body.streaming ? (
-            <button
-              type="button"
-              onClick={body.stop}
-              className="w-full rounded border border-[#E8C5C1] bg-surface px-4 py-2.5 text-[12.5px] font-semibold text-[#A23A32] transition-colors hover:bg-[#FBF1F0]"
+          {generating ? (
+            <p
+              className="m-0 rounded border px-3 py-2.5 text-[11.5px] leading-relaxed"
+              style={{ borderColor: "#9C7C4A", background: "rgba(156,124,74,.07)" }}
             >
-              Gövde üretimini durdur
-            </button>
+              Gövde üretiliyor… İlerlemeyi ve iptal düğmesini soldaki editör alanında
+              görebilirsiniz.
+            </p>
           ) : confirmRegenerate ? (
             <div
               className="rounded border px-3 py-2.5"
@@ -294,14 +288,6 @@ export function AiPanel({
           </button>
         </div>
 
-        {body.error && (
-          <p
-            className="m-0 mt-3 rounded border px-3 py-2 text-[11.5px] leading-relaxed"
-            style={{ borderColor: "#E8C5C1", background: "#FBF1F0", color: "#A23A32" }}
-          >
-            {body.error}
-          </p>
-        )}
       </div>
 
       {titles.length > 0 && (
