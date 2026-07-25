@@ -25,13 +25,13 @@ export default async function IcerikYorumlarPage() {
   const topFields: FieldDef[] = [
     { key: "practiceAreaSlug", label: "İlgili çalışma alanı", kind: "select", localized: false, options: areaOptions },
     { key: "areaLabel", label: "Kısa alan etiketi", kind: "text", localized: false, hint: "Büyük harf, örn. TİCARET" },
-    { key: "initials", label: "İsim / rumuz", kind: "text", localized: false, hint: "Örn. A. K." },
+    { key: "initials", label: "İsim / rumuz", kind: "text", localized: false, required: true, hint: "Örn. A. K." },
     { key: "monthLabel", label: "Ay etiketi", kind: "text", localized: false, hint: "Örn. HAZİRAN 2026" },
     { key: "rating", label: "Yıldız (1–5)", kind: "number", localized: false },
   ];
 
   const localizedFields: FieldDef[] = [
-    { key: "quote", label: "Yorum metni", kind: "textarea", localized: true, rows: 4 },
+    { key: "quote", label: "Yorum metni", kind: "textarea", localized: true, rows: 4, required: true },
   ];
 
   return (

@@ -30,7 +30,7 @@ const topFields: FieldDef[] = [
 ];
 
 const localizedFields: FieldDef[] = [
-  { key: "title", label: "Başlık", kind: "text", localized: true },
+  { key: "title", label: "Başlık", kind: "text", localized: true, required: true },
   { key: "excerpt", label: "Özet", kind: "textarea", localized: true, rows: 2 },
   {
     key: "whatWeDo",

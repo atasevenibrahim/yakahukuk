@@ -1,11 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { passwordStrength } from "@/lib/auth/password-strength";
 import { updateName, changePassword, setup2FA, confirm2FA, disable2FA } from "./actions";
+import { AdminToast } from "@/components/admin/AdminToast";
 
-type RecentLogin = { id: string; device: string; ip: string; time: string };
+type RecentLogin = {
+  id: string;
+  device: string;
+  ip: string;
+  /** Vercel geo başlıklarından; yerelde "Yerel ağ". */
+  location: string;
+  time: string;
+};
 type TwoFAStage = "kapali" | "kurulum" | "yedek" | "aktif";
 
 const inputClass =
@@ -381,20 +390,24 @@ export function ProfilBrowser({
               >
                 <span className="flex flex-col gap-0.5">
                   <span className="text-[13px] font-semibold">{g.device}</span>
-                  <span className="font-mono text-[10.5px] text-muted">{g.ip}</span>
+                  <span className="font-mono text-[10.5px] text-muted">
+                    {g.location} · {g.ip}
+                  </span>
                 </span>
                 <span className="font-mono text-[10.5px] text-muted">{g.time}</span>
               </div>
             ))}
+            <Link
+              href="/admin/ayarlar"
+              className="block px-6 py-3 text-[12.5px] font-semibold text-gold transition-colors hover:text-ink"
+            >
+              Tüm işlem kayıtlarını gör →
+            </Link>
           </div>
         </div>
       </div>
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} />
     </div>
   );
 }

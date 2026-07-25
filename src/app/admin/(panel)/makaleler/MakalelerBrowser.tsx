@@ -9,6 +9,7 @@ import { checkPublishGate } from "@/lib/ai/citations";
 import { BASE_URL } from "@/lib/metadata";
 import { saveArticle, deleteArticle } from "./actions";
 import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, ArticleStatus } from "./types";
+import { AdminToast } from "@/components/admin/AdminToast";
 
 const inputClass =
   "h-11 rounded border border-line bg-surface px-3.5 text-[14px] text-ink outline-none focus:border-gold";
@@ -264,6 +265,15 @@ export function MakalelerBrowser({
   const hasEnLive = Object.values(editForm.en).some((v) => (typeof v === "string" ? v.trim() : false));
 
   // Yayın kapısı — istemci tarafı. Sunucu `saveArticle`'da aynı fonksiyonu tekrar çalıştırır.
+  // `saveArticle`'ın fiilen doğruladığı alanlar — hata kaydettikten sonra değil, önce görülsün.
+  const missing = useMemo(() => {
+    const list: string[] = [];
+    if (!editForm.tr.title.trim()) list.push("Başlık");
+    if (!editForm.practiceAreaSlug) list.push("Çalışma alanı");
+    return list;
+  }, [editForm.tr.title, editForm.practiceAreaSlug]);
+  const canSave = missing.length === 0;
+
   const gate = useMemo(
     () => checkPublishGate(editForm.tr.body, editForm.verifiedClaims),
     [editForm.tr.body, editForm.verifiedClaims],
@@ -421,7 +431,7 @@ export function MakalelerBrowser({
 
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[13px] font-semibold">Başlık{dil === "EN" ? " (EN)" : ""}</label>
+                      <label className="text-[13px] font-semibold">Başlık{dil === "EN" ? " (EN)" : ""}{dil === "TR" && <span className="ml-1 text-[#A23A32]" title="Zorunlu alan">*</span>}</label>
                       <input
                         type="text"
                         value={dil === "TR" ? editForm.tr.title : editForm.en.title}
@@ -599,7 +609,7 @@ export function MakalelerBrowser({
                 </div>
 
                 <div className="rounded-md border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
-                  <h2 className="m-0 mb-3.5 text-sm font-bold">Çalışma alanı</h2>
+                  <h2 className="m-0 mb-3.5 text-sm font-bold">Çalışma alanı<span className="ml-1 text-[#A23A32]" title="Zorunlu alan">*</span></h2>
                   <select
                     value={editForm.practiceAreaSlug}
                     onChange={(e) => setField("practiceAreaSlug", e.target.value)}
@@ -684,8 +694,15 @@ export function MakalelerBrowser({
             </div>
 
             <div className="sticky bottom-4 mt-5 flex flex-wrap items-center justify-between gap-4 rounded-md border border-line bg-surface px-6 py-3.5 shadow-[0_-2px_16px_rgba(28,34,48,0.08)]">
-              <span className="text-[13px]" style={{ color: dirty ? "#9C7C4A" : "#5B6270" }}>
-                {dirty ? "Kaydedilmemiş değişiklikler var" : "Tüm değişiklikler kayıtlı"}
+              <span
+                className="text-[13px]"
+                style={{ color: !canSave ? "#A23A32" : dirty ? "#9C7C4A" : "#5B6270" }}
+              >
+                {!canSave
+                  ? `Zorunlu alan boş: ${missing.join(", ")}`
+                  : dirty
+                    ? "Kaydedilmemiş değişiklikler var"
+                    : "Tüm değişiklikler kayıtlı"}
               </span>
               <div className="flex gap-2.5">
                 <button
@@ -699,10 +716,11 @@ export function MakalelerBrowser({
                 <button
                   type="button"
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || !canSave}
+                  title={canSave ? undefined : `Zorunlu alan boş: ${missing.join(", ")}`}
                   className="rounded bg-ink px-[26px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold disabled:opacity-50"
                 >
-                  {saving ? "Kaydediliyor…" : "Kaydet"}
+                  {saving ? "Kaydediliyor…" : selectedId ? "Kaydet" : "Makaleyi oluştur"}
                 </button>
               </div>
             </div>
@@ -737,11 +755,7 @@ export function MakalelerBrowser({
         </div>
       )}
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} aboveSaveBar={view === "editor"} />
     </div>
   );
 }

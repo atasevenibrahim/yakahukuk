@@ -49,6 +49,22 @@ export default async function AdminDashboardPage() {
     getPracticeAreasRaw(),
   ]);
 
+  // Kart alt yazıları önceden sabit "Tümü yayında" yazıyordu — taslak varken bile. Artık
+  // gerçek sayılar okunuyor. (`getArticlesRaw`/`getPracticeAreasRaw` yalnızca yayındakileri
+  // döndürdüğü için taslak/gizli sayısı ayrıca sorgulanmalı.)
+  const [draftArticleCount, scheduledArticleCount, hiddenAreaCount] = await Promise.all([
+    prisma.article.count({ where: { status: "DRAFT" } }),
+    prisma.article.count({ where: { status: "SCHEDULED" } }),
+    prisma.practiceArea.count({ where: { published: false } }),
+  ]);
+
+  const articleSubtitle = [
+    draftArticleCount > 0 ? `${draftArticleCount} taslak` : null,
+    scheduledArticleCount > 0 ? `${scheduledArticleCount} zamanlanmış` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const areaLabel = (slug: string | null) =>
     slug ? (practiceAreas.find((a) => a.slug === slug)?.t.tr.title ?? slug) : null;
 
@@ -101,18 +117,18 @@ export default async function AdminDashboardPage() {
     {
       etiket: "YAYINDAKİ MAKALE",
       sayi: String(articles.length).padStart(2, "0"),
-      alt: "Tümü yayında",
+      alt: articleSubtitle || "Taslak yok",
       vurgu: "transparent",
-      altRenk: "#5B6270",
-      href: null,
+      altRenk: articleSubtitle ? "#9C7C4A" : "#5B6270",
+      href: "/admin/makaleler",
     },
     {
       etiket: "ÇALIŞMA ALANI",
       sayi: String(practiceAreas.length).padStart(2, "0"),
-      alt: "Tümü yayında",
+      alt: hiddenAreaCount > 0 ? `${hiddenAreaCount} yayında değil` : "Tümü yayında",
       vurgu: "transparent",
-      altRenk: "#5B6270",
-      href: null,
+      altRenk: hiddenAreaCount > 0 ? "#9C7C4A" : "#5B6270",
+      href: "/admin/icerik/calisma-alanlari",
     },
   ];
 

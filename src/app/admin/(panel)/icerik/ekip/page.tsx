@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Ekip" };
 
 const topFields: FieldDef[] = [
   { key: "slug", label: "Slug", kind: "text", localized: false, hint: "URL'de kullanılır, örn. av-ornek-isim" },
-  { key: "name", label: "Ad Soyad", kind: "text", localized: false },
+  { key: "name", label: "Ad Soyad", kind: "text", localized: false, required: true },
   { key: "bar", label: "Baro", kind: "text", localized: false },
   { key: "tags", label: "Uzmanlık etiketleri", kind: "lines", localized: false, rows: 3, hint: "Her satır bir etiket, örn. AİLE" },
   {

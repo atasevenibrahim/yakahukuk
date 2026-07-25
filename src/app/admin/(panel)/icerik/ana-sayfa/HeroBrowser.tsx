@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveHomeHero, type HomeHeroInput } from "./actions";
+import { AdminToast } from "@/components/admin/AdminToast";
 
 const inputClass =
   "h-11 rounded border border-line bg-surface px-3.5 text-[14px] text-ink outline-none focus:border-gold";
@@ -120,11 +121,7 @@ export function HeroBrowser({ hero }: { hero: HomeHeroInput }) {
         </div>
       </div>
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} aboveSaveBar={true} />
     </div>
   );
 }

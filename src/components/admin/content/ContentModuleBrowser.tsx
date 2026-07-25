@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import type { FieldDef } from "@/lib/admin/content-fields";
+import { useMemo, useState } from "react";
+import { AdminToast } from "@/components/admin/AdminToast";
+import { missingRequired, type FieldDef } from "@/lib/admin/content-fields";
 
 export type ModuleItem = {
   id: string;
@@ -41,14 +42,27 @@ function Field({
   field,
   value,
   onChange,
+  showRequiredError,
 }: {
   field: FieldDef;
   value: string;
   onChange: (v: string) => void;
+  /** Alan zorunlu ve boşsa uyarıyı gösterir (kullanıcı en az bir kez yazmayı denedikten sonra). */
+  showRequiredError?: boolean;
 }) {
+  const empty = !value.trim();
+  const invalid = Boolean(field.required && empty && showRequiredError);
+
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[13px] font-semibold">{field.label}</label>
+      <label className="text-[13px] font-semibold">
+        {field.label}
+        {field.required && (
+          <span className="ml-1 text-[#A23A32]" title="Zorunlu alan">
+            *
+          </span>
+        )}
+      </label>
       {field.kind === "select" ? (
         <select
           value={value}
@@ -84,7 +98,13 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           readOnly={field.readOnly}
           className={`${inputClass} ${field.readOnly ? "text-muted" : ""}`}
+          style={invalid ? { borderColor: "#A23A32" } : undefined}
         />
+      )}
+      {invalid && (
+        <p className="m-0 text-[11.5px] font-semibold text-[#A23A32]">
+          {field.label} zorunlu.
+        </p>
       )}
       {field.hint && <p className="m-0 text-[11.5px] leading-relaxed text-muted">{field.hint}</p>}
     </div>
@@ -131,7 +151,12 @@ export function ContentModuleBrowser({
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [creating, setCreating] = useState(false);
+  /**
+   * "Yeni kayıt" yerel taslak modu. Önceden "+ Yeni ekle" boş alanlarla doğrudan sunucuya
+   * kaydetmeye çalışıyordu; zorunlu alanı olan her modülde bu her zaman hata veriyordu.
+   * Artık kayıt ancak kullanıcı formu doldurup Kaydet'e bastığında oluşturulur.
+   */
+  const [isNew, setIsNew] = useState(false);
   const [dirty, setDirty] = useState(false);
 
   const selected = items.find((i) => i.id === selectedId) ?? null;
@@ -148,6 +173,7 @@ export function ContentModuleBrowser({
 
   function selectItem(item: ModuleItem) {
     setSelectedId(item.id);
+    setIsNew(false);
     setFormTop(item.top);
     setFormTr(item.tr);
     setFormEn(item.en);
@@ -159,7 +185,21 @@ export function ContentModuleBrowser({
 
   const hasEnLive = Object.values(formEn).some((v) => v.trim());
 
+  // Zorunlu alan denetimi. TR sekmesindeki yerelleştirilmiş alanlar kaynak metindir; EN
+  // isteğe bağlı olduğu için orada zorunluluk aranmaz.
+  const missingTop = useMemo(() => missingRequired(topFields, formTop), [topFields, formTop]);
+  const missingTr = useMemo(
+    () => missingRequired(localizedFields, formTr),
+    [localizedFields, formTr],
+  );
+  const missing = [...missingTop, ...missingTr];
+  const canSave = missing.length === 0;
+
   async function handleSave() {
+    if (!canSave) {
+      showToast(`Zorunlu alan boş: ${missing.map((f) => f.label).join(", ")}`);
+      return;
+    }
     setSaving(true);
     const result = await onSave({
       id: selectedId,
@@ -174,6 +214,7 @@ export function ContentModuleBrowser({
       showToast(result.error);
       return;
     }
+    const wasNew = isNew;
     setItems((current) => {
       const exists = current.some((i) => i.id === result.item.id);
       return exists
@@ -181,11 +222,26 @@ export function ContentModuleBrowser({
         : [...current, result.item];
     });
     setSelectedId(result.item.id);
+    setIsNew(false);
     setDirty(false);
-    showToast("Kaydedildi");
+    showToast(wasNew ? "Yeni kayıt eklendi" : "Kaydedildi");
   }
 
   function handleDiscard() {
+    if (isNew) {
+      // Yeni taslağı tamamen kapat; sunucuda hiçbir şey oluşmamıştı.
+      setIsNew(false);
+      const fallback = items.find((i) => i.id === selectedId) ?? items[0] ?? null;
+      if (fallback) selectItem(fallback);
+      else {
+        setFormTop(emptyMap(topFields));
+        setFormTr(emptyMap(localizedFields));
+        setFormEn({});
+        setDirty(false);
+      }
+      showToast("Yeni kayıt iptal edildi");
+      return;
+    }
     if (selected) selectItem(selected);
     else {
       setFormTop(emptyMap(topFields));
@@ -196,24 +252,17 @@ export function ContentModuleBrowser({
     showToast("Değişiklikler geri alındı");
   }
 
-  async function handleCreate() {
-    setCreating(true);
-    const result = await onSave({
-      id: null,
-      top: emptyMap(topFields),
-      tr: emptyMap(localizedFields),
-      en: {},
-      published: false,
-      featured: false,
-    });
-    setCreating(false);
-    if (!result.ok) {
-      showToast(result.error);
-      return;
-    }
-    setItems((current) => [...current, result.item]);
-    selectItem(result.item);
-    showToast("Yeni kayıt eklendi");
+  /** Sunucuya HİÇ gitmez: yalnızca formu boş bir taslakla açar. */
+  function handleCreate() {
+    setIsNew(true);
+    setSelectedId(null);
+    setFormTop(emptyMap(topFields));
+    setFormTr(emptyMap(localizedFields));
+    setFormEn({});
+    setFormPublished(false);
+    setFormFeatured(false);
+    setDil("TR");
+    setDirty(false);
   }
 
   async function handleDeleteConfirm() {
@@ -231,10 +280,14 @@ export function ContentModuleBrowser({
         const fallback = next[0] ?? null;
         if (fallback) selectItem(fallback);
         else {
+          // Son kayıt da silindi: formu temizle. "+ Yeni ekle" artık çalıştığı için
+          // buradan yeni kayıt eklenebilir.
           setSelectedId(null);
+          setIsNew(false);
           setFormTop(emptyMap(topFields));
           setFormTr(emptyMap(localizedFields));
           setFormEn({});
+          setDirty(false);
         }
       }
       return next;
@@ -276,10 +329,10 @@ export function ContentModuleBrowser({
           <button
             type="button"
             onClick={handleCreate}
-            disabled={creating}
+            disabled={isNew}
             className="ml-auto rounded bg-ink px-[22px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold disabled:opacity-50"
           >
-            {creating ? "Ekleniyor…" : "+ Yeni ekle"}
+            {isNew ? "Yeni kayıt açık" : "+ Yeni ekle"}
           </button>
         )}
       </div>
@@ -354,12 +407,21 @@ export function ContentModuleBrowser({
         </div>
 
         <div className="flex flex-col gap-4">
-          {selected || !allowCreate ? (
+          {selected || isNew || !allowCreate ? (
             <div className="rounded-md border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
-              <span className="font-mono text-[10px] tracking-[2px] text-gold">DÜZENLE</span>
+              <span className="font-mono text-[10px] tracking-[2px] text-gold">
+                {isNew ? "YENİ KAYIT" : "DÜZENLE"}
+              </span>
               <h2 className="m-0 mb-[18px] mt-1.5 text-[17px] font-bold">
-                {selected?.listTitle || moduleTitle}
+                {isNew ? `Yeni ${moduleTitle.toLocaleLowerCase("tr")} kaydı` : selected?.listTitle || moduleTitle}
               </h2>
+              {isNew && (
+                <p className="m-0 mb-[18px] rounded border border-line bg-[#FAF8F3] px-3 py-2 text-[11.5px] leading-relaxed text-muted">
+                  Yıldızlı (<span className="text-[#A23A32]">*</span>) alanları doldurup{" "}
+                  <strong className="text-ink">Kaydet</strong>&apos;e basana kadar bu kayıt
+                  oluşturulmaz.
+                </p>
+              )}
 
               {topFields.length > 0 && (
                 <div className="mb-5 flex flex-col gap-3.5 border-b border-line pb-5">
@@ -368,6 +430,7 @@ export function ContentModuleBrowser({
                       key={f.key}
                       field={f}
                       value={formTop[f.key] ?? ""}
+                      showRequiredError={dirty || isNew}
                       onChange={(v) => {
                         setFormTop((cur) => ({ ...cur, [f.key]: v }));
                         setDirty(true);
@@ -404,8 +467,14 @@ export function ContentModuleBrowser({
                   return (
                     <Field
                       key={f.key}
-                      field={{ ...f, label: dil === "EN" ? `${f.label} (EN)` : f.label }}
+                      // EN isteğe bağlı: zorunluluk yalnızca kaynak metin olan TR'de aranır.
+                      field={
+                        dil === "EN"
+                          ? { ...f, label: `${f.label} (EN)`, required: false }
+                          : f
+                      }
                       value={map[f.key] ?? ""}
+                      showRequiredError={dil === "TR" && (dirty || isNew)}
                       onChange={(v) => {
                         setMap((cur) => ({ ...cur, [f.key]: v }));
                         setDirty(true);
@@ -448,31 +517,50 @@ export function ContentModuleBrowser({
             </div>
           ) : (
             <div className="rounded-md border border-dashed border-line bg-surface p-10 text-center">
-              <p className="m-0 text-[14.5px] font-semibold">Düzenlemek için soldan bir kayıt seçin.</p>
+              <span className="inline-block h-4 w-4 rotate-45 border-[1.5px] border-gold" />
+              <p className="m-0 mt-4 text-[14.5px] font-semibold">
+                {items.length === 0 ? "Henüz kayıt yok." : "Düzenlemek için soldan bir kayıt seçin."}
+              </p>
+              {allowCreate && (
+                <p className="m-0 mt-1.5 text-[13px] text-muted">
+                  Yukarıdaki <strong className="text-ink">+ Yeni ekle</strong> düğmesiyle
+                  {items.length === 0 ? " ilk kaydı" : " yeni bir kayıt"} oluşturabilirsiniz.
+                </p>
+              )}
             </div>
           )}
 
-          {(selected || items.length === 0) && (
+          {(selected || isNew) && (
             <div className="sticky bottom-4 flex flex-wrap items-center justify-between gap-4 rounded-md border border-line bg-surface px-6 py-3.5 shadow-[0_-2px_16px_rgba(28,34,48,0.08)]">
-              <span className="text-[13px]" style={{ color: dirty ? "#9C7C4A" : "#5B6270" }}>
-                {dirty ? "Kaydedilmemiş değişiklikler var" : "Tüm değişiklikler kayıtlı"}
+              <span
+                className="text-[13px]"
+                style={{ color: !canSave ? "#A23A32" : isNew || dirty ? "#9C7C4A" : "#5B6270" }}
+              >
+                {!canSave
+                  ? `Zorunlu alan boş: ${missing.map((f) => f.label).join(", ")}`
+                  : isNew
+                    ? "Kaydedilmemiş yeni kayıt"
+                    : dirty
+                      ? "Kaydedilmemiş değişiklikler var"
+                      : "Tüm değişiklikler kayıtlı"}
               </span>
               <div className="flex gap-2.5">
                 <button
                   type="button"
                   onClick={handleDiscard}
-                  disabled={!dirty}
+                  disabled={!dirty && !isNew}
                   className="rounded border border-line bg-surface px-5 py-[11px] text-[13.5px] font-semibold text-muted transition-colors hover:border-gold hover:text-gold disabled:opacity-50"
                 >
-                  Geri al
+                  {isNew ? "Vazgeç" : "Geri al"}
                 </button>
                 <button
                   type="button"
                   onClick={handleSave}
-                  disabled={saving}
+                  disabled={saving || !canSave}
+                  title={canSave ? undefined : `Zorunlu alan boş: ${missing.map((f) => f.label).join(", ")}`}
                   className="rounded bg-ink px-[26px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold disabled:opacity-50"
                 >
-                  {saving ? "Kaydediliyor…" : "Kaydet"}
+                  {saving ? "Kaydediliyor…" : isNew ? "Kaydı oluştur" : "Kaydet"}
                 </button>
               </div>
             </div>
@@ -508,11 +596,7 @@ export function ContentModuleBrowser({
         </div>
       )}
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} aboveSaveBar={Boolean(selected || isNew)} />
     </div>
   );
 }

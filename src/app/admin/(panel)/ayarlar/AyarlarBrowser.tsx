@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveGeneralSettings } from "./actions";
 import type { SiteSettingsData } from "@/lib/site-settings";
+import { AdminToast } from "@/components/admin/AdminToast";
 
 type AuditRow = {
   id: string;
@@ -11,25 +12,15 @@ type AuditRow = {
   who: string;
   action: string;
   module: string;
+  detail: string;
   ip: string;
+  location: string;
   createdAt: string;
 };
 
-const TABS = ["Genel", "Medya", "Diller & Çeviri", "Kullanıcılar & Roller", "İşlem Kayıtları"] as const;
+const TABS = ["Genel", "İşlem Kayıtları"] as const;
 const inputClass =
   "h-[42px] rounded border border-line bg-surface px-3.5 text-[13px] text-ink outline-none focus:border-gold";
-
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="max-w-[560px] rounded-md border border-dashed border-line bg-surface p-10 text-center">
-      <span className="inline-block h-4 w-4 rotate-45 border-[1.5px] border-gold" />
-      <p className="mt-4 text-[14.5px] font-semibold">{label} modülü henüz aktif değil.</p>
-      <p className="mt-1.5 text-[13px] text-muted">
-        Bu bölüm için tasarım hazır; veri altyapısı ayrı bir dilimde eklenecek.
-      </p>
-    </div>
-  );
-}
 
 export function AyarlarBrowser({
   settings,
@@ -267,10 +258,6 @@ export function AyarlarBrowser({
         </>
       )}
 
-      {tab === "Medya" && <ComingSoon label="Medya" />}
-      {tab === "Diller & Çeviri" && <ComingSoon label="Diller & Çeviri" />}
-      {tab === "Kullanıcılar & Roller" && <ComingSoon label="Kullanıcılar & Roller" />}
-
       {tab === "İşlem Kayıtları" && (
         <div className="max-w-[1000px] overflow-x-auto rounded-md border border-line bg-surface shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
           <div className="flex flex-wrap items-center gap-2.5 border-b border-line px-6 py-4">
@@ -299,11 +286,12 @@ export function AyarlarBrowser({
               <option value="all">Tümü</option>
             </select>
           </div>
-          <div className="grid min-w-[720px] grid-cols-[140px_130px_1fr_120px_110px] gap-3 border-b border-line px-6 py-2.5 font-mono text-[9.5px] tracking-[1.5px] text-muted">
+          <div className="grid min-w-[900px] grid-cols-[140px_120px_1fr_110px_120px_130px] gap-3 border-b border-line px-6 py-2.5 font-mono text-[9.5px] tracking-[1.5px] text-muted">
             <span>TARİH-SAAT</span>
             <span>KULLANICI</span>
             <span>EYLEM</span>
             <span>MODÜL</span>
+            <span>KONUM</span>
             <span>IP</span>
           </div>
           {filteredAudit.length === 0 && (
@@ -312,23 +300,25 @@ export function AyarlarBrowser({
           {filteredAudit.map((row) => (
             <div
               key={row.id}
-              className="grid min-w-[720px] grid-cols-[140px_130px_1fr_120px_110px] items-baseline gap-3 border-b border-cream px-6 py-2.5"
+              className="grid min-w-[900px] grid-cols-[140px_120px_1fr_110px_120px_130px] items-baseline gap-3 border-b border-cream px-6 py-2.5"
             >
               <span className="font-mono text-[11px] text-muted">{row.time}</span>
               <span className="text-[12.5px] font-semibold">{row.who}</span>
-              <span className="text-[12.5px] text-muted">{row.action}</span>
+              <span className="flex flex-col gap-0.5 text-[12.5px] text-muted">
+                {row.action}
+                {row.detail && (
+                  <span className="font-mono text-[10px] text-line">{row.detail}</span>
+                )}
+              </span>
               <span className="font-mono text-[9.5px] tracking-[1px] text-gold">{row.module}</span>
+              <span className="font-mono text-[10.5px] text-muted">{row.location}</span>
               <span className="font-mono text-[10.5px] text-muted">{row.ip}</span>
             </div>
           ))}
         </div>
       )}
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} />
     </div>
   );
 }

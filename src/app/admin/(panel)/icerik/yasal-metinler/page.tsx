@@ -16,7 +16,7 @@ const topFields: FieldDef[] = [
 const localizedFields: FieldDef[] = [
   { key: "tabLabel", label: "Sekme başlığı", kind: "text", localized: true },
   { key: "tag", label: "Kısa etiket", kind: "text", localized: true, hint: "Örn. KVKK" },
-  { key: "title", label: "Başlık", kind: "text", localized: true },
+  { key: "title", label: "Başlık", kind: "text", localized: true, required: true },
   { key: "intro", label: "Giriş metni", kind: "textarea", localized: true, rows: 3 },
   {
     key: "sections",

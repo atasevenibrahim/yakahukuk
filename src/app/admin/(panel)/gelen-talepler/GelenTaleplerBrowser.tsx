@@ -7,6 +7,7 @@ import type { RequestStatus } from "@prisma/client";
 import { initialsFromName, messageStatusBadge, type BadgeStyle } from "@/lib/admin/format";
 import { updateMessageStatus, saveMessageNote, saveAppointmentNote } from "./actions";
 import type { InboxItem } from "./types";
+import { AdminToast } from "@/components/admin/AdminToast";
 
 const TABS = ["Tümü", "Mesajlar", "Randevu Talepleri"] as const;
 const MESSAGE_STATUSES: RequestStatus[] = ["NEW", "READ", "REPLIED", "CLOSED"];
@@ -285,11 +286,7 @@ export function GelenTaleplerBrowser({ items }: { items: InboxItem[] }) {
         )}
       </div>
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} />
     </div>
   );
 }

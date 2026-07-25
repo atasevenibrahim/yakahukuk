@@ -12,7 +12,21 @@ export type FieldDef = {
   rows?: number;
   hint?: string;
   readOnly?: boolean;
+  /**
+   * Sunucu action'ının fiilen doğruladığı alanlar. İşaretlendiğinde etikette `*` görünür ve
+   * alan boşken Kaydet kilitlenir — hata kaydettikten sonra değil, önce görülsün diye.
+   * Sunucu tarafı doğrulama yine de kalkmaz (Server Action'lar ağdan çağrılabilir).
+   */
+  required?: boolean;
 };
+
+/** Zorunlu ama boş bırakılmış alanları döner — Kaydet kilidi ve satır içi uyarı için. */
+export function missingRequired(
+  fields: FieldDef[],
+  values: Record<string, string>,
+): FieldDef[] {
+  return fields.filter((f) => f.required && !(values[f.key] ?? "").trim());
+}
 
 /** Çok satırlı metni boş satırları atarak dizeye çevirir (ör. paragraf/etiket listesi). */
 export function linesToArray(text: string): string[] {

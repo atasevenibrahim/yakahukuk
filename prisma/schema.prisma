@@ -149,6 +149,10 @@ model AuditLog {
   detail    String?
   ip        String?
   userAgent String?
+  /// "Ankara, TR" gibi kaba konum. Vercel'in edge katmanı her isteğe eklediği coğrafya
+  /// başlıklarından okunur — harici bir geo-IP servisi kullanılmaz, yöneticinin IP'si
+  /// üçüncü bir tarafa gitmez. Yerelde bu başlıklar olmadığı için null kalır.
+  location  String?
   createdAt DateTime @default(now())
 }
 

@@ -8,6 +8,7 @@ import { DarkCTA } from "@/components/site/DarkCTA";
 import { localizedPress } from "@/content/press";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
+import { EmptyContent } from "@/components/site/EmptyContent";
 
 export async function generateMetadata({
   params,
@@ -42,6 +43,12 @@ export default async function PressPage({
 
       <Reveal className="pt-16">
         <Container>
+          {items.length === 0 && (
+            <EmptyContent
+              title="Henüz basın içeriği yok."
+              text="Basında yer alan haber ve söyleşilerimiz burada listelenecek."
+            />
+          )}
           <div className="flex max-w-[856px] flex-col">
             {items.map((item) => (
               <a

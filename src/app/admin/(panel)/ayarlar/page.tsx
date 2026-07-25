@@ -17,6 +17,18 @@ export default async function AyarlarPage() {
     take: 200,
   });
 
+  // Aktör adları gerçek User kayıtlarından çözülür. Önceden yalnızca oturumdaki kullanıcının
+  // adı gösteriliyor, diğer herkes "Yönetici" yazılıyordu — ikinci bir yönetici eklendiğinde
+  // kimin ne yaptığı kaybolurdu.
+  const actorIds = [...new Set(auditRows.map((r) => r.actorId).filter((id): id is string => !!id))];
+  const actors = actorIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: actorIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const actorNames = new Map(actors.map((a) => [a.id, a.name]));
+
   const auditLog = auditRows.map((row) => ({
     id: row.id,
     time: new Intl.DateTimeFormat("tr-TR", {
@@ -26,10 +38,12 @@ export default async function AyarlarPage() {
       hour: "2-digit",
       minute: "2-digit",
     }).format(row.createdAt),
-    who: user && row.actorId === user.id ? user.name : row.actorId ? "Yönetici" : "Sistem",
+    who: row.actorId ? (actorNames.get(row.actorId) ?? "Silinmiş kullanıcı") : "Sistem",
     action: describeAuditAction(row.action),
     module: row.module,
+    detail: row.detail ?? "",
     ip: row.ip ?? "—",
+    location: row.location ?? "—",
     createdAt: row.createdAt.toISOString(),
   }));
 

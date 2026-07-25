@@ -27,7 +27,7 @@ export default async function IcerikSssPage() {
   ];
 
   const localizedFields: FieldDef[] = [
-    { key: "question", label: "Soru", kind: "text", localized: true },
+    { key: "question", label: "Soru", kind: "text", localized: true, required: true },
     { key: "answer", label: "Cevap", kind: "textarea", localized: true, rows: 5 },
   ];
 

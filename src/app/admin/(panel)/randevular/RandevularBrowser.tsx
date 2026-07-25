@@ -12,6 +12,7 @@ import {
   removeBlockedDate,
 } from "./actions";
 import type { CalendarAppointment, BlockedDateItem } from "./types";
+import { AdminToast } from "@/components/admin/AdminToast";
 
 const WEEKDAY_HEADERS = ["PZT", "SAL", "ÇAR", "PER", "CUM", "CMT", "PAZ"];
 const WEEKDAY_NAMES = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
@@ -538,11 +539,7 @@ export function RandevularBrowser({
         </div>
       )}
 
-      {toast && (
-        <div className="fixed bottom-7 left-1/2 z-[99] -translate-x-1/2 rounded bg-ink px-6 py-3.5 text-sm font-semibold text-cream shadow-[0_8px_24px_rgba(28,34,48,0.25)]">
-          {toast}
-        </div>
-      )}
+      <AdminToast message={toast} />
     </div>
   );
 }

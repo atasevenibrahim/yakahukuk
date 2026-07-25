@@ -32,13 +32,15 @@ export default async function ProfilPage() {
   const logins = await prisma.auditLog.findMany({
     where: { actorId: user.id, action: { in: ["login", "login_2fa", "login_backup_code"] } },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 10,
   });
 
   const recentLogins = logins.map((l) => ({
     id: l.id,
     device: describeUserAgent(l.userAgent),
     ip: l.ip ?? "—",
+    // Konum yalnızca Vercel'de dolu gelir; yerelde başlıklar olmadığı için null kalır.
+    location: l.location ?? "Yerel ağ",
     time: formatLoginTime(l.createdAt),
   }));
 

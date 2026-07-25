@@ -11,6 +11,7 @@ import { DarkCTA } from "@/components/site/DarkCTA";
 import { localizedTeam } from "@/content/team";
 import type { Locale } from "@/i18n/routing";
 import { alternates } from "@/lib/metadata";
+import { EmptyContent } from "@/components/site/EmptyContent";
 
 export async function generateMetadata({
   params,
@@ -51,6 +52,12 @@ export default async function TeamPage({
       {/* Ekip listesi */}
       <Reveal className="pt-16">
         <Container>
+          {team.length === 0 && (
+            <EmptyContent
+              title="Ekip bilgileri yakında yayınlanacak."
+              text="Bu sırada bize doğrudan ulaşabilir, dosyanız için ön görüşme talebinde bulunabilirsiniz."
+            />
+          )}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((member) => (
               <Link
