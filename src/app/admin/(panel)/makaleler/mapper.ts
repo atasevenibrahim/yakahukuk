@@ -1,11 +1,9 @@
-import { encodeArticleBody } from "@/lib/admin/article-body";
-import type { ArticleBlock } from "@/content/articles";
 import type { ArticleFormData, ArticleListItem, ArticleLocaleForm } from "./types";
 
 type ArticleLocaleT = {
   title: string;
   excerpt: string;
-  body: ArticleBlock[];
+  body: string; // markdown
   metaTitle?: string;
   metaDescription?: string;
 };
@@ -37,7 +35,7 @@ function toLocaleForm(loc: ArticleLocaleT | undefined): ArticleLocaleForm {
   return {
     title: loc.title,
     excerpt: loc.excerpt,
-    body: encodeArticleBody(loc.body ?? []),
+    body: loc.body ?? "",
     metaTitle: loc.metaTitle ?? "",
     metaDescription: loc.metaDescription ?? "",
   };

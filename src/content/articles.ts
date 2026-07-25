@@ -4,12 +4,6 @@ import { safeQuery } from "@/lib/content/safe-query";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
-export type ArticleBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "heading"; text: string }
-  | { type: "list"; items: string[] }
-  | { type: "quote"; text: string };
-
 export type Article = {
   slug: string;
   practiceAreaSlug: string;
@@ -21,21 +15,16 @@ export type Article = {
   t: Localized<{
     title: string;
     excerpt: string;
-    body: ArticleBlock[];
+    /** Markdown metni — render'da `parseMarkdown` ile AST'e çevrilir (bkz. lib/markdown.ts). */
+    body: string;
     metaTitle?: string;
     metaDescription?: string;
   }>;
 };
 
-// Admin panelindeki zengin metin editörü gelene kadar kullanılan yer tutucu gövde.
-function placeholderBody(intro: string): ArticleBlock[] {
-  return [
-    { type: "paragraph", text: intro },
-    {
-      type: "paragraph",
-      text: "[Bu içerik admin panelindeki zengin metin editöründen girilecektir.]",
-    },
-  ];
+// Gerçek içerik girilene kadar kullanılan yer tutucu gövde.
+function placeholderBody(intro: string): string {
+  return `${intro}\n\n[Bu içerik admin panelindeki AI destekli editörden girilecektir.]`;
 }
 
 // DB'ye ulaşılamazsa düşülecek statik yedek — 9 makale, gerçek veri artık Admin Makaleler'de.
@@ -53,40 +42,28 @@ const FALLBACK_ARTICLES: Article[] = [
         title: "Anlaşmalı boşanmada süreç nasıl ilerler?",
         excerpt:
           "Protokol hazırlığından duruşma gününe, adım adım anlaşmalı boşanma.",
-        body: [
-          {
-            type: "paragraph",
-            text: "Anlaşmalı boşanma, tarafların boşanmanın tüm sonuçlarında uzlaştığı en hızlı boşanma yoludur. Doğru hazırlanmış bir protokolle çoğu zaman tek celsede sonuçlanır. [Örnek içerik — makale gövdesi admin panelindeki zengin metin editöründen girilecek.]",
-          },
-          { type: "heading", text: "Şartlar nelerdir?" },
-          {
-            type: "paragraph",
-            text: "Evliliğin en az bir yıl sürmüş olması ve tarafların boşanma ile mali sonuçları ve çocukların durumu konusunda anlaşmış olması gerekir. Hâkim, tarafları bizzat dinler ve protokolü uygun bulursa boşanmaya hükmeder.",
-          },
-          {
-            type: "list",
-            items: [
-              "Evlilik en az 1 yıl sürmüş olmalı",
-              "Taraflar mahkemeye birlikte başvurmalı ya da biri diğerinin davasını kabul etmeli",
-              "Protokol; nafaka, velayet, tazminat ve mal paylaşımını kapsamalı",
-              "Taraflar duruşmada iradelerini bizzat açıklamalı",
-            ],
-          },
-          {
-            type: "quote",
-            text: "İyi hazırlanmış bir protokol, yalnızca bugünü değil; velayet, nafaka ve mal rejimiyle yarını da güvence altına alır.",
-          },
-          { type: "heading", text: "Süreç adım adım" },
-          {
-            type: "paragraph",
-            text: "Protokolün hazırlanması, dava dilekçesiyle birlikte aile mahkemesine başvuru, duruşma gününün belirlenmesi ve tek celsede karar. Kararın kesinleşmesiyle nüfus kaydı güncellenir. Sürecin her adımında avukatınız protokol hükümlerinin uygulanabilirliğini denetler.",
-          },
-          { type: "heading", text: "Sonuç" },
-          {
-            type: "paragraph",
-            text: "Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Protokolü imzalamadan önce mutlaka bir avukatla gözden geçirin. Bu yazı genel bilgilendirme amaçlıdır; hukuki tavsiye niteliği taşımaz.",
-          },
-        ],
+        body: `Anlaşmalı boşanma, tarafların boşanmanın tüm sonuçlarında uzlaştığı en hızlı boşanma yoludur. Doğru hazırlanmış bir protokolle çoğu zaman tek celsede sonuçlanır.
+
+## Şartlar nelerdir?
+
+Evliliğin kanunda öngörülen asgari süreyi tamamlamış olması ve tarafların boşanma ile mali sonuçları ve çocukların durumu konusunda anlaşmış olması gerekir. Hâkim, tarafları bizzat dinler ve protokolü uygun bulursa boşanmaya hükmeder.
+
+- Evlilik kanunda öngörülen asgari süre kadar sürmüş olmalı
+- Taraflar mahkemeye birlikte başvurmalı ya da biri diğerinin davasını kabul etmeli
+- Protokol; nafaka, velayet, tazminat ve mal paylaşımını kapsamalı
+- Taraflar duruşmada iradelerini bizzat açıklamalı
+
+> İyi hazırlanmış bir protokol, yalnızca bugünü değil; velayet, nafaka ve mal rejimiyle yarını da güvence altına alır.
+
+## Süreç adım adım
+
+Protokolün hazırlanması, dava dilekçesiyle birlikte aile mahkemesine başvuru, duruşma gününün belirlenmesi ve tek celsede karar. Kararın kesinleşmesiyle nüfus kaydı güncellenir. Sürecin her adımında avukatınız protokol hükümlerinin uygulanabilirliğini denetler.
+
+Ayrıntılı bilgi için [Aile Hukuku](/calisma-alanlari/aile-hukuku) sayfamıza bakabilirsiniz.
+
+## Sonuç
+
+Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Protokolü imzalamadan önce mutlaka bir avukatla gözden geçirin. Bu yazı genel bilgilendirme amaçlıdır; hukuki tavsiye niteliği taşımaz.`,
       },
     },
   },
@@ -243,10 +220,21 @@ const FALLBACK_ARTICLES: Article[] = [
   },
 ];
 
-/** Ham (locale seçilmemiş, yalnızca yayındaki) makale listesi — DB'den, başarısız olursa yedekten. */
+/**
+ * Ham (locale seçilmemiş, yalnızca yayındaki) makale listesi — DB'den, başarısız olursa yedekten.
+ *
+ * `SCHEDULED` makaleler, `publishAt` zamanı geldiğinde kendiliğinden bu listeye girer; durumu
+ * çeviren bir cron'a gerek yoktur. Sayfaların bunu görmesi için makale rotalarında ISR
+ * (`export const revalidate`) tanımlı.
+ */
 export const getArticlesRaw = safeQuery(async (): Promise<Article[]> => {
   const rows = await prisma.article.findMany({
-    where: { status: "PUBLISHED" },
+    where: {
+      OR: [
+        { status: "PUBLISHED" },
+        { status: "SCHEDULED", publishAt: { lte: new Date() } },
+      ],
+    },
     orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
   });
   return rows.map((r) => ({
@@ -272,7 +260,7 @@ export type LocalizedArticle = {
   featured: boolean;
   title: string;
   excerpt: string;
-  body: ArticleBlock[];
+  body: string; // markdown
   metaTitle?: string;
   metaDescription?: string;
   href: string;

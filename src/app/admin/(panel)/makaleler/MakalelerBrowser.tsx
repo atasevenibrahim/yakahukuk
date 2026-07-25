@@ -24,15 +24,26 @@ const STATUS_STYLE: Record<ArticleStatus, { color: string; border: string; bg: s
 
 const FILTERS: ("Tümü" | ArticleStatus)[] = ["Tümü", "PUBLISHED", "DRAFT", "SCHEDULED"];
 
-const TOOLS: { label: string; hint: string; action: "line" | "cursor" | "unsupported"; value: string }[] = [
-  { label: "H1", hint: "Başlık", action: "line", value: "# " },
+type ToolAction = "line" | "cursor" | "wrap" | "unsupported";
+
+const TOOLS: {
+  label: string;
+  hint: string;
+  action: ToolAction;
+  value: string;
+  /** wrap: seçimin sonuna eklenen kapanış (yoksa `value` tekrar kullanılır) */
+  close?: string;
+}[] = [
+  { label: "H2", hint: "Başlık", action: "line", value: "## " },
+  { label: "H3", hint: "Alt başlık", action: "line", value: "### " },
   { label: "¶", hint: "Paragraf arası", action: "cursor", value: "\n\n" },
   { label: "≡", hint: "Liste", action: "line", value: "- " },
+  { label: "1.", hint: "Sıralı liste", action: "line", value: "1. " },
   { label: "❝", hint: "Alıntı", action: "line", value: "> " },
-  { label: "—", hint: "Ayraç", action: "cursor", value: "—" },
-  { label: "B", hint: "Kalın", action: "unsupported", value: "" },
-  { label: "I", hint: "İtalik", action: "unsupported", value: "" },
-  { label: "🔗", hint: "Link", action: "unsupported", value: "" },
+  { label: "B", hint: "Kalın", action: "wrap", value: "**" },
+  { label: "I", hint: "İtalik", action: "wrap", value: "*" },
+  { label: "🔗", hint: "Link", action: "wrap", value: "[", close: "](/yol)" },
+  { label: "—", hint: "Uzun çizgi", action: "cursor", value: "—" },
   { label: "▦", hint: "Görsel ekle", action: "unsupported", value: "" },
 ];
 
@@ -123,7 +134,7 @@ export function MakalelerBrowser({
 
   function runTool(tool: (typeof TOOLS)[number]) {
     if (tool.action === "unsupported") {
-      showToast(`${tool.hint} aracı henüz desteklenmiyor; gövde biçimi başlık/liste/alıntı/paragrafla sınırlı.`);
+      showToast(`${tool.hint}: medya kütüphanesi eklendiğinde kullanılabilir olacak.`);
       return;
     }
     const el = bodyRef.current;
@@ -132,23 +143,40 @@ export function MakalelerBrowser({
       updateBody(tool.action === "cursor" ? value + tool.value : value);
       return;
     }
-    const pos = el.selectionStart ?? value.length;
-    if (tool.action === "line") {
-      const lineStart = value.lastIndexOf("\n", pos - 1) + 1;
-      const next = value.slice(0, lineStart) + tool.value + value.slice(lineStart);
-      updateBody(next);
+
+    const start = el.selectionStart ?? value.length;
+    const end = el.selectionEnd ?? start;
+
+    // İmleci/seçimi düzenlemeden sonra doğru yere koyar.
+    const restore = (from: number, to: number) =>
       requestAnimationFrame(() => {
         el.focus();
-        el.setSelectionRange(pos + tool.value.length, pos + tool.value.length);
+        el.setSelectionRange(from, to);
       });
+
+    if (tool.action === "wrap") {
+      const open = tool.value;
+      const close = tool.close ?? tool.value;
+      const selected = value.slice(start, end);
+      const next = value.slice(0, start) + open + selected + close + value.slice(end);
+      updateBody(next);
+      // Seçim varsa sarılmış metni seçili bırak; yoksa imleci işaretlerin arasına al.
+      if (selected) restore(start + open.length, start + open.length + selected.length);
+      else restore(start + open.length, start + open.length);
       return;
     }
-    const next = value.slice(0, pos) + tool.value + value.slice(pos);
+
+    if (tool.action === "line") {
+      const lineStart = value.lastIndexOf("\n", start - 1) + 1;
+      const next = value.slice(0, lineStart) + tool.value + value.slice(lineStart);
+      updateBody(next);
+      restore(start + tool.value.length, end + tool.value.length);
+      return;
+    }
+
+    const next = value.slice(0, start) + tool.value + value.slice(end);
     updateBody(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(pos + tool.value.length, pos + tool.value.length);
-    });
+    restore(start + tool.value.length, start + tool.value.length);
   }
 
   async function handleSave() {
@@ -383,8 +411,10 @@ export function MakalelerBrowser({
                         />
                       </div>
                       <p className="m-0 text-[11.5px] leading-relaxed text-muted">
-                        Biçim: <code># başlık</code>, <code>- liste öğesi</code>, <code>&gt; alıntı</code>, düz
-                        paragraf. Bloklar arasına boş satır bırakın.
+                        Markdown: <code>## başlık</code>, <code>### alt başlık</code>,{" "}
+                        <code>- liste</code>, <code>1. sıralı</code>, <code>&gt; alıntı</code>,{" "}
+                        <code>**kalın**</code>, <code>*italik*</code>,{" "}
+                        <code>[metin](/yol)</code>. Bloklar arasına boş satır bırakın.
                       </p>
                     </div>
                   </div>

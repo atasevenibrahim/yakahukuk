@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { LocalizedArticle } from "@/content/articles";
 import { Card } from "@/components/ui/Card";
-import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
+import { ArticleCover } from "@/components/site/ArticleCover";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { cn } from "@/lib/cn";
@@ -116,9 +116,11 @@ export function ArticlesBrowser({ articles }: { articles: LocalizedArticle[] }) 
             {visible.map((article) => (
               <a key={article.slug} href={article.href} className="block text-ink">
                 <Card hover className="h-full overflow-hidden">
-                  <PlaceholderImage
-                    label="kapak görseli"
-                    className="h-[170px] rounded-none border-0 border-b border-line"
+                  <ArticleCover
+                    size="card"
+                    category={article.category}
+                    title={article.title}
+                    readMinutes={article.readMinutes}
                   />
                   <div className="p-6">
                     <span className="font-mono text-[11px] tracking-[2px] text-gold">

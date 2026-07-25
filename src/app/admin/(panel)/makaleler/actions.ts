@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { requireSessionUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
 import { slugify, uniqueSlug } from "@/lib/admin/slugify";
-import { decodeArticleBody } from "@/lib/admin/article-body";
 import { linesToArray } from "@/lib/admin/content-fields";
 import { toFormData, toListItem } from "./mapper";
 import type { ArticleFormData, ArticleStatus, SaveArticleResult, SimpleResult } from "./types";
@@ -48,7 +47,7 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
   const trBlock = {
     title,
     excerpt: payload.tr.excerpt ?? "",
-    body: decodeArticleBody(payload.tr.body ?? ""),
+    body: payload.tr.body ?? "",
     metaTitle: payload.tr.metaTitle?.trim() || undefined,
     metaDescription: payload.tr.metaDescription?.trim() || undefined,
   };
@@ -59,16 +58,25 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
         en: {
           title: payload.en.title || title,
           excerpt: payload.en.excerpt ?? "",
-          body: decodeArticleBody(payload.en.body ?? ""),
+          body: payload.en.body ?? "",
           metaTitle: payload.en.metaTitle?.trim() || undefined,
           metaDescription: payload.en.metaDescription?.trim() || undefined,
         },
       }
     : { tr: trBlock };
 
-  const existingRows = await prisma.article.findMany({ select: { id: true, slug: true } });
-  const existingSlugs = new Set(existingRows.filter((r) => r.id !== payload.id).map((r) => r.slug));
-  const slug = uniqueSlug(slugify(payload.slug || title), existingSlugs);
+  // Yayınlanmış bir makalenin URL'i sessizce değişmemeli: mevcut kayıtta slug, yalnızca
+  // kullanıcı slug alanını fiilen farklı bir değere çevirdiyse yeniden üretilir. Aksi hâlde
+  // başlığı düzeltmek adresi de değiştirir, gelen linkler kırılır ve birikmiş SEO kaybedilir.
+  const requestedSlug = payload.slug?.trim();
+  let slug: string;
+  if (existing && (!requestedSlug || requestedSlug === existing.slug)) {
+    slug = existing.slug;
+  } else {
+    const existingRows = await prisma.article.findMany({ select: { id: true, slug: true } });
+    const taken = new Set(existingRows.filter((r) => r.id !== payload.id).map((r) => r.slug));
+    slug = uniqueSlug(slugify(requestedSlug || title), taken);
+  }
 
   const readMinutes = Math.max(1, Number.parseInt(String(payload.readMinutes), 10) || 5);
 
