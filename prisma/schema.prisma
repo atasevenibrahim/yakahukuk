@@ -144,6 +144,9 @@ model AuditLog {
   action    String
   module    String
   entityId  String?
+  /// Serbest metin ek bilgi (ör. AI çağrılarının token kullanımı). Listede action etiketinin
+  /// yanında gösterilir; yapılandırılmış sorgu yapılmadığı için ayrı sütunlara bölünmedi.
+  detail    String?
   ip        String?
   userAgent String?
   createdAt DateTime @default(now())
@@ -283,7 +286,10 @@ model Article {
   featured         Boolean       @default(false)
   status           ArticleStatus @default(DRAFT)
   publishAt        DateTime?
-  t                Json // Localized<{title, excerpt, body: ArticleBlock[], metaTitle?, metaDescription?}>
+  /// SEO odak anahtar kelimesi — SEO panelinin denetimleri (başlıkta/slug'da/ilk paragrafta
+  /// geçiyor mu) bunun üzerinden çalışır. AI önerir, kullanıcı onaylar.
+  focusKeyword     String?
+  t                Json // Localized<{title, excerpt, body: markdown string, metaTitle?, metaDescription?}>
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 }

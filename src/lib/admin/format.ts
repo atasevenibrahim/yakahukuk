@@ -94,6 +94,11 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   article_created: "makale ekledi",
   article_updated: "makaleyi güncelledi",
   article_deleted: "makaleyi sildi",
+  ai_titles_suggested: "yapay zekadan başlık önerisi aldı",
+  ai_article_generated: "yapay zeka ile makale gövdesi üretti",
+  ai_seo_suggested: "yapay zekadan SEO önerisi aldı",
+  ai_links_suggested: "yapay zekadan iç bağlantı önerisi aldı",
+  ai_translated: "makaleyi yapay zeka ile İngilizceye çevirdi",
 };
 
 /** Basit tarayıcı/İS çıkarımı — tam bir UA-parser yerine, "Son girişler" listesi için yeterli. */
