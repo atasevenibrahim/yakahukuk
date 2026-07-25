@@ -1,5 +1,5 @@
 /** Admin İçerik'in jenerik liste+form ekranını süren alan tanımları. */
-export type FieldKind = "text" | "textarea" | "lines" | "select" | "number";
+export type FieldKind = "text" | "textarea" | "lines" | "select" | "number" | "media";
 
 export type FieldOption = { value: string; label: string };
 

@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { MediaField } from "@/components/admin/medya/MediaField";
 import { AiPanel } from "@/components/admin/makaleler/AiPanel";
 import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
 import { VerificationPanel } from "@/components/admin/makaleler/VerificationPanel";
@@ -31,7 +32,7 @@ const STATUS_STYLE: Record<ArticleStatus, { color: string; border: string; bg: s
 
 const FILTERS: ("Tümü" | ArticleStatus)[] = ["Tümü", "PUBLISHED", "DRAFT", "SCHEDULED"];
 
-type ToolAction = "line" | "cursor" | "wrap" | "unsupported";
+type ToolAction = "line" | "cursor" | "wrap";
 
 const TOOLS: {
   label: string;
@@ -51,7 +52,6 @@ const TOOLS: {
   { label: "I", hint: "İtalik", action: "wrap", value: "*" },
   { label: "🔗", hint: "Link", action: "wrap", value: "[", close: "](/yol)" },
   { label: "—", hint: "Uzun çizgi", action: "cursor", value: "—" },
-  { label: "▦", hint: "Görsel ekle", action: "unsupported", value: "" },
 ];
 
 function blankForm(): ArticleFormData {
@@ -157,10 +157,6 @@ export function MakalelerBrowser({
   }
 
   function runTool(tool: (typeof TOOLS)[number]) {
-    if (tool.action === "unsupported") {
-      showToast(`${tool.hint}: medya kütüphanesi eklendiğinde kullanılabilir olacak.`);
-      return;
-    }
     const el = bodyRef.current;
     const value = currentBody();
     if (!el) {
@@ -507,13 +503,11 @@ export function MakalelerBrowser({
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[13px] font-semibold">Kapak görseli URL&apos;si</label>
-                      <input
-                        type="text"
+                      <MediaField
+                        label="Kapak görseli"
                         value={editForm.coverImageUrl}
-                        onChange={(e) => setField("coverImageUrl", e.target.value)}
-                        placeholder="Medya kütüphanesi eklenene kadar doğrudan adres"
-                        className={inputClass}
+                        onChange={(url) => setField("coverImageUrl", url)}
+                        hint="Boş bırakılırsa kapak, başlıktan otomatik üretilen tipografik görsel olur."
                       />
                     </div>
                     <div className="flex flex-col gap-1.5 sm:col-span-2">

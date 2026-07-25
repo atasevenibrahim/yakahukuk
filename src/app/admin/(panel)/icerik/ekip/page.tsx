@@ -33,10 +33,10 @@ const topFields: FieldDef[] = [
   },
   {
     key: "portraitUrl",
-    label: "Portre görsel URL'si",
-    kind: "text",
+    label: "Portre görseli",
+    kind: "media",
     localized: false,
-    hint: "Medya kütüphanesi eklenene kadar doğrudan görsel adresi girin.",
+    hint: "Kare veya dikey bir portre en iyi sonucu verir.",
   },
 ];
 

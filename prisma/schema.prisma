@@ -104,6 +104,8 @@ model User {
   email        String  @unique
   passwordHash String
   isSuperAdmin Boolean @default(true)
+  /// Medya kütüphanesinden seçilen profil görseli. Boşsa baş harfler gösterilir.
+  avatarUrl    String?
 
   twoFAEnabled     Boolean  @default(false)
   twoFASecret      String? // AES-256-GCM ile şifreli saklanır (TWOFA_ENCRYPTION_KEY)
@@ -136,6 +138,28 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+/// Medya kütüphanesi. Dosyanın kendisi Supabase Storage'da durur; burada yalnızca kayıt
+/// ve arayüzün ihtiyaç duyduğu üst veri tutulur.
+model MediaAsset {
+  id           String   @id @default(cuid())
+  /// Bucket içindeki yol — silme işlemi bunun üzerinden yapılır.
+  path         String   @unique
+  /// Herkese açık URL. `next/image` bunu kullanır (next.config.ts → remotePatterns).
+  url          String
+  filename     String
+  mimeType     String
+  /// Bayt cinsinden.
+  size         Int
+  width        Int?
+  height       Int?
+  /// Görsel alt metni. SEO ve erişilebilirlik için; boş bırakılabilir ama uyarılır.
+  alt          String   @default("")
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model AuditLog {

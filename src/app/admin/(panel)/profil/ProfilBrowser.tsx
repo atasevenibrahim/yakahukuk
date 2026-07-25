@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { passwordStrength } from "@/lib/auth/password-strength";
-import { updateName, changePassword, setup2FA, confirm2FA, disable2FA } from "./actions";
+import { updateName, updateAvatar, changePassword, setup2FA, confirm2FA, disable2FA } from "./actions";
+import { MediaPicker } from "@/components/admin/medya/MediaPicker";
 import { AdminToast } from "@/components/admin/AdminToast";
 
 type RecentLogin = {
@@ -25,14 +27,31 @@ export function ProfilBrowser({
   email,
   twoFAEnabled,
   recentLogins,
+  avatarUrl: initialAvatarUrl,
 }: {
   name: string;
   email: string;
   twoFAEnabled: boolean;
   recentLogins: RecentLogin[];
+  avatarUrl: string | null;
 }) {
   const router = useRouter();
   const [toast, setToast] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState(initialAvatarUrl ?? "");
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+
+  async function handleAvatar(url: string) {
+    const previous = avatar;
+    setAvatar(url);
+    const result = await updateAvatar(url);
+    if (!result.ok) {
+      setAvatar(previous);
+      showToast(result.error);
+      return;
+    }
+    showToast(url ? "Profil görseli güncellendi" : "Profil görseli kaldırıldı");
+    router.refresh();
+  }
 
   const [name, setName] = useState(initialName);
   const [nameSaving, setNameSaving] = useState(false);
@@ -128,21 +147,36 @@ export function ProfilBrowser({
           <div className="rounded-md border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
             <h2 className="m-0 mb-[18px] text-sm font-bold">Hesap bilgileri</h2>
             <div className="mb-5 flex items-center gap-4">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink text-xl font-bold text-cream">
-                {name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </span>
+              {avatar ? (
+                <span className="relative block h-16 w-16 flex-none overflow-hidden rounded-full border border-line">
+                  <Image src={avatar} alt="" fill sizes="64px" className="object-cover" />
+                </span>
+              ) : (
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink text-xl font-bold text-cream">
+                  {name
+                    .split(" ")
+                    .map((p) => p[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </span>
+              )}
               <button
                 type="button"
-                onClick={() => showToast("Medya kütüphanesi eklendiğinde kullanılabilir olacak")}
+                onClick={() => setAvatarPickerOpen(true)}
                 className="rounded border border-dashed border-gold px-4 py-2.5 text-xs font-semibold text-gold transition-colors hover:bg-[#FAF8F3]"
               >
-                Avatar değiştir
+                {avatar ? "Değiştir" : "Avatar seç"}
               </button>
+              {avatar && (
+                <button
+                  type="button"
+                  onClick={() => void handleAvatar("")}
+                  className="rounded border border-[#E8C5C1] px-4 py-2.5 text-xs font-semibold text-[#A23A32] transition-colors hover:bg-[#FBF1F0]"
+                >
+                  Kaldır
+                </button>
+              )}
             </div>
             <div className="flex flex-col gap-3.5">
               <div className="flex flex-col gap-1.5">
@@ -406,6 +440,13 @@ export function ProfilBrowser({
           </div>
         </div>
       </div>
+
+      <MediaPicker
+        open={avatarPickerOpen}
+        onClose={() => setAvatarPickerOpen(false)}
+        onSelect={(asset) => void handleAvatar(asset.url)}
+        currentUrl={avatar}
+      />
 
       <AdminToast message={toast} />
     </div>

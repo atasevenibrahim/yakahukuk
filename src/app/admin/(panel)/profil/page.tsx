@@ -52,6 +52,7 @@ export default async function ProfilPage() {
         email={user.email}
         twoFAEnabled={user.twoFAEnabled}
         recentLogins={recentLogins}
+        avatarUrl={user.avatarUrl}
       />
     </>
   );

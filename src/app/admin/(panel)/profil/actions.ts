@@ -25,6 +25,25 @@ export async function updateName(name: string): Promise<ActionResult> {
   return { ok: true };
 }
 
+/** Profil görselini medya kütüphanesinden seçilen URL'e ayarlar; boş string kaldırır. */
+export async function updateAvatar(url: string): Promise<ActionResult> {
+  const user = await requireSessionUser();
+  const trimmed = url.trim();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { avatarUrl: trimmed || null },
+  });
+  await logAudit({
+    actorId: user.id,
+    action: "profile_updated",
+    module: "PROFIL",
+    detail: trimmed ? "profil görseli güncellendi" : "profil görseli kaldırıldı",
+  });
+  revalidatePath("/admin/profil");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
 export async function changePassword(
   currentPassword: string,
   newPassword: string,

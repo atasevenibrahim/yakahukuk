@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AdminToast } from "@/components/admin/AdminToast";
+import { MediaField } from "@/components/admin/medya/MediaField";
 import { missingRequired, type FieldDef } from "@/lib/admin/content-fields";
 
 export type ModuleItem = {
@@ -63,7 +64,10 @@ function Field({
           </span>
         )}
       </label>
-      {field.kind === "select" ? (
+      {field.kind === "media" ? (
+        // İpucu dışarıda basılıyor; MediaField'a geçirmek çift gösterirdi.
+        <MediaField value={value} onChange={onChange} />
+      ) : field.kind === "select" ? (
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}

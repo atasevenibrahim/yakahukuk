@@ -99,6 +99,9 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   ai_seo_suggested: "yapay zekadan SEO önerisi aldı",
   ai_links_suggested: "yapay zekadan iç bağlantı önerisi aldı",
   ai_translated: "makaleyi yapay zeka ile İngilizceye çevirdi",
+  media_uploaded: "görsel yükledi",
+  media_alt_updated: "görsel alt metnini güncelledi",
+  media_deleted: "görsel sildi",
 };
 
 /** Basit tarayıcı/İS çıkarımı — tam bir UA-parser yerine, "Son girişler" listesi için yeterli. */

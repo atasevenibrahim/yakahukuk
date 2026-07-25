@@ -20,11 +20,9 @@ const CONTENT_LINKS: { label: string; href: string }[] = [
   { label: "SSS", href: "/admin/icerik/sss" },
   { label: "Yasal Metinler", href: "/admin/icerik/yasal-metinler" },
   { label: "Ana Sayfa / Hero", href: "/admin/icerik/ana-sayfa" },
+  { label: "Medya", href: "/admin/medya" },
 ];
 
-const CONTENT_DISABLED_ITEMS = ["Medya"];
-
-const SYSTEM_ITEMS = ["Diller & Çeviri", "Kullanıcılar & Roller"];
 
 export function AdminSidebar({
   newMessageCount,
@@ -51,10 +49,8 @@ export function AdminSidebar({
     },
     { type: "section", label: "İÇERİK" },
     ...CONTENT_LINKS.map((item): NavItem => ({ type: "link", label: item.label, href: item.href })),
-    ...CONTENT_DISABLED_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
     { type: "section", label: "SİSTEM" },
     { type: "link", label: "Ayarlar", href: "/admin/ayarlar" },
-    ...SYSTEM_ITEMS.map((label): NavItem => ({ type: "disabled", label })),
     { type: "link", label: "Profil", href: "/admin/profil" },
   ];
 
