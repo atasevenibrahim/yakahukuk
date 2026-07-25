@@ -10,7 +10,6 @@ import {
 import type { LinkSuggestion, SeoSuggestions } from "@/lib/ai/article";
 import type { ArticleFormData, ArticleLocaleForm } from "@/app/admin/(panel)/makaleler/types";
 import { SuggestionList } from "./SuggestionList";
-import { VerificationPanel } from "./VerificationPanel";
 import { useBodyStream } from "./useBodyStream";
 
 /**
@@ -373,13 +372,6 @@ export function AiPanel({
         </div>
       )}
 
-      <div className={cardClass}>
-        <h3 className="m-0 mb-1 text-[12.5px] font-bold">Doğrulanacak bilgiler</h3>
-        <p className="m-0 mb-3 text-[11px] leading-relaxed text-muted">
-          Metindeki madde, süre, oran ve tutar gibi somut iddialar. Yapay zeka bunları uydurabilir.
-        </p>
-        <VerificationPanel text={trBody} />
-      </div>
     </div>
   );
 }

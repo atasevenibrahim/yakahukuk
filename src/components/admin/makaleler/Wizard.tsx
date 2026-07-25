@@ -6,6 +6,9 @@ import { suggestSeo, suggestTitles, translateToEn } from "@/lib/ai/article";
 import type { SeoSuggestions, TitleSuggestion } from "@/lib/ai/article";
 import { saveArticle } from "@/app/admin/(panel)/makaleler/actions";
 import type { ArticleFormData } from "@/app/admin/(panel)/makaleler/types";
+import { BASE_URL } from "@/lib/metadata";
+import { readMinutesOf } from "@/lib/seo/score";
+import { SeoPanel } from "./SeoPanel";
 import { SuggestionList } from "./SuggestionList";
 import { VerificationPanel } from "./VerificationPanel";
 import { useBodyStream } from "./useBodyStream";
@@ -133,14 +136,16 @@ export function Wizard({
       id: null,
       slug: "",
       practiceAreaSlug: areaSlug,
-      // Aşama 3'te kelime sayısından otomatik hesaplanacak; şimdilik kaba bir tahmin.
-      readMinutes: Math.max(1, Math.round(body.text.trim().split(/\s+/).length / 200)),
+      // Markdown biçimlendirmesi hariç tutularak gerçek kelime sayısından hesaplanır.
+      readMinutes: readMinutesOf(body.text),
       tags,
       coverImageUrl: "",
       featured: false,
       status: "DRAFT",
       publishAt: "",
       focusKeyword,
+      // Sihirbaz taslak kaydeder; doğrulama işaretleri editörde tek tek konur.
+      verifiedClaims: [],
       tr: { title, excerpt, body: body.text, metaTitle, metaDescription },
       en: en ?? { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
     };
@@ -485,7 +490,28 @@ export function Wizard({
           </div>
 
           <div className={cardClass}>
-            <h3 className="m-0 mb-3 text-sm font-bold">Doğrulanacak bilgiler</h3>
+            <h3 className="m-0 mb-3.5 text-sm font-bold">SEO durumu</h3>
+            <SeoPanel
+              input={{
+                title,
+                slug: "",
+                body: body.text,
+                excerpt,
+                metaTitle,
+                metaDescription,
+                focusKeyword,
+                baseUrl: BASE_URL,
+                pathPrefix: "/makaleler",
+              }}
+            />
+          </div>
+
+          <div className={cardClass}>
+            <h3 className="m-0 mb-1 text-sm font-bold">Doğrulanacak bilgiler</h3>
+            <p className="m-0 mb-3 text-[12px] leading-relaxed text-muted">
+              Bu iddiaları kaydettikten sonra editörde tek tek teyit edip işaretleyeceksiniz —
+              yayınlamanın şartı budur.
+            </p>
             <VerificationPanel text={body.text} />
           </div>
 

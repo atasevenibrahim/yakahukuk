@@ -6,6 +6,7 @@ import { requireSessionUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
 import { slugify, uniqueSlug } from "@/lib/admin/slugify";
 import { linesToArray } from "@/lib/admin/content-fields";
+import { checkPublishGate } from "@/lib/ai/citations";
 import { toFormData, toListItem } from "./mapper";
 import type { ArticleFormData, ArticleStatus, SaveArticleResult, SimpleResult } from "./types";
 
@@ -35,6 +36,15 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
   const area = await prisma.practiceArea.findUnique({ where: { slug: payload.practiceAreaSlug } });
   if (!area) return { ok: false, error: "Seçilen çalışma alanı bulunamadı." };
   const category = (area.t as { tr: { title: string } }).tr.title.toLocaleUpperCase("tr");
+
+  // Yayın kapısı — SUNUCU tarafı. İstemcideki kilit tek başına güvenlik değil: Server
+  // Action'lar ağdan doğrudan çağrılabilir. SCHEDULED de kapsanıyor, çünkü zamanlanmış bir
+  // makale de sonunda yayına çıkar; yalnızca PUBLISHED'ı kontrol etmek kapıyı "ileri tarihe
+  // zamanla" seçeneğiyle atlanabilir hale getirirdi.
+  if (payload.status === "PUBLISHED" || payload.status === "SCHEDULED") {
+    const gate = checkPublishGate(payload.tr.body ?? "", payload.verifiedClaims ?? []);
+    if (!gate.ok) return { ok: false, error: gate.reason };
+  }
 
   const existing = payload.id ? await prisma.article.findUnique({ where: { id: payload.id } }) : null;
   const { publishAt, error: dateError } = resolvePublishAt(
@@ -91,6 +101,7 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
     status: payload.status,
     publishAt,
     focusKeyword: payload.focusKeyword?.trim() || null,
+    verifiedClaims: payload.verifiedClaims ?? [],
     t,
   };
 

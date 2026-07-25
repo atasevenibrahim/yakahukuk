@@ -289,6 +289,10 @@ model Article {
   /// SEO odak anahtar kelimesi — SEO panelinin denetimleri (başlıkta/slug'da/ilk paragrafta
   /// geçiyor mu) bunun üzerinden çalışır. AI önerir, kullanıcı onaylar.
   focusKeyword     String?
+  /// Kullanıcının "bu bilgiyi kaynaktan doğruladım" dediği atıfların kararlı anahtarları
+  /// (bkz. lib/ai/citations.ts → CitationFinding.key). Kalıcı tutulması şart: aksi hâlde bir
+  /// yazım hatasını düzeltmek için tüm atıfları yeniden onaylamak gerekirdi.
+  verifiedClaims   String[]      @default([])
   t                Json // Localized<{title, excerpt, body: markdown string, metaTitle?, metaDescription?}>
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt

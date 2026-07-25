@@ -27,8 +27,10 @@ export type ArticleFormData = {
   featured: boolean;
   status: ArticleStatus;
   publishAt: string; // "YYYY-MM-DDTHH:mm", boş olabilir
-  /** SEO odak anahtar kelimesi — Aşama 3'teki denetimler bunun üzerinden çalışır. */
+  /** SEO odak anahtar kelimesi — SEO denetimleri bunun üzerinden çalışır. */
   focusKeyword: string;
+  /** Kullanıcının kaynaktan doğruladığı atıfların anahtarları (bkz. lib/ai/citations.ts). */
+  verifiedClaims: string[];
   tr: ArticleLocaleForm;
   en: ArticleLocaleForm;
 };

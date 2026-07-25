@@ -3,6 +3,10 @@
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AiPanel } from "@/components/admin/makaleler/AiPanel";
+import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
+import { VerificationPanel } from "@/components/admin/makaleler/VerificationPanel";
+import { checkPublishGate } from "@/lib/ai/citations";
+import { BASE_URL } from "@/lib/metadata";
 import { saveArticle, deleteArticle } from "./actions";
 import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, ArticleStatus } from "./types";
 
@@ -61,6 +65,7 @@ function blankForm(): ArticleFormData {
     status: "DRAFT",
     publishAt: "",
     focusKeyword: "",
+    verifiedClaims: [],
     tr: { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
     en: { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
   };
@@ -244,8 +249,41 @@ export function MakalelerBrowser({
     showToast("Makale silindi");
   }
 
+  /** Bir atıfın "doğruladım" işaretini açar/kapatır. */
+  function toggleClaim(key: string, next: boolean) {
+    setEditForm((f) => ({
+      ...f,
+      verifiedClaims: next
+        ? [...new Set([...f.verifiedClaims, key])]
+        : f.verifiedClaims.filter((k) => k !== key),
+    }));
+    setDirty(true);
+  }
+
   const deleteTargetTitle = deleteTarget ? list.find((a) => a.id === deleteTarget)?.title : null;
   const hasEnLive = Object.values(editForm.en).some((v) => (typeof v === "string" ? v.trim() : false));
+
+  // Yayın kapısı — istemci tarafı. Sunucu `saveArticle`'da aynı fonksiyonu tekrar çalıştırır.
+  const gate = useMemo(
+    () => checkPublishGate(editForm.tr.body, editForm.verifiedClaims),
+    [editForm.tr.body, editForm.verifiedClaims],
+  );
+  const confirmedSet = useMemo(() => new Set(editForm.verifiedClaims), [editForm.verifiedClaims]);
+
+  const seoInput = useMemo(
+    () => ({
+      title: editForm.tr.title,
+      slug: editForm.slug,
+      body: editForm.tr.body,
+      excerpt: editForm.tr.excerpt,
+      metaTitle: editForm.tr.metaTitle,
+      metaDescription: editForm.tr.metaDescription,
+      focusKeyword: editForm.focusKeyword,
+      baseUrl: BASE_URL,
+      pathPrefix: "/makaleler",
+    }),
+    [editForm],
+  );
 
   return (
     <div className="flex flex-1 flex-col">
@@ -509,22 +547,37 @@ export function MakalelerBrowser({
                       ] as const
                     ).map((opt) => {
                       const active = editForm.status === opt.value;
+                      // Yayına çıkaran iki seçenek kapı geçilmeden kilitli. Taslak her zaman açık.
+                      const locked = opt.value !== "DRAFT" && !gate.ok;
                       return (
                         <label
                           key={opt.value}
-                          className="flex cursor-pointer items-center gap-2.5 rounded border px-3 py-2.5"
+                          title={locked ? gate.reason : undefined}
+                          className={`flex items-center gap-2.5 rounded border px-3 py-2.5 ${
+                            locked ? "cursor-not-allowed opacity-55" : "cursor-pointer"
+                          }`}
                           style={{ borderColor: active ? "#9C7C4A" : "#E4DFD5", background: active ? "rgba(156,124,74,.06)" : "#FFFFFF" }}
                         >
                           <input
                             type="radio"
                             checked={active}
+                            disabled={locked}
                             onChange={() => setField("status", opt.value)}
-                            className="cursor-pointer accent-gold"
+                            className="cursor-pointer accent-gold disabled:cursor-not-allowed"
                           />
                           <span className="text-[13px] font-semibold">{opt.label}</span>
+                          {locked && <span aria-hidden className="ml-auto text-[12px]">🔒</span>}
                         </label>
                       );
                     })}
+                    {!gate.ok && (
+                      <p
+                        className="m-0 rounded border px-3 py-2 text-[11.5px] leading-relaxed"
+                        style={{ borderColor: "#E8C5C1", background: "#FBF1F0", color: "#A23A32" }}
+                      >
+                        {gate.reason}
+                      </p>
+                    )}
                     {editForm.status === "SCHEDULED" && (
                       <input
                         type="datetime-local"
@@ -588,6 +641,24 @@ export function MakalelerBrowser({
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="rounded-md border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
+                  <h2 className="m-0 mb-3.5 text-sm font-bold">SEO durumu</h2>
+                  <SeoPanel input={seoInput} />
+                </div>
+
+                <div className="rounded-md border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
+                  <h2 className="m-0 mb-1 text-sm font-bold">Bilgi doğrulama</h2>
+                  <p className="m-0 mb-3 text-[11px] leading-relaxed text-muted">
+                    Yayınlamak için her somut iddiayı kaynaktan teyit edip işaretlemeniz
+                    gerekiyor. İşaretler kaydedilir; sonraki düzenlemelerde tekrar sorulmaz.
+                  </p>
+                  <VerificationPanel
+                    text={editForm.tr.body}
+                    confirmed={confirmedSet}
+                    onToggle={toggleClaim}
+                  />
                 </div>
 
                 <AiPanel
