@@ -10,6 +10,7 @@ import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
+import { ArticleCover } from "@/components/site/ArticleCover";
 import { localizedPracticeAreas } from "@/content/practice-areas";
 import { localizedArticles } from "@/content/articles";
 import { localizedTestimonials } from "@/content/testimonials";
@@ -51,8 +52,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
-  return { alternates: alternates("/") };
+  const { locale } = await params;
+  return { alternates: alternates("/", locale as Locale) };
 }
 
 export default async function HomePage({
@@ -245,9 +246,11 @@ export default async function HomePage({
             {articles.map((article) => (
               <a key={article.slug} href={article.href} className="block text-ink">
                 <Card hover className="h-full overflow-hidden">
-                  <PlaceholderImage
-                    label="kapak görseli"
-                    className="h-[170px] rounded-none border-0 border-b border-line"
+                  <ArticleCover
+                    size="card"
+                    category={article.category}
+                    title={article.title}
+                    readMinutes={article.readMinutes}
                   />
                   <div className="p-6">
                     <span className="font-mono text-[11px] tracking-[2px] text-gold">

@@ -43,7 +43,7 @@ export async function generateMetadata({
   return {
     title: area.title,
     description: area.excerpt,
-    alternates: alternates({ pathname: "/calisma-alanlari/[slug]", params: { slug } }),
+    alternates: alternates({ pathname: "/calisma-alanlari/[slug]", params: { slug } }, locale as Locale),
   };
 }
 

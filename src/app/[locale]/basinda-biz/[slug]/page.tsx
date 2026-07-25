@@ -26,7 +26,7 @@ export async function generateMetadata({
   return {
     title: item.title,
     description: item.excerpt,
-    alternates: alternates({ pathname: "/basinda-biz/[slug]", params: { slug } }),
+    alternates: alternates({ pathname: "/basinda-biz/[slug]", params: { slug } }, locale as Locale),
   };
 }
 

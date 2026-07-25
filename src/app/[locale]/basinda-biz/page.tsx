@@ -14,9 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
+  const { locale } = await params;
   const t = await getTranslations("nav");
-  return { title: t("press"), alternates: alternates("/basinda-biz") };
+  return { title: t("press"), alternates: alternates("/basinda-biz", locale as Locale) };
 }
 
 export default async function PressPage({

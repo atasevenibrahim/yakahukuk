@@ -4,10 +4,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
-import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { ReadingProgress } from "@/components/site/ReadingProgress";
 import { CopyLinkButton } from "@/components/site/CopyLinkButton";
+import { ArticleBody } from "@/components/site/ArticleBody";
+import { ArticleCover } from "@/components/site/ArticleCover";
+import { JsonLd } from "@/components/site/JsonLd";
 import {
   articleBySlug,
   articleSlugs,
@@ -15,7 +17,12 @@ import {
 } from "@/content/articles";
 import { getTeamRaw, teamMemberBySlug } from "@/content/team";
 import type { Locale } from "@/i18n/routing";
-import { alternates } from "@/lib/metadata";
+import { alternates, absoluteUrl } from "@/lib/metadata";
+import { articleSchema, breadcrumbSchema } from "@/lib/seo/jsonld";
+
+// Zamanlanmış (SCHEDULED) makaleler publishAt geldiğinde yayına girer; statik sayfanın bunu
+// görmesi için saatlik yeniden doğrulama. Cron'a gerek yok.
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const slugs = await articleSlugs();
@@ -30,10 +37,21 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const article = await articleBySlug(slug, locale as Locale);
   if (!article) return {};
+  const title = article.metaTitle || article.title;
+  const description = article.metaDescription || article.excerpt;
   return {
-    title: article.metaTitle || article.title,
-    description: article.metaDescription || article.excerpt,
-    alternates: alternates({ pathname: "/makaleler/[slug]", params: { slug } }),
+    title,
+    description,
+    alternates: alternates({ pathname: "/makaleler/[slug]", params: { slug } }, locale as Locale),
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: absoluteUrl({ pathname: "/makaleler/[slug]", params: { slug } }, locale as Locale),
+      publishedTime: article.isoDate,
+      tags: article.tags,
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -60,8 +78,30 @@ export default async function ArticleDetailPage({
     ? await teamMemberBySlug(authorEntry.slug, locale as Locale)
     : undefined;
 
+  const breadcrumbs = [
+    { name: tNav("home"), url: absoluteUrl("/", locale as Locale) },
+    { name: tNav("articles"), url: absoluteUrl("/makaleler", locale as Locale) },
+    {
+      name: article.title,
+      url: absoluteUrl({ pathname: "/makaleler/[slug]", params: { slug } }, locale as Locale),
+    },
+  ];
+
   return (
     <>
+      <JsonLd
+        data={articleSchema({
+          title: article.metaTitle || article.title,
+          description: article.metaDescription || article.excerpt,
+          slug,
+          isoDate: article.isoDate,
+          locale: locale as Locale,
+          imageUrl: `${breadcrumbs[2].url}/opengraph-image`,
+          authorName: author?.name ?? "YAKA Hukuk & Danışmanlık",
+          keywords: article.tags,
+        })}
+      />
+      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
       <ReadingProgress />
 
       {/* Breadcrumb */}
@@ -80,9 +120,10 @@ export default async function ArticleDetailPage({
       </Container>
 
       <Container className="pt-10">
-        <PlaceholderImage
-          label="geniş kapak görseli — fotoğraf gelecek"
-          className="h-[380px]"
+        <ArticleCover
+          category={article.category}
+          title={article.title}
+          readMinutes={article.readMinutes}
         />
       </Container>
 
@@ -114,49 +155,7 @@ export default async function ArticleDetailPage({
         </div>
 
         <div className="mt-8">
-          {article.body.map((block, index) => {
-            if (block.type === "paragraph") {
-              return (
-                <p
-                  key={index}
-                  className="mt-4 text-[17px] leading-[1.7] text-pretty text-ink first:mt-0"
-                >
-                  {block.text}
-                </p>
-              );
-            }
-            if (block.type === "heading") {
-              return (
-                <h2
-                  key={index}
-                  className="mt-10 font-serif text-[28px] font-medium sm:text-[30px]"
-                >
-                  {block.text}
-                </h2>
-              );
-            }
-            if (block.type === "list") {
-              return (
-                <ul key={index} className="mt-5 flex flex-col gap-2.5 pl-[22px]">
-                  {block.items.map((item) => (
-                    <li key={item} className="text-[16.5px] leading-relaxed text-muted">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              );
-            }
-            return (
-              <div
-                key={index}
-                className="mt-10 rounded-md border border-line border-l-2 border-l-gold bg-surface px-8 py-7"
-              >
-                <p className="m-0 font-serif text-[22px] italic leading-[1.5] text-pretty text-ink">
-                  &ldquo;{block.text}&rdquo;
-                </p>
-              </div>
-            );
-          })}
+          <ArticleBody markdown={article.body} />
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-5 border-t border-line pt-7">

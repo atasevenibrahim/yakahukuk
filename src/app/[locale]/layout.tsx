@@ -7,6 +7,8 @@ import { localizedPracticeAreas } from "@/content/practice-areas";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SiteOverlays } from "@/components/site/SiteOverlays";
+import { JsonLd } from "@/components/site/JsonLd";
+import { organizationSchema } from "@/lib/seo/jsonld";
 import { BASE_URL } from "@/lib/metadata";
 import { getSiteSettings, phoneHref } from "@/lib/site-settings";
 import { cormorant, manrope, plexMono } from "../fonts";
@@ -40,6 +42,18 @@ export async function generateMetadata({
       template: `%s · ${settings.seoTitle}`,
     },
     description,
+    openGraph: {
+      type: "website",
+      siteName: settings.seoTitle,
+      locale: locale === "en" ? "en_US" : "tr_TR",
+      title: settings.seoTitle,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: settings.seoTitle,
+      description,
+    },
   };
 }
 
@@ -76,6 +90,7 @@ export default async function LocaleLayout({
       className={`${manrope.variable} ${cormorant.variable} ${plexMono.variable}`}
     >
       <body>
+        <JsonLd data={organizationSchema(settings, locale)} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <div className="flex min-h-screen flex-col">
             <Header

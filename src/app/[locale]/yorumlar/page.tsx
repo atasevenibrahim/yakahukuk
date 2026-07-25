@@ -12,8 +12,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
-  return { title: "Müvekkil Yorumları", alternates: alternates("/yorumlar") };
+  const { locale } = await params;
+  return { title: "Müvekkil Yorumları", alternates: alternates("/yorumlar", locale as Locale) };
 }
 
 export default async function TestimonialsPage({

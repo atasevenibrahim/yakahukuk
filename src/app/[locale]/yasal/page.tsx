@@ -13,8 +13,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
-  return { title: "Yasal Metinler", alternates: alternates("/yasal") };
+  const { locale } = await params;
+  return { title: "Yasal Metinler", alternates: alternates("/yasal", locale as Locale) };
 }
 
 export default async function LegalPage({

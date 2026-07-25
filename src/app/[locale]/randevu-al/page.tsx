@@ -18,8 +18,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
-  return { title: "Randevu Al", alternates: alternates("/randevu-al") };
+  const { locale } = await params;
+  return { title: "Randevu Al", alternates: alternates("/randevu-al", locale as Locale) };
 }
 
 export default async function RandevuAlPage({

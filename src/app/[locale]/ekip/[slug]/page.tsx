@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!member) return {};
   return {
     title: member.name,
-    alternates: alternates({ pathname: "/ekip/[slug]", params: { slug } }),
+    alternates: alternates({ pathname: "/ekip/[slug]", params: { slug } }, locale as Locale),
   };
 }
 

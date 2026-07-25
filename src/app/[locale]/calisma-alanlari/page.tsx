@@ -15,9 +15,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
+  const { locale } = await params;
   const t = await getTranslations("nav");
-  return { title: t("practiceAreas"), alternates: alternates("/calisma-alanlari") };
+  return { title: t("practiceAreas"), alternates: alternates("/calisma-alanlari", locale as Locale) };
 }
 
 export default async function PracticeAreasPage({

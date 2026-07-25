@@ -17,9 +17,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  await params;
+  const { locale } = await params;
   const t = await getTranslations("nav");
-  return { title: t("team"), alternates: alternates("/ekip") };
+  return { title: t("team"), alternates: alternates("/ekip", locale as Locale) };
 }
 
 export default async function TeamPage({
