@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { AiPanel } from "@/components/admin/makaleler/AiPanel";
 import { saveArticle, deleteArticle } from "./actions";
-import type { ArticleFormData, ArticleListItem, ArticleStatus } from "./types";
+import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, ArticleStatus } from "./types";
 
 const inputClass =
   "h-11 rounded border border-line bg-surface px-3.5 text-[14px] text-ink outline-none focus:border-gold";
@@ -58,6 +60,7 @@ function blankForm(): ArticleFormData {
     featured: false,
     status: "DRAFT",
     publishAt: "",
+    focusKeyword: "",
     tr: { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
     en: { title: "", excerpt: "", body: "", metaTitle: "", metaDescription: "" },
   };
@@ -121,6 +124,21 @@ export function MakalelerBrowser({
 
   function setLocaleField(locale: "tr" | "en", key: keyof ArticleFormData["tr"], value: string) {
     setEditForm((f) => ({ ...f, [locale]: { ...f[locale], [key]: value } }));
+    setDirty(true);
+  }
+
+  /** Bir dilin tüm alanlarını tek seferde değiştirir — AI çevirisi bunu kullanır. */
+  function setLocaleBlock(locale: "tr" | "en", block: ArticleLocaleForm) {
+    setEditForm((f) => ({ ...f, [locale]: block }));
+    setDirty(true);
+  }
+
+  /**
+   * AI akışının gövde parçalarını sona ekler. Fonksiyonel güncelleme şart: parçalar hızlı
+   * ardışık geliyor ve her biri bir öncekinin sonucunu görmek zorunda.
+   */
+  function appendTrBody(delta: string) {
+    setEditForm((f) => ({ ...f, tr: { ...f.tr, body: f.tr.body + delta } }));
     setDirty(true);
   }
 
@@ -234,13 +252,21 @@ export function MakalelerBrowser({
       <div className="sticky top-[60px] z-40 flex items-center gap-5 border-b border-line bg-cream/95 px-8 py-3.5 backdrop-blur-sm">
         <div className="ml-auto flex gap-2.5">
           {view === "liste" ? (
-            <button
-              type="button"
-              onClick={openNew}
-              className="rounded bg-ink px-[22px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold"
-            >
-              + Yeni Makale
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={openNew}
+                className="rounded border border-line bg-surface px-5 py-[11px] text-[13.5px] font-semibold text-muted transition-colors hover:border-gold hover:text-gold"
+              >
+                Boş editörde yaz
+              </button>
+              <Link
+                href="/admin/makaleler/yeni"
+                className="rounded bg-ink px-[22px] py-[11px] text-[13.5px] font-semibold text-cream transition-colors hover:bg-gold"
+              >
+                ✨ Yapay zeka ile yaz
+              </Link>
+            </>
           ) : (
             <button
               type="button"
@@ -332,7 +358,7 @@ export function MakalelerBrowser({
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
               <div className="flex flex-col gap-4">
                 <div className="rounded-md border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
                   <div className="mb-5 flex gap-1 border-b border-line">
@@ -451,6 +477,22 @@ export function MakalelerBrowser({
                         className={textareaClass}
                       />
                     </div>
+                    {dil === "TR" && (
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="text-[13px] font-semibold">Odak anahtar kelime</label>
+                        <input
+                          type="text"
+                          value={editForm.focusKeyword}
+                          onChange={(e) => setField("focusKeyword", e.target.value)}
+                          placeholder="Okuyucunun Google'a yazacağı ifade"
+                          className={inputClass}
+                        />
+                        <p className="m-0 text-[11.5px] leading-relaxed text-muted">
+                          SEO denetimleri bu kelimenin başlıkta, adreste ve ilk paragrafta geçip
+                          geçmediğini kontrol eder.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -547,6 +589,16 @@ export function MakalelerBrowser({
                     </div>
                   </div>
                 </div>
+
+                <AiPanel
+                  form={editForm}
+                  dil={dil}
+                  setField={setField}
+                  setLocaleField={setLocaleField}
+                  setLocaleBlock={setLocaleBlock}
+                  appendTrBody={appendTrBody}
+                  showToast={showToast}
+                />
 
                 {selectedId && (
                   <button

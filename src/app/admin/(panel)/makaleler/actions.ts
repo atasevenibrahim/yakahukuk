@@ -90,6 +90,7 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
     featured: payload.featured,
     status: payload.status,
     publishAt,
+    focusKeyword: payload.focusKeyword?.trim() || null,
     t,
   };
 

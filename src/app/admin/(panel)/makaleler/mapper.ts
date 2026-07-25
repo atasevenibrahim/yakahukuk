@@ -20,6 +20,7 @@ export type ArticleRow = {
   featured: boolean;
   status: "DRAFT" | "SCHEDULED" | "PUBLISHED";
   publishAt: Date | null;
+  focusKeyword: string | null;
   t: unknown;
 };
 
@@ -71,6 +72,7 @@ export function toFormData(row: ArticleRow): ArticleFormData {
     featured: row.featured,
     status: row.status,
     publishAt: toDatetimeLocal(row.publishAt),
+    focusKeyword: row.focusKeyword ?? "",
     tr: toLocaleForm(t.tr),
     en: toLocaleForm(t.en),
   };
