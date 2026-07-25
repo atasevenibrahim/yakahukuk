@@ -281,14 +281,33 @@ export function analyzeSeo(input: SeoInput): SeoAnalysis {
     );
   }
 
-  // --- Meta alanlar (toplam 20) --------------------------------------------
+  // --- Meta alanlar ---------------------------------------------------------
   checks.push(
     lengthCheck("meta-title", "Meta başlık uzunluğu", 7, input.metaTitle || input.title, 30, SERP_TITLE_LIMIT),
     lengthCheck("meta-description", "Meta açıklama uzunluğu", 7, input.metaDescription, 120, SERP_DESCRIPTION_LIMIT),
     lengthCheck("excerpt", "Özet uzunluğu", 6, input.excerpt, 80, 200),
   );
 
-  // --- Yapı (toplam 20) -----------------------------------------------------
+  // Yıl yalnızca başlık/adres/meta başlıkta denetlenir. Gövdede bir yıl çoğu zaman meşrudur
+  // ("2026 yılında yürürlüğe giren düzenleme"), ama başlıkta eskimeye mahkûmdur: makale
+  // yıllarca yayında kalır ve "2024 kira artış oranı" ertesi yıl yanlış bilgiye dönüşür.
+  // Gerçek bir denemede model tam olarak bunu üretti, bu yüzden denetim eklendi.
+  const yearFields = [input.title, input.metaTitle, input.slug].filter(Boolean).join(" ").trim();
+  const yearMatch = yearFields ? /(?<![0-9])(19|20)\d{2}(?![0-9])/.exec(yearFields) : null;
+  checks.push(
+    check("title-year", "Başlıkta yıl", 4, {
+      // Denetlenecek başlık yoksa puan verilmez — yokluktan puan kazanmak boş bir makaleyi
+      // olduğundan iyi gösterir (aynı hata `hierarchy`/`verification` denetimlerinde de vardı).
+      status: !yearFields ? "fail" : yearMatch ? "fail" : "ok",
+      detail: !yearFields
+        ? "Başlık yok."
+        : yearMatch
+          ? `Başlıkta "${yearMatch[0]}" geçiyor. Makale yıllarca yayında kalacak; yıl yerine "güncel" gibi zamandan bağımsız bir ifade kullanın.`
+          : "Başlıkta eskimeye açık bir yıl yok.",
+    }),
+  );
+
+  // --- Yapı -----------------------------------------------------------------
   const h2Count = structure.headings.filter((h) => h.level === 2).length;
   checks.push(
     check("word-count", "Metin uzunluğu", 8, {
@@ -328,7 +347,7 @@ export function analyzeSeo(input: SeoInput): SeoAnalysis {
     }),
   );
 
-  // --- Bağlantı (toplam 15) -------------------------------------------------
+  // --- Bağlantı -------------------------------------------------------------
   checks.push(
     check("internal-links", "İç bağlantı", 15, {
       status: structure.internalLinks >= 2 ? "ok" : structure.internalLinks === 1 ? "warn" : "fail",
@@ -342,7 +361,7 @@ export function analyzeSeo(input: SeoInput): SeoAnalysis {
     }),
   );
 
-  // --- Okunabilirlik (toplam 10) -------------------------------------------
+  // --- Okunabilirlik --------------------------------------------------------
   checks.push(
     check("readability", "Okunabilirlik (Ateşman)", 10, {
       status: readabilityScore >= 50 ? "ok" : readabilityScore >= 35 ? "warn" : "fail",
@@ -355,7 +374,7 @@ export function analyzeSeo(input: SeoInput): SeoAnalysis {
     }),
   );
 
-  // --- Doğrulama (toplam 10) -----------------------------------------------
+  // --- Doğrulama ------------------------------------------------------------
   checks.push(
     check("verification", "Doğrulanmamış bilgi", 10, {
       status: !hasBody || verification.placeholders.length > 0 ? "fail" : "ok",

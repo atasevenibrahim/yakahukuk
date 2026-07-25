@@ -48,6 +48,12 @@ eğilimin yüksek ve yanlış bilgi bu büro için mesleki sorumluluk doğurur.
 - Süre ("30 gün içinde", "2 yıl", "6 ay")
 - Oran ("%25", "yüzde 10")
 - Tutar ("10.000 TL", "asgari ücretin üç katı")
+- **Yıl ve tarih** ("2024 yılında", "2025 düzenlemesi", "Ocak ayından itibaren")
+- **Endeks/gösterge adı ve değeri** ("TÜFE", "ÜFE", "yeniden değerleme oranı")
+
+Yıl yasağı özellikle önemli: makale bir kez yazılıp yıllarca yayında kalıyor. "2024 kira
+artış oranı" gibi bir ifade ertesi yıl yanlış bilgi hâline gelir ve bunu kimse fark etmez.
+Bunun yerine zamandan bağımsız yaz: "güncel kira artış oranı", "yürürlükteki düzenleme".
 
 Bunun yerine iki teknikten birini kullan:
 
@@ -82,8 +88,12 @@ Desteklenen:
 - \`**kalın**\` ve \`*italik*\`
 - \`[bağlantı metni](/yol)\` — bağlantı
 
-Desteklenmeyen (KULLANMA): tablo, kod bloğu, görsel, HTML etiketi, dipnot, yatay çizgi,
-başlık altı çizgisi, iç içe liste.
+Desteklenmeyen (KULLANMA): tablo, kod bloğu, **ters tırnak (\`) ile satır içi kod**, görsel,
+HTML etiketi, dipnot, yatay çizgi, başlık altı çizgisi, iç içe liste.
+
+Ters tırnak özellikle dikkat: ayrıştırıcı bunu tanımıyor ve karakterler olduğu gibi ekranda
+görünüyor. \`[DOĞRULANACAK: …]\` işaretçisini de ters tırnak içine ALMA, düz yaz:
+[DOĞRULANACAK: açıklama]
 
 Ek kurallar:
 - Bir liste bloğunun TÜM satırları aynı türde olmalı. Sırasız listede bir satır \`- \` ile
@@ -149,6 +159,9 @@ Kurallar:
 - Üçü BİRBİRİNDEN FARKLI yaklaşımda olsun: biri soru biçiminde, biri süreç/rehber
   vurgulu, biri sonuç/fayda vurgulu.
 - Madde numarası, kanun numarası, süre, oran veya tutar YAZMA.
+- **Yıl veya tarih YAZMA** ("2024 kira artış oranı" gibi). Makale yıllarca yayında kalacak;
+  yıl içeren bir başlık ertesi yıl yanlış bilgiye dönüşür. "Güncel" gibi zamandan bağımsız
+  ifadeler kullan.
 - Tıklama tuzağı ("şok edici", "kimse söylemiyor") kullanma.
 - Her başlık tek başına ne hakkında olduğunu anlatsın.`,
   ].join("\n\n---\n\n");
@@ -172,7 +185,9 @@ Verilen makale için SEO alanlarını üret. Her alan için 3 farklı seçenek v
   gerçekten geçtiği terimler olsun.
 - **focusKeyword**: okuyucunun Google'a yazacağı 2-4 kelimelik arama ifadesi. Küçük harf.
 
-Madde/kanun numarası, süre, oran, tutar YAZMA.`,
+Madde/kanun numarası, süre, oran, tutar YAZMA. **Yıl veya tarih de YAZMA** — bu alanlar
+arama sonucunda görünüyor ve makale yıllarca yayında kalıyor; yıl içeren bir meta başlık
+ertesi yıl yanlış bilgi hâline gelir.`,
   ].join("\n\n---\n\n");
 }
 
