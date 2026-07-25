@@ -21,8 +21,10 @@ export type AiUsage = {
 };
 
 export type AiErrorKind =
-  /** Ortam değişkeni eksik/yanlış — kullanıcı hatası değil, kurulum hatası. */
+  /** Ortam değişkeni hiç yok. */
   | "config"
+  /** Anahtar var ama servis reddediyor (401/403) — geçersiz, kısıtlı ya da API açık değil. */
+  | "auth"
   /** Ücretsiz kota doldu (429) ya da eşzamanlılık limiti. */
   | "quota"
   /** Model güvenlik süzgeci yanıtı engelledi. */
@@ -51,6 +53,8 @@ export class AiError extends Error {
 const USER_MESSAGES: Record<AiErrorKind, string> = {
   config:
     "Yapay zeka servisi henüz yapılandırılmamış (GEMINI_API_KEY eksik). Ayarlar tamamlanana kadar makaleleri elle yazabilirsiniz.",
+  auth:
+    "Yapay zeka anahtarı servis tarafından reddedildi. Anahtarın geçerli olduğunu, Google projesinde Generative Language API'nin açık olduğunu ve anahtar kısıtlamalarının bu API'yi kapsadığını kontrol edin.",
   quota:
     "Günlük ücretsiz kota dolmuş görünüyor. Birkaç dakika sonra tekrar deneyin — yazdıklarınız kaybolmadı.",
   blocked:
@@ -71,8 +75,10 @@ function classify(err: unknown): AiError {
 
   if (err instanceof ApiError) {
     if (err.status === 429) return aiError("quota", err);
-    // 401/403: anahtar geçersiz ya da yetkisiz — kurulum sorunu, tekrar denemek çözmez.
-    if (err.status === 401 || err.status === 403) return aiError("config", err);
+    // 401/403: anahtar var ama reddedildi — tekrar denemek çözmez, kurulum düzeltilmeli.
+    // "config"ten ayrı tutuluyor: "anahtar eksik" ile "anahtar reddedildi" farklı işler ve
+    // ikisine aynı mesajı vermek yanlış yere baktırır (bu ayrım gerçek bir olayda ortaya çıktı).
+    if (err.status === 401 || err.status === 403) return aiError("auth", err);
     if (err.status === 400) return aiError("invalid", err);
     return aiError("transient", err);
   }
