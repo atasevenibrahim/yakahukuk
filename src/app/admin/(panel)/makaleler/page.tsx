@@ -13,7 +13,10 @@ export const metadata: Metadata = { title: "Makaleler" };
 export default async function AdminMakalelerPage() {
   const [user, rows, areas] = await Promise.all([
     getSessionUser(),
-    prisma.article.findMany({ orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }] }),
+    prisma.article.findMany({
+      // Genel siteyle aynı sıra (bkz. content/articles.ts): NULL publishAt sona düşer.
+      orderBy: [{ publishAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
+    }),
     prisma.practiceArea.findMany({ orderBy: { order: "asc" }, select: { slug: true, t: true } }),
   ]);
 

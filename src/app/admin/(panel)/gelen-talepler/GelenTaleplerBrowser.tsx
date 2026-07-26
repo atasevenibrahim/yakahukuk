@@ -134,7 +134,9 @@ export function GelenTaleplerBrowser({ items }: { items: InboxItem[] }) {
                   key={item.id}
                   type="button"
                   onClick={() => selectItem(item)}
-                  className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-cream px-[18px] py-3.5 text-left transition-colors hover:bg-[#FAF8F3]"
+                  // w-full şart: <button> satır-içi olduğu için içeriği kadar daralır ve
+                  // ortadaki 1fr sütunu genişlemez — sağdaki tarih sağ kenara yaslanmaz.
+                  className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-cream px-[18px] py-3.5 text-left transition-colors hover:bg-[#FAF8F3]"
                   style={{
                     borderLeft: `2px solid ${active ? "#9C7C4A" : "transparent"}`,
                     background: active ? "#FAF8F3" : item.messageStatus === "NEW" ? "#FDFCF9" : "#FFFFFF",

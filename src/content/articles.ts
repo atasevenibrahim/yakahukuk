@@ -235,7 +235,9 @@ export const getArticlesRaw = safeQuery(async (): Promise<Article[]> => {
         { status: "SCHEDULED", publishAt: { lte: new Date() } },
       ],
     },
-    orderBy: [{ publishAt: "desc" }, { createdAt: "desc" }],
+    // PostgreSQL DESC sıralamada NULL'ları başa koyar; tohumlanan makalelerin publishAt'i
+    // boş olduğu için tarihi olan makale listenin SONUNA düşüyordu. nulls:"last" bunu düzeltir.
+    orderBy: [{ publishAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
   });
   return rows.map((r) => ({
     slug: r.slug,

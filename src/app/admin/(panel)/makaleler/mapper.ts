@@ -20,6 +20,8 @@ export type ArticleRow = {
   featured: boolean;
   status: "DRAFT" | "SCHEDULED" | "PUBLISHED";
   publishAt: Date | null;
+  /** `publishAt` boşken tarih sütununun düştüğü yedek. */
+  createdAt: Date;
   focusKeyword: string | null;
   verifiedClaims: string[];
   t: unknown;
@@ -56,7 +58,10 @@ export function toListItem(row: ArticleRow): ArticleListItem {
     title: t.tr.title,
     category: row.category,
     status: row.status,
-    dateLabel: row.publishAt ? DATE_FMT.format(row.publishAt).toUpperCase() : "—",
+    // Genel sitedeki davranışla aynı (`content/articles.ts` → `publishAt ?? createdAt`).
+    // Önceden yalnızca publishAt'e bakılıyordu; tohumlanan 9 yayındaki makalede bu alan boş
+    // olduğu için liste "—" gösteriyordu, oysa sitede tarihleri görünüyordu.
+    dateLabel: DATE_FMT.format(row.publishAt ?? row.createdAt).toUpperCase(),
     hasEn: !!t.en,
   };
 }

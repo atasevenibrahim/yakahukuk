@@ -306,12 +306,15 @@ export function MakalelerBrowser({
             </div>
 
             <div className="overflow-x-auto rounded-md border border-line bg-surface shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
-              <div className="grid min-w-[680px] grid-cols-[minmax(180px,1fr)_110px_116px_92px_76px] gap-3 border-b border-line px-5 py-3 font-mono text-[9.5px] tracking-[1.5px] text-muted">
+              {/* Şablon başlıkla satırların ikisinde de birebir aynı olmalı; ayrıca satırlar
+                  <button> olduğu için w-full şart — aksi hâlde içeriği kadar daralıp başlıkla
+                  hizasını kaybeder. Dar ekranda TARİH ve DİL düşer, yatay kaydırma çıkmaz. */}
+              <div className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] gap-3 border-b border-line px-5 py-3 font-mono text-[9.5px] tracking-[1.5px] text-muted lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px]">
                 <span>BAŞLIK</span>
                 <span>KATEGORİ</span>
                 <span>DURUM</span>
-                <span>TARİH</span>
-                <span>DİL</span>
+                <span className="hidden lg:block">TARİH</span>
+                <span className="hidden lg:block">DİL</span>
               </div>
               {filtered.length === 0 && (
                 <p className="px-6 py-12 text-center text-sm text-muted">Eşleşen makale yok.</p>
@@ -323,7 +326,7 @@ export function MakalelerBrowser({
                     key={a.id}
                     type="button"
                     onClick={() => openEditor(a.id)}
-                    className="grid min-w-[680px] grid-cols-[minmax(180px,1fr)_110px_116px_92px_76px] items-center gap-3 border-b border-cream px-5 py-3 text-left transition-colors hover:bg-[#FAF8F3]"
+                    className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] items-center gap-3 border-b border-cream px-5 py-3 text-left transition-colors hover:bg-[#FAF8F3] lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px]"
                   >
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[13.5px] font-semibold">
                       {a.title || "(başlıksız)"}
@@ -335,8 +338,10 @@ export function MakalelerBrowser({
                     >
                       {STATUS_LABEL[a.status]}
                     </span>
-                    <span className="font-mono text-[11px] text-muted">{a.dateLabel}</span>
-                    <span className="flex gap-1.5">
+                    <span className="hidden font-mono text-[11px] text-muted lg:block">
+                      {a.dateLabel}
+                    </span>
+                    <span className="hidden gap-1.5 lg:flex">
                       <span className="rounded-full border border-[#CDE0D4] px-1.5 py-0.5 font-mono text-[9px] text-[#3F7A5B]">TR</span>
                       <span
                         className={`rounded-full border px-1.5 py-0.5 font-mono text-[9px] ${
