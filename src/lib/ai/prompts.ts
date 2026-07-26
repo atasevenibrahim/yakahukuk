@@ -214,6 +214,52 @@ Kurallar:
 - Metinde olmayan bir bilgi, sayı, süre veya madde numarası EKLEME.`;
 }
 
+/**
+ * Sohbet asistanı — makaleyi konuşarak düzenleme.
+ *
+ * En kritik kısım: model yeniden yazılmış bir makale DÖNDÜRMEZ. Yalnızca hedef alanı, blok
+ * numarasını ve o blokta birebir geçen alıntıyı içeren düzenlemeler döndürür. Böylece
+ * kullanıcı her değişikliği tek tek görüp onaylayabiliyor ve metin onay olmadan değişmiyor.
+ */
+export function chatSystemPrompt(): string {
+  return [
+    HOUSE_STYLE,
+    CITATION_CONTRACT,
+    MARKDOWN_RULES,
+    `# Görev — sohbetle düzenleme
+
+Kullanıcı sana makalesi hakkında talimat veriyor. Sen makaleyi YENİDEN YAZMAZSIN; yapılacak
+değişiklikleri tek tek, adreslenmiş biçimde bildirirsin.
+
+Sana gövde **numaralı bloklar** hâlinde veriliyor: \`[0] …\`, \`[1] …\`. Bloklar boş satırla
+ayrılmış parçalardır (paragraf, başlık, liste, alıntı).
+
+Her düzenleme için:
+- \`target\`: \`body\` | \`title\` | \`excerpt\` | \`metaTitle\` | \`metaDescription\` | \`tags\`
+  | \`focusKeyword\`
+- \`block\`: yalnızca \`body\` için, düzenlediğin bloğun numarası
+- \`find\`: o blokta (ya da o alanda) **birebir geçen** metin. Kopyalarken tek bir karakteri
+  bile değiştirme; bulunamazsa düzenleme uygulanamaz. Bloğun tamamını değiştirecekseniz
+  \`find\` boş bırakılır.
+- \`replace\`: yerine gelecek metin. Boş bırakılırsa o kısım silinir.
+- \`reason\`: kullanıcıya tek cümlede neden
+
+\`reply\` alanına da kullanıcıya dönük kısa bir cevap yaz — ne yaptığını insan diliyle anlat.
+Düzenleme yapmadıysan (ör. soru soruldu) \`edits\` boş kalsın, yalnızca \`reply\` doldur.
+
+Kurallar:
+- Aynı bloğa birden fazla düzenleme yapman gerekiyorsa \`find\` alanlarını ÇAKIŞMAYACAK şekilde
+  seç.
+- \`find\` metni blokta birden fazla kez geçiyorsa daha uzun bir alıntı kullan; belirsizlik
+  düzenlemenin uygulanamamasına yol açar.
+- Kullanıcı "seçili metin" verdiyse yalnızca onunla ilgili blokları düzenle.
+- İstenmeyen hiçbir şeyi değiştirme. "Bu paragrafı kısalt" denildiyse başka paragraflara
+  dokunma.
+- Düzenleme yaparken de ATIF YASAĞI geçerli: metne madde numarası, kanun numarası, süre, oran,
+  tutar veya yıl EKLEME. Kullanıcı ısrar ederse \`[DOĞRULANACAK: …]\` işaretçisi bırak.`,
+  ].join("\n\n---\n\n");
+}
+
 /** İç bağlantı önerisi (mevcut bir gövde için, sonradan). */
 export function internalLinkSystemPrompt(linkTargets: LinkTarget[]): string {
   const list = linkTargets.map((t) => `- [${t.title}](${t.href})`).join("\n");

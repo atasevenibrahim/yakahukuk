@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MediaField } from "@/components/admin/medya/MediaField";
 import { AiPanel } from "@/components/admin/makaleler/AiPanel";
 import { ArticleEditor } from "@/components/admin/makaleler/ArticleEditor";
+import { ChatPanel } from "@/components/admin/makaleler/ChatPanel";
 import type { LinkTargetOption } from "@/components/admin/makaleler/LinkDialog";
 import { useBodyStream } from "@/components/admin/makaleler/useBodyStream";
 import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
@@ -78,6 +79,8 @@ export function MakalelerBrowser({
   const [toast, setToast] = useState<string | null>(null);
   // Gövde üretimi burada tutuluyor ki yükleme ekranı editörün üstünde çıkabilsin.
   const body = useBodyStream();
+  /** Editörde seçili metin — sohbet asistanı yalnızca ona odaklanabilsin diye. */
+  const [selection, setSelection] = useState("");
 
   function showToast(message: string) {
     setToast(message);
@@ -129,6 +132,38 @@ export function MakalelerBrowser({
       { title: editForm.tr.title, areaSlug: editForm.practiceAreaSlug },
       { onComplete: (text) => setLocaleField("tr", "body", text) },
     );
+  }
+
+  /** Sohbet asistanının gördüğü alan kümesi — TR kaynak metin. */
+  const chatFields = useMemo(
+    () => ({
+      body: editForm.tr.body,
+      title: editForm.tr.title,
+      excerpt: editForm.tr.excerpt,
+      metaTitle: editForm.tr.metaTitle,
+      metaDescription: editForm.tr.metaDescription,
+      tags: editForm.tags,
+      focusKeyword: editForm.focusKeyword,
+    }),
+    [editForm],
+  );
+
+  /** Onaylanan bir sohbet düzenlemesini forma yazar. */
+  function applyChatEdit(next: typeof chatFields) {
+    setEditForm((f) => ({
+      ...f,
+      tags: next.tags,
+      focusKeyword: next.focusKeyword,
+      tr: {
+        ...f.tr,
+        body: next.body,
+        title: next.title,
+        excerpt: next.excerpt,
+        metaTitle: next.metaTitle,
+        metaDescription: next.metaDescription,
+      },
+    }));
+    setDirty(true);
   }
 
   function currentBody() {
@@ -358,7 +393,7 @@ export function MakalelerBrowser({
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="flex flex-col gap-4">
                 <div className="rounded-md border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
                   <div className="mb-5 flex gap-1 border-b border-line">
@@ -422,6 +457,7 @@ export function MakalelerBrowser({
                         onChange={updateBody}
                         linkTargets={linkTargets}
                         draftKey={`${selectedId ?? "yeni"}-${dil}`}
+                        onSelectionChange={dil === "TR" ? setSelection : undefined}
                         generation={
                           dil === "TR"
                             ? {
@@ -600,6 +636,15 @@ export function MakalelerBrowser({
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="h-[560px]">
+                  <ChatPanel
+                    fields={chatFields}
+                    onApply={applyChatEdit}
+                    selection={selection}
+                    storageKey={selectedId ?? "yeni"}
+                  />
                 </div>
 
                 <div className="rounded-md border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">

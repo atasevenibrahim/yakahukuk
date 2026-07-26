@@ -141,10 +141,18 @@ function jsonSchemaOf(schema: z.ZodType): unknown {
   return cleaned;
 }
 
+/** Sohbet geçmişi — sağlayıcıdan bağımsız sade biçim. */
+export type ChatTurn = { role: "user" | "assistant"; text: string };
+
 export type CompleteOptions<T> = {
   system: string;
   prompt: string;
   schema: z.ZodType<T>;
+  /**
+   * Önceki turlar. Verilirse `prompt` son kullanıcı mesajı olarak sona eklenir; böylece
+   * asistan "az önce ne konuştuk" bağlamını korur.
+   */
+  history?: ChatTurn[];
   temperature?: number;
   thinking?: ThinkingEffort;
   maxOutputTokens?: number;
@@ -155,11 +163,23 @@ export type CompleteOptions<T> = {
 export async function complete<T>(options: CompleteOptions<T>): Promise<{ value: T; usage: AiUsage }> {
   const ai = client();
 
+  // Geçmiş varsa çok turlu `Content[]` kurulur (SDK: ContentListUnion = Content | Content[]).
+  // Gemini'de asistan rolünün adı "model".
+  const contents = options.history?.length
+    ? [
+        ...options.history.map((turn) => ({
+          role: turn.role === "assistant" ? "model" : "user",
+          parts: [{ text: turn.text }],
+        })),
+        { role: "user", parts: [{ text: options.prompt }] },
+      ]
+    : options.prompt;
+
   let raw: Awaited<ReturnType<typeof ai.models.generateContent>>;
   try {
     raw = await ai.models.generateContent({
       model: model(),
-      contents: options.prompt,
+      contents,
       config: {
         systemInstruction: options.system,
         responseMimeType: "application/json",

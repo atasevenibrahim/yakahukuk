@@ -6,8 +6,9 @@ import { requireSessionUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
 import { getPracticeAreasRaw } from "@/content/practice-areas";
 import { getArticlesRaw } from "@/content/articles";
-import { AiError, complete, type AiUsage } from "./provider";
+import { AiError, complete, type AiUsage, type ChatTurn } from "./provider";
 import {
+  chatSystemPrompt,
   internalLinkSystemPrompt,
   seoSystemPrompt,
   titlesSystemPrompt,
@@ -16,6 +17,13 @@ import {
   type LinkTarget,
 } from "./prompts";
 import { buildVerificationReport, type VerificationReport } from "./citations";
+import {
+  EDIT_TARGETS,
+  checkEdits,
+  numberedBlocks,
+  type ArticleFields,
+  type CheckedEdit,
+} from "./edit-ops";
 
 const MODULE_LABEL = "MAKALELER";
 
@@ -299,6 +307,86 @@ export async function suggestInternalLinks(
     });
 
     return { ok: true, data: filtered };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sohbetle düzenleme
+// ---------------------------------------------------------------------------
+
+const chatSchema = z.object({
+  reply: z.string(),
+  edits: z
+    .array(
+      z.object({
+        target: z.enum(EDIT_TARGETS),
+        block: z.number().optional(),
+        find: z.string(),
+        replace: z.string(),
+        reason: z.string(),
+      }),
+    )
+    .max(12),
+});
+
+export type ChatEditResult = {
+  reply: string;
+  /** Doğrulanmış düzenlemeler — uygulanamayanlar sebebiyle birlikte gelir. */
+  edits: CheckedEdit[];
+};
+
+export async function chatEdit(input: {
+  instruction: string;
+  history: ChatTurn[];
+  fields: ArticleFields;
+  /** Editörde seçili metin varsa yalnızca oraya odaklanılır. */
+  selection?: string;
+}): Promise<AiActionResult<ChatEditResult>> {
+  try {
+    const user = await guard();
+    const instruction = input.instruction.trim();
+    if (!instruction) return { ok: false, error: "Bir talimat yazın." };
+
+    const context = [
+      `# Makale alanları`,
+      `Başlık: ${input.fields.title || "(boş)"}`,
+      `Özet: ${input.fields.excerpt || "(boş)"}`,
+      `Meta başlık: ${input.fields.metaTitle || "(boş)"}`,
+      `Meta açıklama: ${input.fields.metaDescription || "(boş)"}`,
+      `Odak kelime: ${input.fields.focusKeyword || "(boş)"}`,
+      `Etiketler: ${input.fields.tags || "(boş)"}`,
+      ``,
+      `# Gövde (numaralı bloklar)`,
+      numberedBlocks(input.fields.body) || "(gövde boş)",
+      input.selection?.trim()
+        ? `\n# Kullanıcının seçtiği metin\n${input.selection.trim()}`
+        : "",
+      ``,
+      `# Talimat`,
+      instruction,
+    ].join("\n");
+
+    const { value, usage } = await complete({
+      system: chatSystemPrompt(),
+      prompt: context,
+      history: input.history,
+      schema: chatSchema,
+      thinking: "medium",
+      temperature: 0.4,
+      maxOutputTokens: 16000,
+    });
+
+    await logAudit({
+      actorId: user.id,
+      action: "ai_chat_edit",
+      module: MODULE_LABEL,
+      detail: `${value.edits.length} düzenleme · ${usageLabel(usage)}`,
+    });
+
+    // Düzenlemeler burada, sunucuda doğrulanır; istemci yalnızca sonucu gösterir ve uygular.
+    return { ok: true, data: { reply: value.reply, edits: checkEdits(value.edits, input.fields) } };
   } catch (err) {
     return fail(err);
   }

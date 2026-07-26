@@ -35,11 +35,14 @@ export function ArticleEditor({
   /** localStorage taslak anahtarı — makale id'si ya da "yeni". */
   draftKey,
   generation,
+  onSelectionChange,
 }: {
   value: string;
   onChange: (markdown: string) => void;
   linkTargets: LinkTargetOption[];
   draftKey: string;
+  /** Seçili metni yukarı bildirir — sohbet asistanı yalnızca ona odaklanabilsin diye. */
+  onSelectionChange?: (text: string) => void;
   /** Yapay zeka gövdeyi üretirken editörün yerine yükleme ekranı basılır. */
   generation?: { active: boolean; startedAt: number | null; charCount: number; onCancel: () => void };
 }) {
@@ -100,6 +103,9 @@ export function ArticleEditor({
       const { from, to, empty } = state.selection;
       const shellBox = shell.getBoundingClientRect();
 
+      // Seçili metni yukarı bildir; sohbet asistanı yalnızca ona odaklanabilsin.
+      onSelectionChange?.(empty ? "" : state.doc.textBetween(from, to, " "));
+
       // Seçim varsa balıncak menü
       if (!empty && editor.isFocused) {
         const start = view.coordsAtPos(from);
@@ -138,7 +144,7 @@ export function ArticleEditor({
       editor.off("selectionUpdate", update);
       editor.off("transaction", update);
     };
-  }, [editor]);
+  }, [editor, onSelectionChange]);
 
   // Dışarıdan gelen değişiklik (AI üretimi, kaynak sekmesinde düzenleme) editöre yansıtılır.
   useEffect(() => {

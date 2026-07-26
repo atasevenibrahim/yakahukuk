@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { suggestSeo, suggestTitles, translateToEn } from "@/lib/ai/article";
 import type { SeoSuggestions, TitleSuggestion } from "@/lib/ai/article";
@@ -8,10 +8,12 @@ import { saveArticle } from "@/app/admin/(panel)/makaleler/actions";
 import type { ArticleFormData } from "@/app/admin/(panel)/makaleler/types";
 import { BASE_URL } from "@/lib/metadata";
 import { readMinutesOf } from "@/lib/seo/score";
+import { slugify } from "@/lib/admin/slugify";
 import { ArticleEditor } from "./ArticleEditor";
+import { ChatPanel } from "./ChatPanel";
 import type { LinkTargetOption } from "./LinkDialog";
 import { SeoPanel } from "./SeoPanel";
-import { SuggestionList } from "./SuggestionList";
+import { SuggestionList, type PreviewContext, type PreviewKind } from "./SuggestionList";
 import { VerificationPanel } from "./VerificationPanel";
 import { useBodyStream } from "./useBodyStream";
 
@@ -64,6 +66,7 @@ export function Wizard({
   /** Üretim tamamlanınca buraya düşer; kullanıcı bundan sonra editörde düzenler. */
   const [draftBody, setDraftBody] = useState("");
   const [instruction, setInstruction] = useState("");
+  const [selection, setSelection] = useState("");
 
   // 4. adım
   const [seo, setSeo] = useState<SeoSuggestions>(emptySeo());
@@ -73,11 +76,39 @@ export function Wizard({
   const [tags, setTags] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
 
+  const chatFields = useMemo(
+    () => ({ body: draftBody, title, excerpt, metaTitle, metaDescription, tags, focusKeyword }),
+    [draftBody, title, excerpt, metaTitle, metaDescription, tags, focusKeyword],
+  );
+
+  /** Onaylanan sohbet düzenlemesini sihirbazın state'lerine dağıtır. */
+  function applyChatEdit(next: typeof chatFields) {
+    setDraftBody(next.body);
+    setTitle(next.title);
+    setExcerpt(next.excerpt);
+    setMetaTitle(next.metaTitle);
+    setMetaDescription(next.metaDescription);
+    setTags(next.tags);
+    setFocusKeyword(next.focusKeyword);
+  }
+
   // 5. adım
   const [translating, setTranslating] = useState(false);
   const [en, setEn] = useState<ArticleFormData["en"] | null>(null);
 
   const areaLabel = practiceAreaOptions.find((o) => o.value === areaSlug)?.label ?? "";
+
+  /** Seçenek önizlemelerinin sabit bağlamı — slug henüz yok, başlıktan türetiliyor. */
+  const previewContext = useMemo(
+    () => ({
+      url: `${BASE_URL}/makaleler/${slugify(title || "makale")}`,
+      title: metaTitle || title,
+      description: metaDescription,
+      category: areaLabel.toLocaleUpperCase("tr"),
+      readMinutes: readMinutesOf(draftBody),
+    }),
+    [title, metaTitle, metaDescription, areaLabel, draftBody],
+  );
 
   async function runTitles() {
     setError(null);
@@ -170,7 +201,7 @@ export function Wizard({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[860px] flex-col gap-5">
+    <div className={`mx-auto flex w-full flex-col gap-5 ${step === 2 ? "max-w-[1400px]" : "max-w-[860px]"}`}>
       {/* Adım göstergesi */}
       <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
         {STEPS.map((label, i) => {
@@ -277,6 +308,8 @@ export function Wizard({
               currentValue={title}
               onPick={setTitle}
               charTarget={{ min: 45, max: 60 }}
+              previewAs="serp-title"
+              previewContext={previewContext}
             />
 
             <div className="flex flex-col gap-1.5">
@@ -328,18 +361,32 @@ export function Wizard({
           </p>
 
           <div className="mt-5 flex flex-col gap-4">
-            <ArticleEditor
-              value={draftBody}
-              onChange={setDraftBody}
-              linkTargets={linkTargets}
-              draftKey="sihirbaz"
-              generation={{
-                active: body.streaming,
-                startedAt: body.startedAt,
-                charCount: body.text.length,
-                onCancel: body.stop,
-              }}
-            />
+            <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+              <ArticleEditor
+                value={draftBody}
+                onChange={setDraftBody}
+                linkTargets={linkTargets}
+                draftKey="sihirbaz"
+                onSelectionChange={setSelection}
+                generation={{
+                  active: body.streaming,
+                  startedAt: body.startedAt,
+                  charCount: body.text.length,
+                  onCancel: body.stop,
+                }}
+              />
+              {/* Metin üretildikten sonra sohbetle düzeltme; üretim sürerken gizli. */}
+              {!body.streaming && draftBody.trim() && (
+                <div className="h-[520px]">
+                  <ChatPanel
+                    fields={chatFields}
+                    onApply={applyChatEdit}
+                    selection={selection}
+                    storageKey="sihirbaz"
+                  />
+                </div>
+              )}
+            </div>
 
             {body.error && (
               <p
@@ -418,6 +465,8 @@ export function Wizard({
               onChange={setMetaTitle}
               options={seo.metaTitle}
               charTarget={{ min: 50, max: 60 }}
+              previewAs="serp-title"
+              previewContext={previewContext}
             />
             <SeoField
               label="Meta açıklama"
@@ -427,6 +476,8 @@ export function Wizard({
               options={seo.metaDescription}
               charTarget={{ min: 140, max: 155 }}
               multiline
+              previewAs="serp-description"
+              previewContext={previewContext}
             />
             <SeoField
               label="Özet"
@@ -436,6 +487,8 @@ export function Wizard({
               options={seo.excerpt}
               charTarget={{ min: 100, max: 160 }}
               multiline
+              previewAs="article-card"
+              previewContext={previewContext}
             />
             <SeoField
               label="Odak anahtar kelime"
@@ -595,6 +648,8 @@ function SeoField({
   options,
   charTarget,
   multiline,
+  previewAs,
+  previewContext,
 }: {
   label: string;
   hint: string;
@@ -603,6 +658,8 @@ function SeoField({
   options: string[];
   charTarget?: { min: number; max: number };
   multiline?: boolean;
+  previewAs?: PreviewKind;
+  previewContext?: PreviewContext;
 }) {
   const len = value.length;
   const inRange = charTarget ? len >= charTarget.min && len <= charTarget.max : true;
@@ -633,6 +690,8 @@ function SeoField({
         currentValue={value}
         onPick={onChange}
         charTarget={charTarget}
+        previewAs={previewAs}
+        previewContext={previewContext}
       />
     </div>
   );
