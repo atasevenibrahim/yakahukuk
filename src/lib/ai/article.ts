@@ -343,6 +343,8 @@ export async function chatEdit(input: {
   fields: ArticleFields;
   /** Editörde seçili metin varsa yalnızca oraya odaklanılır. */
   selection?: string;
+  /** Makalenin çalışma alanı — asistanın hangi hukuk dalında konuştuğunu bilmesi için. */
+  category?: string;
 }): Promise<AiActionResult<ChatEditResult>> {
   try {
     const user = await guard();
@@ -351,6 +353,9 @@ export async function chatEdit(input: {
 
     const context = [
       `# Makale alanları`,
+      // Hangi hukuk alanında konuştuğumuz: aynı ifade aile hukukunda ve ceza hukukunda
+      // farklı anlama geliyor; kategoriyi bilmek önerileri yazıya bağlıyor.
+      input.category ? `Çalışma alanı: ${input.category}` : "",
       `Başlık: ${input.fields.title || "(boş)"}`,
       `Özet: ${input.fields.excerpt || "(boş)"}`,
       `Meta başlık: ${input.fields.metaTitle || "(boş)"}`,

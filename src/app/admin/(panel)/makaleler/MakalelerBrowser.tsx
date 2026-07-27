@@ -11,8 +11,11 @@ import type { LinkTargetOption } from "@/components/admin/makaleler/LinkDialog";
 import { useBodyStream } from "@/components/admin/makaleler/useBodyStream";
 import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
 import { VerificationPanel } from "@/components/admin/makaleler/VerificationPanel";
-import { checkPublishGate } from "@/lib/ai/citations";
+import { buildVerificationReport, checkPublishGate } from "@/lib/ai/citations";
+import { buildChatSuggestions } from "@/lib/ai/chat-suggestions";
 import { faqToText, textToFaq } from "@/lib/ai/faq-text";
+import { migrateChatScope } from "@/lib/editor/chat-storage";
+import { analyzeSeo } from "@/lib/seo/score";
 import { BASE_URL } from "@/lib/metadata";
 import { saveArticle, deleteArticle } from "./actions";
 import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, ArticleStatus } from "./types";
@@ -140,31 +143,38 @@ export function MakalelerBrowser({
     );
   }
 
-  /** Sohbet asistanının gördüğü alan kümesi — TR kaynak metin. */
+  /**
+   * Sohbet asistanının gördüğü alan kümesi — AKTİF dilin metni.
+   *
+   * Önceden sabit TR okunuyordu: EN sekmesinde çalışırken istenen düzeltme sessizce TR
+   * metnine gidiyordu. `tags` ve `focusKeyword` şemada dilden bağımsız tek alan olduğu için
+   * her iki dilde de ortak kalıyor.
+   */
+  const chatLocale = dil === "TR" ? "tr" : "en";
   const chatFields = useMemo(
     () => ({
-      body: editForm.tr.body,
-      title: editForm.tr.title,
-      excerpt: editForm.tr.excerpt,
-      metaTitle: editForm.tr.metaTitle,
-      metaDescription: editForm.tr.metaDescription,
+      body: editForm[chatLocale].body,
+      title: editForm[chatLocale].title,
+      excerpt: editForm[chatLocale].excerpt,
+      metaTitle: editForm[chatLocale].metaTitle,
+      metaDescription: editForm[chatLocale].metaDescription,
       tags: editForm.tags,
       focusKeyword: editForm.focusKeyword,
       // SSS asistana düz metin olarak veriliyor; forma geri yazılırken çiftlere ayrılıyor.
-      faq: faqToText(editForm.faq.tr),
+      faq: faqToText(editForm.faq[chatLocale]),
     }),
-    [editForm],
+    [editForm, chatLocale],
   );
 
-  /** Onaylanan bir sohbet düzenlemesini forma yazar. */
+  /** Onaylanan bir sohbet düzenlemesini forma — sohbetin çalıştığı dile — yazar. */
   function applyChatEdit(next: typeof chatFields) {
     setEditForm((f) => ({
       ...f,
       tags: next.tags,
       focusKeyword: next.focusKeyword,
-      faq: { ...f.faq, tr: textToFaq(next.faq) },
-      tr: {
-        ...f.tr,
+      faq: { ...f.faq, [chatLocale]: textToFaq(next.faq) },
+      [chatLocale]: {
+        ...f[chatLocale],
         body: next.body,
         title: next.title,
         excerpt: next.excerpt,
@@ -183,6 +193,16 @@ export function MakalelerBrowser({
     setLocaleField(dil === "TR" ? "tr" : "en", "body", value);
   }
 
+  /**
+   * Yeni makale ilk kez kaydedilince sohbetin kapsamı "yeni"den gerçek id'ye geçiyor.
+   * Taşımasak, kullanıcı Kaydet'e bastığı anda o ana kadarki konuşmayı kaybederdi.
+   */
+  function migrateChatHistory(newId: string) {
+    for (const lang of ["TR", "EN"] as const) {
+      migrateChatScope(window.localStorage, `yeni-${lang}`, `${newId}-${lang}`);
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
     const result = await saveArticle(editForm);
@@ -191,6 +211,7 @@ export function MakalelerBrowser({
       showToast(result.error);
       return;
     }
+    if (!selectedId && result.form.id) migrateChatHistory(result.form.id);
     setList((cur) => {
       const exists = cur.some((a) => a.id === result.list.id);
       return exists ? cur.map((a) => (a.id === result.list.id ? result.list : a)) : [...cur, result.list];
@@ -275,6 +296,44 @@ export function MakalelerBrowser({
     [editForm.tr.body, editForm.faq.tr, editForm.verifiedClaims],
   );
   const confirmedSet = useMemo(() => new Set(editForm.verifiedClaims), [editForm.verifiedClaims]);
+
+  /**
+   * Sohbet açılışının brifingi ve önerileri — sohbetin çalıştığı DİLİN metnine göre.
+   * Saf fonksiyonlar; ek AI çağrısı yok, her tuş vuruşunda yeniden hesaplanması sorun değil.
+   */
+  const chatAnalysis = useMemo(
+    () =>
+      analyzeSeo({
+        title: chatFields.title,
+        slug: editForm.slug,
+        body: chatFields.body,
+        excerpt: chatFields.excerpt,
+        metaTitle: chatFields.metaTitle,
+        metaDescription: chatFields.metaDescription,
+        focusKeyword: editForm.focusKeyword,
+        baseUrl: BASE_URL,
+        pathPrefix: "/makaleler",
+        faqCount: editForm.faq[chatLocale].length,
+        hasAuthor: !!editForm.authorSlug,
+      }),
+    [chatFields, editForm.slug, editForm.focusKeyword, editForm.faq, editForm.authorSlug, chatLocale],
+  );
+
+  const chatSuggestions = useMemo(
+    () =>
+      buildChatSuggestions({
+        analysis: chatAnalysis,
+        placeholderCount: buildVerificationReport(chatFields.body).placeholders.length,
+        faqCount: editForm.faq[chatLocale].length,
+      }),
+    [chatAnalysis, chatFields.body, editForm.faq, chatLocale],
+  );
+
+  const categoryLabel =
+    practiceAreaOptions.find((o) => o.value === editForm.practiceAreaSlug)?.label ?? "";
+
+  /** Sohbetin kimliği: makale + dil. Hem React `key`'i hem localStorage kapsamı bu. */
+  const chatScope = `${selectedId ?? "yeni"}-${dil}`;
 
   const seoInput = useMemo(
     () => ({
@@ -421,7 +480,11 @@ export function MakalelerBrowser({
                       <button
                         key={d}
                         type="button"
-                        onClick={() => setDil(d)}
+                        onClick={() => {
+                          setDil(d);
+                          // Seçim öteki dilin metnine ait; taşınırsa asistan yanlış parçaya odaklanır.
+                          setSelection("");
+                        }}
                         className={`border-b-2 px-5 py-2.5 font-mono text-xs tracking-[1.5px] transition-colors ${
                           dil === d ? "border-gold text-ink" : "border-transparent text-muted"
                         }`}
@@ -477,7 +540,8 @@ export function MakalelerBrowser({
                         onChange={updateBody}
                         linkTargets={linkTargets}
                         draftKey={`${selectedId ?? "yeni"}-${dil}`}
-                        onSelectionChange={dil === "TR" ? setSelection : undefined}
+                        // Asistan artık aktif dili düzenliyor; seçim her iki dilde de anlamlı.
+                        onSelectionChange={setSelection}
                         generation={
                           dil === "TR"
                             ? {
@@ -699,11 +763,26 @@ export function MakalelerBrowser({
                 </div>
 
                 <div className="h-[560px]">
+                  {/* `key` şart: makale ya da dil değişince panel sıfırdan kurulmalı, aksi
+                      hâlde önceki yazının mesajları ekranda kalır (ArticleEditor ile aynı desen). */}
                   <ChatPanel
+                    key={chatScope}
                     fields={chatFields}
                     onApply={applyChatEdit}
                     selection={selection}
-                    storageKey={selectedId ?? "yeni"}
+                    storageKey={chatScope}
+                    article={{
+                      title: chatFields.title,
+                      category: categoryLabel,
+                      locale: dil,
+                      stats: {
+                        words: chatAnalysis.wordCount,
+                        readMinutes: chatAnalysis.readMinutes,
+                        readability: chatAnalysis.readability.score,
+                        seoScore: chatAnalysis.score,
+                      },
+                    }}
+                    suggestions={chatSuggestions}
                   />
                 </div>
 

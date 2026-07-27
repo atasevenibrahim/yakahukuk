@@ -10,7 +10,9 @@ import {
   type CheckedEdit,
 } from "@/lib/ai/edit-ops";
 import { findCitations } from "@/lib/ai/citations";
+import type { ChatSuggestion } from "@/lib/ai/chat-suggestions";
 import { diffSummary, diffWords } from "@/lib/editor/diff";
+import { canPersistChat, chatStorageKey, loadChat } from "@/lib/editor/chat-storage";
 
 /**
  * Makaleyi konuşarak düzenleme paneli.
@@ -29,7 +31,22 @@ const TARGET_LABELS: Record<string, string> = {
   metaDescription: "Meta açıklama",
   tags: "Etiketler",
   focusKeyword: "Odak kelime",
+  faq: "SSS",
 };
+
+/**
+ * Sohbetin bağlı olduğu yazı. Panelin "hangi makaledeyiz" sorusunu yanıtlaması için —
+ * geçmişin makaleler arasında taşınması bu bileşenin bilinen bir hatasıydı (bkz. loadedKey).
+ */
+export type ArticleContext = {
+  title: string;
+  category: string;
+  /** Düzenlenen dil; TR dışındaysa başlıkta rozet olarak görünür. */
+  locale: "TR" | "EN";
+  /** Brifing satırı — kelime, okuma süresi, okunabilirlik, SEO skoru. */
+  stats?: { words: number; readMinutes: number; readability: number; seoScore: number };
+};
+
 
 type CardState = "pending" | "applied" | "skipped" | "stale";
 type EditCard = CheckedEdit & { cardId: string; state: CardState };
@@ -51,46 +68,55 @@ export function ChatPanel({
   onApply,
   selection,
   storageKey,
+  article,
+  suggestions,
+  persist = true,
 }: {
   fields: ArticleFields;
   /** Onaylanan düzenlemenin sonucunu forma yazar. */
   onApply: (next: ArticleFields) => void;
   /** Editörde seçili metin (varsa) — asistan yalnızca oraya odaklanır. */
   selection?: string;
-  /** localStorage anahtarı; makale id'si bazlı. */
+  /** localStorage anahtarı; makale id'si + dil bazlı. */
   storageKey: string;
+  /** Sohbetin hangi yazıya ait olduğu — başlık çubuğunda ve brifingde görünür. */
+  article: ArticleContext;
+  /** Bu yazının gerçek durumundan türetilmiş talimat önerileri (bkz. lib/ai/chat-suggestions). */
+  suggestions: ChatSuggestion[];
+  /** `false` iken geçmiş yalnızca bellekte tutulur — sihirbaz her çalıştırmada temiz başlasın. */
+  persist?: boolean;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [restored, setRestored] = useState(false);
+  /**
+   * Hangi anahtarın okuması tamamlandı. Önceden bir `restored: boolean` vardı ve ilk
+   * mount'tan sonra hep `true` kaldığı için, anahtar değişince kaydetme effect'i ÖNCEKİ
+   * makalenin mesajlarını YENİ makalenin anahtarına yazıyordu. Anahtarın kendisini tutmak
+   * bu yarışı tamamen kapatıyor.
+   */
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const key = `yaka:chat:${storageKey}`;
+  const key = chatStorageKey(storageKey);
 
   // Konuşma geçmişi localStorage'da; sekme kapansa da kaybolmuyor (taslak kurtarmayla aynı desen).
   useEffect(() => {
     // localStorage yalnızca tarayıcıda var, mount sonrası okunmak zorunda. Tek seferlik
     // okuma; döngü yaratmaz. (`set-state-in-effect` bu meşru durumu da yakalıyor.)
-    const saved = window.localStorage.getItem(key);
-    let parsed: ChatMessage[] | null = null;
-    if (saved) {
-      try {
-        parsed = JSON.parse(saved) as ChatMessage[];
-      } catch {
-        /* bozuk kayıt — yok say */
-      }
-    }
+    // Kayıt YOKSA da atama yapılır: aksi hâlde önceki makalenin mesajları ekranda kalıyor.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (parsed) setMessages(parsed);
-    setRestored(true);
-  }, [key]);
+    setMessages(persist ? loadChat<ChatMessage>(window.localStorage, key) : []);
+    setLoadedKey(key);
+  }, [key, persist]);
 
   useEffect(() => {
-    if (!restored) return;
+    // Bu anahtarın okuması bitmeden yazma: başka bir makalenin geçmişini üzerine yazardı.
+    if (!canPersistChat(loadedKey, key, persist)) return;
     window.localStorage.setItem(key, JSON.stringify(messages));
-  }, [messages, key, restored]);
+  }, [messages, key, persist, loadedKey]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -116,7 +142,13 @@ export function ChatPanel({
     setBusy(true);
     setError(null);
 
-    const result = await chatEdit({ instruction, history, fields, selection });
+    const result = await chatEdit({
+      instruction,
+      history,
+      fields,
+      selection,
+      category: article.category,
+    });
     setBusy(false);
 
     if (!result.ok) {
@@ -203,15 +235,30 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full flex-col rounded-md border border-line bg-surface shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
-      <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-        <h2 className="m-0 flex items-center gap-2 text-sm font-bold">
-          <span aria-hidden>✨</span> Makale asistanı
-        </h2>
+      <div className="flex items-start gap-2 border-b border-line px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="m-0 flex items-center gap-2 text-sm font-bold">
+            <span aria-hidden>✨</span> Makale asistanı
+            {article.locale !== "TR" && (
+              <span className="rounded-full border border-line px-1.5 py-[1px] font-mono text-[9px] tracking-[1px] text-muted">
+                {article.locale}
+              </span>
+            )}
+          </h2>
+          {/* Hangi yazıdayız: geçmişin makaleler arasında karışmadığını gözle doğrulanabilir kılar. */}
+          <p
+            className="m-0 mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11.5px] text-muted"
+            title={article.title || undefined}
+          >
+            {article.title.trim() || "(başlıksız makale)"}
+            {article.category ? ` · ${article.category}` : ""}
+          </p>
+        </div>
         {messages.length > 0 && (
           <button
             type="button"
             onClick={clearChat}
-            className="ml-auto rounded border border-line px-2.5 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-gold hover:text-gold"
+            className="flex-none rounded border border-line px-2.5 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-gold hover:text-gold"
           >
             Sohbeti temizle
           </button>
@@ -220,15 +267,51 @@ export function ChatPanel({
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3.5">
         {messages.length === 0 && (
-          <div className="rounded border border-dashed border-line px-4 py-6 text-center">
-            <p className="m-0 text-[12.5px] font-semibold text-ink">
-              Makaleyi konuşarak düzenleyin.
-            </p>
-            <p className="m-0 mt-1.5 text-[11.5px] leading-relaxed text-muted">
-              Örnek: &quot;İkinci bölümü kısalt&quot;, &quot;girişi daha sade yaz&quot;,
-              &quot;başlığı 55 karakterin altına indir&quot;.
-            </p>
-            <p className="m-0 mt-2.5 text-[11px] leading-relaxed text-muted">
+          <div className="rounded border border-dashed border-line px-4 py-5">
+            {article.stats && article.stats.words > 0 ? (
+              <p className="m-0 font-mono text-[10.5px] leading-relaxed text-muted">
+                {article.stats.words} kelime · {article.stats.readMinutes} dk okuma ·
+                okunabilirlik {article.stats.readability} · SEO {article.stats.seoScore}/100
+              </p>
+            ) : (
+              <p className="m-0 text-[12.5px] font-semibold text-ink">
+                Bu yazının metni henüz boş.
+              </p>
+            )}
+
+            {suggestions.length > 0 ? (
+              <>
+                <p className="m-0 mt-3 text-[12px] font-semibold text-ink">
+                  Bu yazı için önerilenler
+                </p>
+                <div className="mt-2 flex flex-col gap-1.5">
+                  {suggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        // Kutuya yazılır, gönderilmez: yanlışlıkla tıklama ücretsiz kotadan
+                        // istek harcamasın ve kullanıcı talimatı düzenleyebilsin.
+                        setInput(s.prompt);
+                        inputRef.current?.focus();
+                      }}
+                      title={s.prompt}
+                      className="rounded border border-line bg-white px-3 py-2 text-left text-[11.5px] leading-relaxed text-ink transition-colors hover:border-gold hover:text-gold"
+                    >
+                      › {s.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="m-0 mt-2.5 text-[11.5px] leading-relaxed text-muted">
+                {article.stats && article.stats.words > 0
+                  ? "SEO denetimlerinin hepsi geçiyor. Yine de istediğinizi yazabilirsiniz: “ikinci bölümü kısalt”, “girişi daha sade yaz”."
+                  : "Önce metni yazın ya da yapay zekaya ürettirin; sonra bu yazıya özel öneriler burada çıkacak."}
+              </p>
+            )}
+
+            <p className="m-0 mt-3 border-t border-line pt-2.5 text-[11px] leading-relaxed text-muted">
               Önerilen değişiklikleri tek tek onaylarsınız; metin siz onaylamadan değişmez.
             </p>
           </div>
@@ -307,6 +390,7 @@ export function ChatPanel({
         )}
         <div className="flex items-end gap-2">
           <textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

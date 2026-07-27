@@ -7,8 +7,10 @@ import type { SeoSuggestions, TitleSuggestion } from "@/lib/ai/article";
 import { saveArticle } from "@/app/admin/(panel)/makaleler/actions";
 import type { ArticleFormData, FaqItem } from "@/app/admin/(panel)/makaleler/types";
 import { faqToText, textToFaq } from "@/lib/ai/faq-text";
+import { buildChatSuggestions } from "@/lib/ai/chat-suggestions";
+import { buildVerificationReport } from "@/lib/ai/citations";
 import { BASE_URL } from "@/lib/metadata";
-import { readMinutesOf } from "@/lib/seo/score";
+import { analyzeSeo, readMinutesOf } from "@/lib/seo/score";
 import { slugify } from "@/lib/admin/slugify";
 import { ArticleEditor } from "./ArticleEditor";
 import { ChatPanel } from "./ChatPanel";
@@ -110,6 +112,46 @@ export function Wizard({
   const [en, setEn] = useState<ArticleFormData["en"] | null>(null);
 
   const areaLabel = practiceAreaOptions.find((o) => o.value === areaSlug)?.label ?? "";
+
+  /** Sohbet açılışındaki brifing ve öneriler — editördekiyle aynı saf fonksiyonlardan. */
+  const wizardAnalysis = useMemo(
+    () =>
+      analyzeSeo({
+        title,
+        slug: "",
+        body: draftBody,
+        excerpt,
+        metaTitle,
+        metaDescription,
+        focusKeyword,
+        baseUrl: BASE_URL,
+        pathPrefix: "/makaleler",
+        faqCount: faq.length,
+        // Sihirbaz taslak kaydeder; yazar seçimi editörde yapılır.
+        hasAuthor: false,
+      }),
+    [title, draftBody, excerpt, metaTitle, metaDescription, focusKeyword, faq.length],
+  );
+
+  const wizardStats = useMemo(
+    () => ({
+      words: wizardAnalysis.wordCount,
+      readMinutes: wizardAnalysis.readMinutes,
+      readability: wizardAnalysis.readability.score,
+      seoScore: wizardAnalysis.score,
+    }),
+    [wizardAnalysis],
+  );
+
+  const wizardSuggestions = useMemo(
+    () =>
+      buildChatSuggestions({
+        analysis: wizardAnalysis,
+        placeholderCount: buildVerificationReport(draftBody).placeholders.length,
+        faqCount: faq.length,
+      }),
+    [wizardAnalysis, draftBody, faq.length],
+  );
 
   /** Seçenek önizlemelerinin sabit bağlamı — slug henüz yok, başlıktan türetiliyor. */
   const previewContext = useMemo(
@@ -393,11 +435,18 @@ export function Wizard({
               {/* Metin üretildikten sonra sohbetle düzeltme; üretim sürerken gizli. */}
               {!body.streaming && draftBody.trim() && (
                 <div className="h-[520px]">
+                  {/* `persist={false}`: sihirbazın tüm durumu zaten bellekte, sohbetin de
+                      öyle olması her yeni çalıştırmanın temiz başlamasını kendiliğinden
+                      sağlıyor. Önceden sabit "sihirbaz" anahtarı bir önceki çalıştırmanın
+                      sohbetini açıyordu. */}
                   <ChatPanel
                     fields={chatFields}
                     onApply={applyChatEdit}
                     selection={selection}
                     storageKey="sihirbaz"
+                    persist={false}
+                    article={{ title, category: areaLabel, locale: "TR", stats: wizardStats }}
+                    suggestions={wizardSuggestions}
                   />
                 </div>
               )}
