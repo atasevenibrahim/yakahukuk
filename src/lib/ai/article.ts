@@ -358,6 +358,9 @@ export async function chatEdit(input: {
       `Odak kelime: ${input.fields.focusKeyword || "(boş)"}`,
       `Etiketler: ${input.fields.tags || "(boş)"}`,
       ``,
+      `# SSS (faq)`,
+      input.fields.faq || "(boş)",
+      ``,
       `# Gövde (numaralı bloklar)`,
       numberedBlocks(input.fields.body) || "(gövde boş)",
       input.selection?.trim()

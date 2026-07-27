@@ -1,6 +1,7 @@
 import { getPathname } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { safeQuery } from "@/lib/content/safe-query";
+import { slugify } from "@/lib/admin/slugify";
 import type { Locale, Localized } from "./types";
 import { pick } from "./types";
 
@@ -9,9 +10,18 @@ export type Article = {
   practiceAreaSlug: string;
   category: string; // görünen etiket (TR, büyük harf)
   publishedAt: Date; // date/isoDate artık buradan formatlanır
+  /** Son güncelleme — schema.org dateModified ve sitemap lastModified bundan okunur. */
+  updatedAt: Date;
   readMinutes: number;
   tags: string[];
   featured: boolean;
+  /** Yazan ekip üyesinin slug'ı (varsa). */
+  authorSlug?: string;
+  /** Makaleye özel SSS — FAQPage yapılandırılmış verisi buradan üretilir. */
+  faq?: Localized<{ question: string; answer: string }[]>;
+  views: number;
+  /** Yüklenmiş kapak görseli (Supabase Storage). Yoksa tipografik kapak basılır. */
+  coverImageUrl?: string;
   t: Localized<{
     title: string;
     excerpt: string;
@@ -34,6 +44,8 @@ const FALLBACK_ARTICLES: Article[] = [
     practiceAreaSlug: "aile-hukuku",
     category: "AİLE HUKUKU",
     publishedAt: new Date("2026-07-12"),
+    updatedAt: new Date("2026-07-12"),
+    views: 0,
     readMinutes: 6,
     tags: ["BOŞANMA", "PROTOKOL", "AİLE MAHKEMESİ"],
     featured: true,
@@ -72,6 +84,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "ticaret-hukuku",
     category: "TİCARET HUKUKU",
     publishedAt: new Date("2026-06-28"),
+    updatedAt: new Date("2026-06-28"),
+    views: 0,
     readMinutes: 8,
     tags: ["ŞİRKET KURULUŞU", "SÖZLEŞME", "TİCARET SİCİLİ"],
     featured: true,
@@ -91,6 +105,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "vergi-hukuku",
     category: "VERGİ HUKUKU",
     publishedAt: new Date("2026-06-15"),
+    updatedAt: new Date("2026-06-15"),
+    views: 0,
     readMinutes: 5,
     tags: ["VERGİ İNCELEMESİ", "UZLAŞMA", "MÜKELLEF HAKLARI"],
     featured: true,
@@ -110,6 +126,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "sigorta-hukuku",
     category: "SİGORTA HUKUKU",
     publishedAt: new Date("2026-06-03"),
+    updatedAt: new Date("2026-06-03"),
+    views: 0,
     readMinutes: 7,
     tags: ["POLİÇE REDDİ", "TAHKİM", "TAZMİNAT"],
     featured: false,
@@ -129,6 +147,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "aile-hukuku",
     category: "AİLE HUKUKU",
     publishedAt: new Date("2026-05-20"),
+    updatedAt: new Date("2026-05-20"),
+    views: 0,
     readMinutes: 6,
     tags: ["VELAYET", "ÇOCUĞUN ÜSTÜN YARARI"],
     featured: false,
@@ -148,6 +168,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "ceza-hukuku",
     category: "CEZA HUKUKU",
     publishedAt: new Date("2026-05-08"),
+    updatedAt: new Date("2026-05-08"),
+    views: 0,
     readMinutes: 4,
     tags: ["İFADE", "MÜDAFİ", "SUSMA HAKKI"],
     featured: false,
@@ -167,6 +189,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "tuketici-hukuku",
     category: "TÜKETİCİ HUKUKU",
     publishedAt: new Date("2026-04-24"),
+    updatedAt: new Date("2026-04-24"),
+    views: 0,
     readMinutes: 5,
     tags: ["AYIPLI MAL", "SEÇİMLİK HAK"],
     featured: false,
@@ -185,6 +209,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "idari-hukuk",
     category: "İDARİ HUKUK",
     publishedAt: new Date("2026-04-10"),
+    updatedAt: new Date("2026-04-10"),
+    views: 0,
     readMinutes: 6,
     tags: ["İDARİ DAVA", "DAVA SÜRESİ"],
     featured: false,
@@ -204,6 +230,8 @@ Anlaşmalı boşanma hızlıdır; ama hız, özensizliğin mazereti olamaz. Prot
     practiceAreaSlug: "ticaret-hukuku",
     category: "TİCARET HUKUKU",
     publishedAt: new Date("2026-03-27"),
+    updatedAt: new Date("2026-03-27"),
+    views: 0,
     readMinutes: 7,
     tags: ["CEZAİ ŞART", "TİCARİ SÖZLEŞME"],
     featured: false,
@@ -244,6 +272,11 @@ export const getArticlesRaw = safeQuery(async (): Promise<Article[]> => {
     practiceAreaSlug: r.practiceAreaSlug ?? "",
     category: r.category,
     publishedAt: r.publishAt ?? r.createdAt,
+    updatedAt: r.updatedAt,
+    authorSlug: r.authorSlug ?? undefined,
+    faq: (r.faq as Article["faq"]) ?? undefined,
+    views: r.views,
+    coverImageUrl: r.coverImageUrl ?? undefined,
     readMinutes: r.readMinutes,
     tags: r.tags,
     featured: r.featured,
@@ -257,6 +290,15 @@ export type LocalizedArticle = {
   category: string;
   date: string; // "12 TEM 2026"
   isoDate: string; // "2026-07-12"
+  /** Son güncelleme — schema.org dateModified ve "son güncelleme" etiketi bundan basılır. */
+  updatedIso: string;
+  updatedLabel: string;
+  /** Yayınla güncelleme aynı günse "son güncelleme" gösterilmez. */
+  wasUpdated: boolean;
+  authorSlug?: string;
+  faq: { question: string; answer: string }[];
+  views: number;
+  coverImageUrl?: string;
   readMinutes: number;
   tags: string[];
   featured: boolean;
@@ -282,6 +324,14 @@ function localizeArticle(a: Article, locale: Locale): LocalizedArticle {
     category: a.category,
     date: DATE_FMT.format(a.publishedAt).toUpperCase(),
     isoDate: a.publishedAt.toISOString().slice(0, 10),
+    updatedIso: a.updatedAt.toISOString(),
+    updatedLabel: DATE_FMT.format(a.updatedAt).toUpperCase(),
+    wasUpdated:
+      a.updatedAt.toISOString().slice(0, 10) !== a.publishedAt.toISOString().slice(0, 10),
+    authorSlug: a.authorSlug,
+    faq: a.faq ? pick(a.faq, locale) : [],
+    coverImageUrl: a.coverImageUrl,
+    views: a.views,
     readMinutes: a.readMinutes,
     tags: a.tags,
     featured: a.featured,
@@ -320,6 +370,80 @@ export async function articlesByPracticeArea(
     .filter((a) => a.practiceAreaSlug === practiceAreaSlug)
     .slice(0, limit)
     .map((a) => localizeArticle(a, locale));
+}
+
+/**
+ * Kategori arşivleri için: yalnızca makalesi olan çalışma alanları.
+ *
+ * Boş bir çalışma alanı için arşiv sayfası üretmiyoruz — içeriksiz sayfa Google'da "thin
+ * content" sayılıp tüm arşiv kümesinin değerini düşürüyor.
+ */
+export async function articleCategories(): Promise<
+  { slug: string; label: string; count: number }[]
+> {
+  const articles = await getArticlesRaw();
+  const map = new Map<string, { slug: string; label: string; count: number }>();
+
+  for (const article of articles) {
+    const existing = map.get(article.practiceAreaSlug);
+    if (existing) existing.count += 1;
+    else
+      map.set(article.practiceAreaSlug, {
+        slug: article.practiceAreaSlug,
+        label: article.category,
+        count: 1,
+      });
+  }
+
+  return [...map.values()].sort((a, b) => b.count - a.count);
+}
+
+/** Bir çalışma alanı slug'ına ait tüm makaleler (kategori arşivi). */
+export async function articlesByCategory(
+  practiceAreaSlug: string,
+  locale: Locale,
+): Promise<{ label: string; articles: LocalizedArticle[] }> {
+  const articles = await getArticlesRaw();
+  const matching = articles.filter((a) => a.practiceAreaSlug === practiceAreaSlug);
+  return {
+    label: matching[0]?.category ?? practiceAreaSlug,
+    articles: matching.map((a) => localizeArticle(a, locale)),
+  };
+}
+
+/**
+ * Etiket arşivleri için: tüm etiketler slug'larıyla ve makale sayılarıyla.
+ *
+ * Etiketler serbest metin olarak giriliyor ("KİRA ARTIŞI"); URL'de kullanılabilmesi için
+ * `slugify`'dan geçiyor. Aynı slug'a düşen farklı yazımlar (ör. "Kira Artışı" / "KİRA ARTIŞI")
+ * tek arşivde birleşiyor.
+ */
+export async function articleTags(): Promise<{ slug: string; label: string; count: number }[]> {
+  const articles = await getArticlesRaw();
+  const map = new Map<string, { slug: string; label: string; count: number }>();
+
+  for (const article of articles) {
+    for (const tag of article.tags) {
+      const slug = slugify(tag);
+      if (!slug) continue;
+      const existing = map.get(slug);
+      if (existing) existing.count += 1;
+      else map.set(slug, { slug, label: tag, count: 1 });
+    }
+  }
+
+  return [...map.values()].sort((a, b) => b.count - a.count);
+}
+
+/** Bir etiket slug'ına ait makaleler. */
+export async function articlesByTag(
+  tagSlug: string,
+  locale: Locale,
+): Promise<{ label: string; articles: LocalizedArticle[] }> {
+  const articles = await getArticlesRaw();
+  const matching = articles.filter((a) => a.tags.some((t) => slugify(t) === tagSlug));
+  const label = matching[0]?.tags.find((t) => slugify(t) === tagSlug) ?? tagSlug;
+  return { label, articles: matching.map((a) => localizeArticle(a, locale)) };
 }
 
 /** Aynı çalışma alanındaki diğer makaleler (kendisi hariç). */

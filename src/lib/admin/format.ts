@@ -87,6 +87,7 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   "2fa_enabled": "2FA'yı etkinleştirdi",
   "2fa_disabled": "2FA'yı devre dışı bıraktı",
   site_settings_updated: "site ayarlarını güncelledi",
+  notification_sent: "bildirim e-postası gönderildi",
   content_item_created: "içerik kaydı ekledi",
   content_item_updated: "içerik kaydını güncelledi",
   content_item_deleted: "içerik kaydını sildi",

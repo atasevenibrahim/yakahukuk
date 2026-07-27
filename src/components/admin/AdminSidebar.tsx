@@ -50,6 +50,7 @@ export function AdminSidebar({
     { type: "section", label: "İÇERİK" },
     ...CONTENT_LINKS.map((item): NavItem => ({ type: "link", label: item.label, href: item.href })),
     { type: "section", label: "SİSTEM" },
+    { type: "link", label: "Bülten", href: "/admin/bulten" },
     { type: "link", label: "Ayarlar", href: "/admin/ayarlar" },
     { type: "link", label: "Profil", href: "/admin/profil" },
   ];

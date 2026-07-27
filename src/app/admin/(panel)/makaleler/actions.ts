@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireSessionUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/auth/audit";
@@ -8,9 +9,27 @@ import { slugify, uniqueSlug } from "@/lib/admin/slugify";
 import { linesToArray } from "@/lib/admin/content-fields";
 import { checkPublishGate } from "@/lib/ai/citations";
 import { toFormData, toListItem } from "./mapper";
-import type { ArticleFormData, ArticleStatus, SaveArticleResult, SimpleResult } from "./types";
+import type {
+  ArticleFormData,
+  ArticleStatus,
+  FaqItem,
+  SaveArticleResult,
+  SimpleResult,
+} from "./types";
 
 const MODULE_LABEL = "MAKALELER";
+
+/** Boş satırları atar; her iki alanı da dolu olan çiftler kalır. */
+function cleanFaq(items: FaqItem[] | undefined): FaqItem[] {
+  return (items ?? [])
+    .map((i) => ({ question: i.question?.trim() ?? "", answer: i.answer?.trim() ?? "" }))
+    .filter((i) => i.question && i.answer);
+}
+
+/** SSS metinleri de yayın kapısından geçmeli — atıf yasağı gövdeyle sınırlı değil. */
+function faqText(items: FaqItem[]): string {
+  return items.map((i) => `${i.question}\n${i.answer}`).join("\n\n");
+}
 
 function resolvePublishAt(
   status: ArticleStatus,
@@ -41,9 +60,24 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
   // Action'lar ağdan doğrudan çağrılabilir. SCHEDULED de kapsanıyor, çünkü zamanlanmış bir
   // makale de sonunda yayına çıkar; yalnızca PUBLISHED'ı kontrol etmek kapıyı "ileri tarihe
   // zamanla" seçeneğiyle atlanabilir hale getirirdi.
+  const faqTr = cleanFaq(payload.faq?.tr);
+  const faqEn = cleanFaq(payload.faq?.en);
+
   if (payload.status === "PUBLISHED" || payload.status === "SCHEDULED") {
-    const gate = checkPublishGate(payload.tr.body ?? "", payload.verifiedClaims ?? []);
+    const gate = checkPublishGate(
+      `${payload.tr.body ?? ""}\n\n${faqText(faqTr)}`,
+      payload.verifiedClaims ?? [],
+    );
     if (!gate.ok) return { ok: false, error: gate.reason };
+  }
+
+  // Yazar: silinmiş ya da uydurulmuş bir slug kalırsa makale sayfası yazar kartını hiç
+  // basmaz ve `personSchema` da düşer — sessiz kayıp yerine burada reddediliyor.
+  let authorSlug: string | null = payload.authorSlug?.trim() || null;
+  if (authorSlug) {
+    const member = await prisma.teamMember.findUnique({ where: { slug: authorSlug } });
+    if (!member) return { ok: false, error: "Seçilen yazar ekipte bulunamadı." };
+    authorSlug = member.slug;
   }
 
   const existing = payload.id ? await prisma.article.findUnique({ where: { id: payload.id } }) : null;
@@ -102,6 +136,14 @@ export async function saveArticle(payload: ArticleFormData): Promise<SaveArticle
     publishAt,
     focusKeyword: payload.focusKeyword?.trim() || null,
     verifiedClaims: payload.verifiedClaims ?? [],
+    authorSlug,
+    // Hiç SSS yoksa sütun NULL kalsın; boş dizi `FAQPage`'in gereksiz yere basılmasına yol açar.
+    // Prisma'da nullable Json'a `null` yazmak için `DbNull` gerekiyor — düz `null` JSON null'ı
+    // ile karışabildiği için tip düzeyinde reddediliyor.
+    faq:
+      faqTr.length === 0 && faqEn.length === 0
+        ? Prisma.DbNull
+        : { tr: faqTr, ...(faqEn.length ? { en: faqEn } : {}) },
     t,
   };
 

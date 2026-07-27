@@ -25,9 +25,12 @@ const inputClass =
 export function AyarlarBrowser({
   settings,
   auditLog,
+  mailConfigured,
 }: {
   settings: SiteSettingsData;
   auditLog: AuditRow[];
+  /** RESEND_API_KEY tanımlı mı — bildirim e-postaları buna bağlı. */
+  mailConfigured: boolean;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Genel");
@@ -207,8 +210,19 @@ export function AyarlarBrowser({
                     </button>
                   </div>
                   <p className="m-0 mt-1.5 text-[11.5px] leading-relaxed text-muted">
-                    Gelen talepler ileride bu adreslere de e-posta ile iletilecek; ayar şimdiden hazır.
+                    Yeni randevu talebi ve iletişim mesajı geldiğinde bu adreslere e-posta gönderilir.
                   </p>
+                  {!mailConfigured && (
+                    <p
+                      className="m-0 mt-2 rounded border px-3 py-2 text-[11.5px] leading-relaxed"
+                      style={{ borderColor: "#9C7C4A", background: "rgba(156,124,74,.07)" }}
+                    >
+                      <strong>E-posta gönderimi yapılandırılmamış.</strong> Bildirimler şu an
+                      yalnızca sunucu günlüğüne yazılıyor; talepler yine de panele düşüyor.
+                      Etkinleştirmek için Resend hesabı açıp <code>RESEND_API_KEY</code> ve{" "}
+                      <code>MAIL_FROM</code> değişkenlerini ortama ekleyin.
+                    </p>
+                  )}
                 </div>
               </div>
 

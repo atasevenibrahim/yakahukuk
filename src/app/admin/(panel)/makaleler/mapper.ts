@@ -1,4 +1,4 @@
-import type { ArticleFormData, ArticleListItem, ArticleLocaleForm } from "./types";
+import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, FaqItem } from "./types";
 
 type ArticleLocaleT = {
   title: string;
@@ -24,8 +24,25 @@ export type ArticleRow = {
   createdAt: Date;
   focusKeyword: string | null;
   verifiedClaims: string[];
+  authorSlug: string | null;
+  faq: unknown;
+  views: number;
   t: unknown;
 };
+
+/** DB'deki `faq` alanı serbest JSON; forma girmeden önce şekli doğrulanır. */
+function toFaqList(value: unknown): FaqItem[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(
+      (item): item is FaqItem =>
+        !!item &&
+        typeof item === "object" &&
+        typeof (item as FaqItem).question === "string" &&
+        typeof (item as FaqItem).answer === "string",
+    )
+    .map((item) => ({ question: item.question, answer: item.answer }));
+}
 
 const DATE_FMT = new Intl.DateTimeFormat("tr-TR", {
   timeZone: "Europe/Istanbul",
@@ -63,15 +80,19 @@ export function toListItem(row: ArticleRow): ArticleListItem {
     // olduğu için liste "—" gösteriyordu, oysa sitede tarihleri görünüyordu.
     dateLabel: DATE_FMT.format(row.publishAt ?? row.createdAt).toUpperCase(),
     hasEn: !!t.en,
+    views: row.views,
   };
 }
 
 export function toFormData(row: ArticleRow): ArticleFormData {
   const t = row.t as ArticleT;
+  const faq = (row.faq ?? {}) as { tr?: unknown; en?: unknown };
   return {
     id: row.id,
     slug: row.slug,
     practiceAreaSlug: row.practiceAreaSlug ?? "",
+    authorSlug: row.authorSlug ?? "",
+    faq: { tr: toFaqList(faq.tr), en: toFaqList(faq.en) },
     readMinutes: row.readMinutes,
     tags: row.tags.join("\n"),
     coverImageUrl: row.coverImageUrl ?? "",

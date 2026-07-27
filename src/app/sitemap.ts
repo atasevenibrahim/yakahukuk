@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl } from "@/lib/metadata";
-import { articleSlugs, getArticlesRaw } from "@/content/articles";
+import { slugify } from "@/lib/admin/slugify";
+import { articleCategories, articleSlugs, articleTags, getArticlesRaw } from "@/content/articles";
 import { practiceAreaSlugs } from "@/content/practice-areas";
 import { teamSlugs } from "@/content/team";
 import { pressSlugs } from "@/content/press";
@@ -42,15 +43,25 @@ function entry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, areaSlugs, memberSlugs, pressItemSlugs, legalDocs, publishedArticleSlugs] =
-    await Promise.all([
-      getArticlesRaw(),
-      practiceAreaSlugs(),
-      teamSlugs(),
-      pressSlugs(),
-      getLegalDocumentsRaw(),
-      articleSlugs(),
-    ]);
+  const [
+    articles,
+    areaSlugs,
+    memberSlugs,
+    pressItemSlugs,
+    legalDocs,
+    publishedArticleSlugs,
+    categories,
+    tags,
+  ] = await Promise.all([
+    getArticlesRaw(),
+    practiceAreaSlugs(),
+    teamSlugs(),
+    pressSlugs(),
+    getLegalDocumentsRaw(),
+    articleSlugs(),
+    articleCategories(),
+    articleTags(),
+  ]);
 
   const lastArticleUpdate = articles.reduce<Date | undefined>(
     (latest, a) => (!latest || a.publishedAt > latest ? a.publishedAt : latest),
@@ -86,9 +97,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const article = articles.find((a) => a.slug === slug);
     return entry(
       { pathname: "/makaleler/[slug]", params: { slug } },
-      { changeFrequency: "yearly", priority: 0.7, lastModified: article?.publishedAt },
+      { changeFrequency: "monthly", priority: 0.7, lastModified: article?.updatedAt },
     );
   });
+
+  // Arşiv sayfaları: yalnızca makalesi olanlar üretiliyor (bkz. articleCategories/articleTags),
+  // dolayısıyla haritada boş sayfa yer almıyor. `lastModified` arşivdeki en yeni güncelleme.
+  const archiveLastModified = (predicate: (a: (typeof articles)[number]) => boolean) =>
+    articles
+      .filter(predicate)
+      .reduce<Date | undefined>(
+        (latest, a) => (!latest || a.updatedAt > latest ? a.updatedAt : latest),
+        undefined,
+      );
+
+  const categoryEntries: Entry[] = categories.map((cat) =>
+    entry(
+      { pathname: "/makaleler/kategori/[slug]", params: { slug: cat.slug } },
+      {
+        changeFrequency: "weekly",
+        priority: 0.7,
+        lastModified: archiveLastModified((a) => a.practiceAreaSlug === cat.slug),
+      },
+    ),
+  );
+
+  const tagEntries: Entry[] = tags.map((tag) =>
+    entry(
+      { pathname: "/makaleler/etiket/[slug]", params: { slug: tag.slug } },
+      {
+        changeFrequency: "weekly",
+        priority: 0.5,
+        lastModified: archiveLastModified((a) => a.tags.some((t) => slugify(t) === tag.slug)),
+      },
+    ),
+  );
 
   const areaEntries: Entry[] = areaSlugs.map((slug) =>
     entry(
@@ -108,5 +151,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   );
 
-  return [...staticPages, ...areaEntries, ...articleEntries, ...memberEntries, ...pressEntries];
+  return [
+    ...staticPages,
+    ...areaEntries,
+    ...articleEntries,
+    ...categoryEntries,
+    ...tagEntries,
+    ...memberEntries,
+    ...pressEntries,
+  ];
 }

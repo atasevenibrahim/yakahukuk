@@ -15,6 +15,7 @@ import {
 import { isLockedOut, registerFailedAttempt, resetFailedAttempts } from "@/lib/auth/lockout";
 import { verifyTotpToken } from "@/lib/auth/totp";
 import { logAudit } from "@/lib/auth/audit";
+import { sendPasswordResetMail } from "@/lib/mail/notifications";
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
@@ -151,11 +152,8 @@ export async function requestPasswordReset(email: string): Promise<void> {
     data: { userId: user.id, tokenHash: hashToken(token), expiresAt },
   });
 
-  // Gerçek e-posta gönderimi henüz yok (sendMail hook'u ileride bağlanacak) —
-  // spesifikasyondaki "dev-logger" ilkesiyle bağlantı yalnızca sunucu konsoluna yazılır.
-  console.log(
-    `[dev-logger] Şifre sıfırlama bağlantısı (${user.email}): /admin/giris?resetToken=${token}`,
-  );
+  // E-posta gönderimi yapılandırılmamışsa bağlantı sunucu konsoluna düşer (bkz. notifications.ts).
+  await sendPasswordResetMail({ to: user.email, name: user.name, token });
   await logAudit({ actorId: user.id, action: "password_reset_requested", module: "AUTH" });
 }
 

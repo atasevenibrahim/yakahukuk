@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/site-settings";
 import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { describeAuditAction } from "@/lib/admin/format";
+import { isMailConfigured } from "@/lib/mail/mailer";
 import { AyarlarBrowser } from "./AyarlarBrowser";
 
 export const metadata: Metadata = { title: "Sistem & Ayarlar" };
@@ -50,7 +51,7 @@ export default async function AyarlarPage() {
   return (
     <>
       <AdminTopbar eyebrow="PANEL / SİSTEM" title="Sistem & Ayarlar" userName={user?.name ?? "Yönetici"} />
-      <AyarlarBrowser settings={settings} auditLog={auditLog} />
+      <AyarlarBrowser settings={settings} auditLog={auditLog} mailConfigured={isMailConfigured()} />
     </>
   );
 }

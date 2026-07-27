@@ -321,7 +321,39 @@ model Article {
   /// (bkz. lib/ai/citations.ts → CitationFinding.key). Kalıcı tutulması şart: aksi hâlde bir
   /// yazım hatasını düzeltmek için tüm atıfları yeniden onaylamak gerekirdi.
   verifiedClaims   String[]      @default([])
+  /// Yazan ekip üyesinin slug'ı. Önceden yazar, ekip üyesinin `articleSlugs` dizisinden ters
+  /// aramayla bulunuyordu; hukuk içeriği Google'ın YMYL sınıfında olduğu ve yazar kimliği
+  /// doğrudan sıralama etkeni olduğu için artık doğrudan seçiliyor (ters arama yedek kaldı).
+  authorSlug       String?
+  /// Makaleye özel SSS: Localized<{question, answer}[]>. FAQPage yapılandırılmış verisi
+  /// buradan üretilir — Google sonuçta açılır soru-cevap olarak gösterebiliyor.
+  faq              Json?
+  /// Görüntülenme sayacı. Makale sayfası SSG olduğu için istemciden gelen tek seferlik
+  /// istekle artırılır (bkz. app/api/goruntulenme).
+  views            Int           @default(0)
   t                Json // Localized<{title, excerpt, body: markdown string, metaTitle?, metaDescription?}>
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+
+  @@index([status, publishAt])
+}
+
+/// Makale bülteni aboneleri.
+///
+/// Halka açık bülten 6563 sayılı Kanun kapsamında ticari elektronik iletidir; gönderim için
+/// İYS kaydı zorunludur. Bu yüzden burada yalnızca abone ve **onay kanıtı** toplanır
+/// (rıza metninin sürümü, tarihi, IP'si) — gönderim İYS kaydı tamamlanana kadar kapalıdır.
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  /// Onay anında gösterilen rıza metninin sürümü — sonradan metin değişse bile kimin neye
+  /// onay verdiği kanıtlanabilir olmalı.
+  consentVersion String
+  consentAt      DateTime  @default(now())
+  ip             String?
+  userAgent      String?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([createdAt])
 }

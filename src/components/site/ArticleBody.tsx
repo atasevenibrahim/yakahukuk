@@ -1,4 +1,5 @@
 import { parseMarkdown, type ArticleNode, type InlineSpan } from "@/lib/markdown";
+import { headingId } from "@/lib/seo/toc";
 
 /**
  * Makale gövdesini markdown metninden render eder. Sunucu bileşeni — etkileşim yok.
@@ -44,18 +45,18 @@ function Spans({ spans }: { spans: InlineSpan[] }) {
   );
 }
 
-function Node({ node, first }: { node: ArticleNode; first: boolean }) {
+function Node({ node, first, id }: { node: ArticleNode; first: boolean; id?: string }) {
   if (node.type === "heading") {
     const className =
       node.level === 2
-        ? `font-serif text-[28px] font-medium sm:text-[30px] ${first ? "" : "mt-10"}`
-        : `font-serif text-[22px] font-semibold sm:text-[24px] ${first ? "" : "mt-8"}`;
+        ? `scroll-mt-24 font-serif text-[28px] font-medium sm:text-[30px] ${first ? "" : "mt-10"}`
+        : `scroll-mt-24 font-serif text-[22px] font-semibold sm:text-[24px] ${first ? "" : "mt-8"}`;
     return node.level === 2 ? (
-      <h2 className={className}>
+      <h2 id={id} className={className}>
         <Spans spans={node.spans} />
       </h2>
     ) : (
-      <h3 className={className}>
+      <h3 id={id} className={className}>
         <Spans spans={node.spans} />
       </h3>
     );
@@ -100,10 +101,23 @@ function Node({ node, first }: { node: ArticleNode; first: boolean }) {
 
 export function ArticleBody({ markdown }: { markdown: string }) {
   const nodes = parseMarkdown(markdown);
+  // Başlık id'leri içindekiler tablosuyla AYNI kuralla üretilir (lib/seo/toc.ts) — aksi hâlde
+  // atlama bağlantıları tutmaz. Google da bu id'leri arama sonucunda kullanabiliyor.
+  const used = new Set<string>();
+
   return (
     <div>
       {nodes.map((node, i) => (
-        <Node key={i} node={node} first={i === 0} />
+        <Node
+          key={i}
+          node={node}
+          first={i === 0}
+          id={
+            node.type === "heading"
+              ? headingId(node.spans.map((s) => s.text).join("").trim(), used)
+              : undefined
+          }
+        />
       ))}
     </div>
   );

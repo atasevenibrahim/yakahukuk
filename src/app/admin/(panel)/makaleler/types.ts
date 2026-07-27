@@ -7,6 +7,7 @@ export type ArticleListItem = {
   status: ArticleStatus;
   dateLabel: string;
   hasEn: boolean;
+  views: number;
 };
 
 export type ArticleLocaleForm = {
@@ -17,10 +18,19 @@ export type ArticleLocaleForm = {
   metaDescription: string;
 };
 
+export type FaqItem = { question: string; answer: string };
+
 export type ArticleFormData = {
   id: string | null;
   slug: string;
   practiceAreaSlug: string;
+  /** Yazan ekip üyesi — boşsa makale kurum adına görünür (E-E-A-T zayıflar). */
+  authorSlug: string;
+  /**
+   * Makaleye özel SSS. Gövdeden ayrı tutuluyor: FAQPage yapılandırılmış verisi soru-cevap
+   * çiftleri istiyor, markdown'dan çıkarım yapmak kırılgan olurdu.
+   */
+  faq: { tr: FaqItem[]; en: FaqItem[] };
   readMinutes: number;
   tags: string;
   coverImageUrl: string;

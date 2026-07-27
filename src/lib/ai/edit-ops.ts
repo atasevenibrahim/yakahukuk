@@ -20,6 +20,8 @@ export const EDIT_TARGETS = [
   "metaDescription",
   "tags",
   "focusKeyword",
+  /** Soru-cevap çiftleri düz metin olarak (bkz. lib/ai/faq-text.ts). */
+  "faq",
 ] as const;
 
 export type EditTarget = (typeof EDIT_TARGETS)[number];

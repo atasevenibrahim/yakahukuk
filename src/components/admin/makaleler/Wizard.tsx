@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { suggestSeo, suggestTitles, translateToEn } from "@/lib/ai/article";
 import type { SeoSuggestions, TitleSuggestion } from "@/lib/ai/article";
 import { saveArticle } from "@/app/admin/(panel)/makaleler/actions";
-import type { ArticleFormData } from "@/app/admin/(panel)/makaleler/types";
+import type { ArticleFormData, FaqItem } from "@/app/admin/(panel)/makaleler/types";
+import { faqToText, textToFaq } from "@/lib/ai/faq-text";
 import { BASE_URL } from "@/lib/metadata";
 import { readMinutesOf } from "@/lib/seo/score";
 import { slugify } from "@/lib/admin/slugify";
@@ -75,10 +76,21 @@ export function Wizard({
   const [excerpt, setExcerpt] = useState("");
   const [tags, setTags] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
+  /** Sohbet asistanı SSS de önerebilir; sihirbazdan çıkan taslak onlarla birlikte kaydedilir. */
+  const [faq, setFaq] = useState<FaqItem[]>([]);
 
   const chatFields = useMemo(
-    () => ({ body: draftBody, title, excerpt, metaTitle, metaDescription, tags, focusKeyword }),
-    [draftBody, title, excerpt, metaTitle, metaDescription, tags, focusKeyword],
+    () => ({
+      body: draftBody,
+      title,
+      excerpt,
+      metaTitle,
+      metaDescription,
+      tags,
+      focusKeyword,
+      faq: faqToText(faq),
+    }),
+    [draftBody, title, excerpt, metaTitle, metaDescription, tags, focusKeyword, faq],
   );
 
   /** Onaylanan sohbet düzenlemesini sihirbazın state'lerine dağıtır. */
@@ -90,6 +102,7 @@ export function Wizard({
     setMetaDescription(next.metaDescription);
     setTags(next.tags);
     setFocusKeyword(next.focusKeyword);
+    setFaq(textToFaq(next.faq));
   }
 
   // 5. adım
@@ -176,6 +189,8 @@ export function Wizard({
       id: null,
       slug: "",
       practiceAreaSlug: areaSlug,
+      authorSlug: "",
+      faq: { tr: faq, en: [] },
       // Markdown biçimlendirmesi hariç tutularak gerçek kelime sayısından hesaplanır.
       readMinutes: readMinutesOf(draftBody),
       tags,
@@ -569,6 +584,9 @@ export function Wizard({
                 focusKeyword,
                 baseUrl: BASE_URL,
                 pathPrefix: "/makaleler",
+                faqCount: faq.length,
+                // Sihirbaz taslak kaydeder; yazar seçimi editörde yapılır.
+                hasAuthor: false,
               }}
             />
           </div>

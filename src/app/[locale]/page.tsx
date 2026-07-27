@@ -251,6 +251,7 @@ export default async function HomePage({
                     category={article.category}
                     title={article.title}
                     readMinutes={article.readMinutes}
+                    imageUrl={article.coverImageUrl}
                   />
                   <div className="p-6">
                     <span className="font-mono text-[11px] tracking-[2px] text-gold">

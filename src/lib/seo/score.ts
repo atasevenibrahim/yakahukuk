@@ -63,6 +63,10 @@ export type SeoInput = {
   baseUrl: string;
   /** Makale yolunun locale önekiyle birlikte hâli, ör. "/makaleler". */
   pathPrefix?: string;
+  /** Makaleye özel SSS sayısı — `FAQPage` zengin sonucu buna bağlı. */
+  faqCount?: number;
+  /** Yazar olarak bir ekip üyesi atandı mı — YMYL içerikte yazar kimliği sıralama etkeni. */
+  hasAuthor?: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -383,6 +387,36 @@ export function analyzeSeo(input: SeoInput): SeoAnalysis {
         : verification.placeholders.length > 0
           ? `${verification.placeholders.length} adet [DOĞRULANACAK] işaretçisi var — bu makale yayınlanamaz.`
           : "Eksik bilgi işaretçisi yok.",
+    }),
+  );
+
+  // --- Zengin sonuç ve yazar otoritesi --------------------------------------
+  // İkisi de yalnızca sayfa/alan bilgisi; gövdeye bakmıyorlar. Boş bir makalenin bunlardan
+  // puan toplamaması için diğer denetimlerdeki `hasBody` kapısı burada da uygulanıyor.
+  const faqCount = input.faqCount ?? 0;
+  checks.push(
+    check("faq", "Sık sorulan sorular", 6, {
+      status: !hasBody || faqCount === 0 ? "warn" : faqCount < 3 ? "warn" : "ok",
+      detail: !hasBody
+        ? "Metin yok."
+        : faqCount === 0
+          ? "Hiç soru yok. 3-6 soru eklemek Google'da soru-cevap kutusu şansı doğurur."
+          : faqCount < 3
+            ? `${faqCount} soru var — 3-6 arası daha etkili.`
+            : `${faqCount} soru — zengin sonuç için yeterli.`,
+      ratio: !hasBody || faqCount === 0 ? 0 : faqCount < 3 ? 0.5 : 1,
+    }),
+  );
+
+  checks.push(
+    check("author", "Yazar atanmış", 6, {
+      status: input.hasAuthor ? "ok" : "warn",
+      detail: input.hasAuthor
+        ? "Makale bir avukata atanmış; yazar kartı ve Person verisi basılıyor."
+        : "Yazar seçilmemiş — makale kurum adına görünüyor. Hukuk içeriğinde yazar kimliği sıralama etkeni.",
+      // İkili denetim: yazar ya atanmış ya değil. `warn` durumunun varsayılan yarım puanı,
+      // hiç yazar atanmamış (ve gövdesi de boş olabilen) bir makaleye puan kazandırırdı.
+      ratio: input.hasAuthor ? 1 : 0,
     }),
   );
 

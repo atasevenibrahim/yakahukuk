@@ -6,11 +6,13 @@ import { MediaField } from "@/components/admin/medya/MediaField";
 import { AiPanel } from "@/components/admin/makaleler/AiPanel";
 import { ArticleEditor } from "@/components/admin/makaleler/ArticleEditor";
 import { ChatPanel } from "@/components/admin/makaleler/ChatPanel";
+import { FaqEditor } from "@/components/admin/makaleler/FaqEditor";
 import type { LinkTargetOption } from "@/components/admin/makaleler/LinkDialog";
 import { useBodyStream } from "@/components/admin/makaleler/useBodyStream";
 import { SeoPanel } from "@/components/admin/makaleler/SeoPanel";
 import { VerificationPanel } from "@/components/admin/makaleler/VerificationPanel";
 import { checkPublishGate } from "@/lib/ai/citations";
+import { faqToText, textToFaq } from "@/lib/ai/faq-text";
 import { BASE_URL } from "@/lib/metadata";
 import { saveArticle, deleteArticle } from "./actions";
 import type { ArticleFormData, ArticleListItem, ArticleLocaleForm, ArticleStatus } from "./types";
@@ -41,6 +43,8 @@ function blankForm(): ArticleFormData {
     id: null,
     slug: "",
     practiceAreaSlug: "",
+    authorSlug: "",
+    faq: { tr: [], en: [] },
     readMinutes: 5,
     tags: "",
     coverImageUrl: "",
@@ -58,11 +62,13 @@ export function MakalelerBrowser({
   initialList,
   initialForms,
   practiceAreaOptions,
+  authorOptions,
   linkTargets,
 }: {
   initialList: ArticleListItem[];
   initialForms: Record<string, ArticleFormData>;
   practiceAreaOptions: { value: string; label: string }[];
+  authorOptions: { value: string; label: string }[];
   linkTargets: LinkTargetOption[];
 }) {
   const [list, setList] = useState(initialList);
@@ -144,6 +150,8 @@ export function MakalelerBrowser({
       metaDescription: editForm.tr.metaDescription,
       tags: editForm.tags,
       focusKeyword: editForm.focusKeyword,
+      // SSS asistana düz metin olarak veriliyor; forma geri yazılırken çiftlere ayrılıyor.
+      faq: faqToText(editForm.faq.tr),
     }),
     [editForm],
   );
@@ -154,6 +162,7 @@ export function MakalelerBrowser({
       ...f,
       tags: next.tags,
       focusKeyword: next.focusKeyword,
+      faq: { ...f.faq, tr: textToFaq(next.faq) },
       tr: {
         ...f.tr,
         body: next.body,
@@ -256,9 +265,14 @@ export function MakalelerBrowser({
   }, [editForm.tr.title, editForm.practiceAreaSlug]);
   const canSave = missing.length === 0;
 
+  // Sunucudaki kapıyla aynı metin kümesi denetlenir (bkz. actions.ts) — SSS cevapları da dahil.
   const gate = useMemo(
-    () => checkPublishGate(editForm.tr.body, editForm.verifiedClaims),
-    [editForm.tr.body, editForm.verifiedClaims],
+    () =>
+      checkPublishGate(
+        `${editForm.tr.body}\n\n${faqToText(editForm.faq.tr)}`,
+        editForm.verifiedClaims,
+      ),
+    [editForm.tr.body, editForm.faq.tr, editForm.verifiedClaims],
   );
   const confirmedSet = useMemo(() => new Set(editForm.verifiedClaims), [editForm.verifiedClaims]);
 
@@ -273,6 +287,8 @@ export function MakalelerBrowser({
       focusKeyword: editForm.focusKeyword,
       baseUrl: BASE_URL,
       pathPrefix: "/makaleler",
+      faqCount: editForm.faq.tr.length,
+      hasAuthor: !!editForm.authorSlug,
     }),
     [editForm],
   );
@@ -344,12 +360,13 @@ export function MakalelerBrowser({
               {/* Şablon başlıkla satırların ikisinde de birebir aynı olmalı; ayrıca satırlar
                   <button> olduğu için w-full şart — aksi hâlde içeriği kadar daralıp başlıkla
                   hizasını kaybeder. Dar ekranda TARİH ve DİL düşer, yatay kaydırma çıkmaz. */}
-              <div className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] gap-3 border-b border-line px-5 py-3 font-mono text-[9.5px] tracking-[1.5px] text-muted lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px]">
+              <div className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] gap-3 border-b border-line px-5 py-3 font-mono text-[9.5px] tracking-[1.5px] text-muted lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px_92px]">
                 <span>BAŞLIK</span>
                 <span>KATEGORİ</span>
                 <span>DURUM</span>
                 <span className="hidden lg:block">TARİH</span>
                 <span className="hidden lg:block">DİL</span>
+                <span className="hidden text-right lg:block">GÖRÜNTÜLENME</span>
               </div>
               {filtered.length === 0 && (
                 <p className="px-6 py-12 text-center text-sm text-muted">Eşleşen makale yok.</p>
@@ -361,7 +378,7 @@ export function MakalelerBrowser({
                     key={a.id}
                     type="button"
                     onClick={() => openEditor(a.id)}
-                    className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] items-center gap-3 border-b border-cream px-5 py-3 text-left transition-colors hover:bg-[#FAF8F3] lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px]"
+                    className="grid w-full min-w-[560px] grid-cols-[minmax(180px,1fr)_140px_120px] items-center gap-3 border-b border-cream px-5 py-3 text-left transition-colors hover:bg-[#FAF8F3] lg:grid-cols-[minmax(180px,1fr)_140px_120px_100px_78px_92px]"
                   >
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[13.5px] font-semibold">
                       {a.title || "(başlıksız)"}
@@ -385,6 +402,9 @@ export function MakalelerBrowser({
                       >
                         EN
                       </span>
+                    </span>
+                    <span className="hidden text-right font-mono text-[11px] text-muted lg:block">
+                      {a.views.toLocaleString("tr-TR")}
                     </span>
                   </button>
                 );
@@ -528,6 +548,25 @@ export function MakalelerBrowser({
                     )}
                   </div>
                 </div>
+
+                <div className="rounded-md border border-line bg-surface p-6 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
+                  <h2 className="m-0 mb-1 text-sm font-bold">
+                    Sık sorulan sorular{dil === "EN" ? " (EN)" : ""}
+                  </h2>
+                  <p className="m-0 mb-4 text-[11.5px] leading-relaxed text-muted">
+                    Girilen sorular makale sayfasında açılır bölüm olarak görünür ve Google&apos;a
+                    <strong> FAQPage</strong> yapılandırılmış verisi olarak bildirilir — arama
+                    sonucunda soru-cevap kutusu çıkma ihtimali doğar. Sohbet asistanı da bu alanı
+                    doldurabilir.
+                  </p>
+                  <FaqEditor
+                    items={dil === "TR" ? editForm.faq.tr : editForm.faq.en}
+                    langLabel={dil}
+                    onChange={(next) =>
+                      setField("faq", { ...editForm.faq, [dil === "TR" ? "tr" : "en"]: next })
+                    }
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-4">
@@ -609,6 +648,27 @@ export function MakalelerBrowser({
                   </select>
                   <p className="m-0 mt-2 text-[11.5px] leading-relaxed text-muted">
                     Kategori etiketi ve ilgili makale eşleştirmesi bu seçime göre otomatik belirlenir.
+                  </p>
+                </div>
+
+                <div className="rounded-md border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(28,34,48,0.05)]">
+                  <h2 className="m-0 mb-3.5 text-sm font-bold">Yazar</h2>
+                  <select
+                    value={editForm.authorSlug}
+                    onChange={(e) => setField("authorSlug", e.target.value)}
+                    className={`${inputClass} w-full cursor-pointer`}
+                  >
+                    <option value="">— Kurum adına —</option>
+                    {authorOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="m-0 mt-2 text-[11.5px] leading-relaxed text-muted">
+                    {authorOptions.length === 0
+                      ? "Ekip listesi boş. Yazar atayabilmek için önce Ekip bölümünden avukatları girin."
+                      : "Hukuk içeriğinde yazar kimliği doğrudan sıralama etkeni. Seçilen kişinin adı, barosu ve ekip sayfası bağlantısı makalede görünür; Google'a Person verisi olarak bildirilir."}
                   </p>
                 </div>
 

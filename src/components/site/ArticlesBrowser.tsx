@@ -2,37 +2,37 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { LocalizedArticle } from "@/content/articles";
-import { Card } from "@/components/ui/Card";
-import { ArticleCover } from "@/components/site/ArticleCover";
+import { ArticleGrid } from "@/components/site/ArticleGrid";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AppIcon } from "@/components/ui/AppIcon";
-import { cn } from "@/lib/cn";
 
 const PAGE_SIZE = 6;
 
 export function ArticlesBrowser({ articles }: { articles: LocalizedArticle[] }) {
   const t = useTranslations("articlesPage");
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("Tümü");
   const [limit, setLimit] = useState(PAGE_SIZE);
 
+  // Kategoriler artık istemci tarafı filtre değil, kendi arşiv sayfalarına giden bağlantı:
+  // Google gezgin için taranabilir bir yol açıyor ve her kategori kendi başlığı/canonical'ı
+  // olan bir açılış sayfası kazanıyor. Arama kutusu liste üstünde çalışmayı sürdürüyor.
   const categories = useMemo(() => {
-    const distinct = Array.from(new Set(articles.map((a) => a.category)));
-    return ["Tümü", ...distinct];
+    const map = new Map<string, string>();
+    for (const a of articles) if (!map.has(a.practiceAreaSlug)) map.set(a.practiceAreaSlug, a.category);
+    return [...map.entries()].map(([slug, label]) => ({ slug, label }));
   }, [articles]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    return articles.filter((a) => {
-      const matchesCategory = category === "Tümü" || a.category === category;
-      const matchesQuery =
-        !q ||
+    if (!q) return articles;
+    return articles.filter(
+      (a) =>
         a.title.toLocaleLowerCase("tr").includes(q) ||
-        a.excerpt.toLocaleLowerCase("tr").includes(q);
-      return matchesCategory && matchesQuery;
-    });
-  }, [articles, query, category]);
+        a.excerpt.toLocaleLowerCase("tr").includes(q),
+    );
+  }, [articles, query]);
 
   const visible = filtered.slice(0, limit);
   const hasMore = filtered.length > visible.length;
@@ -68,27 +68,15 @@ export function ArticlesBrowser({ articles }: { articles: LocalizedArticle[] }) 
       </div>
 
       <div className="mt-10 flex flex-wrap gap-2.5">
-        {categories.map((cat) => {
-          const active = cat === category;
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => {
-                setCategory(cat);
-                setLimit(PAGE_SIZE);
-              }}
-              className={cn(
-                "cursor-pointer rounded-full border px-[18px] py-2.5 font-sans text-[13.5px] font-semibold transition-colors",
-                active
-                  ? "border-ink bg-ink text-cream"
-                  : "border-line bg-surface text-ink hover:border-gold hover:text-gold",
-              )}
-            >
-              {cat === "Tümü" ? cat : cat.charAt(0) + cat.slice(1).toLocaleLowerCase("tr")}
-            </button>
-          );
-        })}
+        {categories.map((cat) => (
+          <Link
+            key={cat.slug}
+            href={{ pathname: "/makaleler/kategori/[slug]", params: { slug: cat.slug } }}
+            className="rounded-full border border-line bg-surface px-[18px] py-2.5 font-sans text-[13.5px] font-semibold text-ink transition-colors hover:border-gold hover:text-gold"
+          >
+            {cat.label.charAt(0) + cat.label.slice(1).toLocaleLowerCase("tr")}
+          </Link>
+        ))}
       </div>
 
       <div className="mt-12">
@@ -103,7 +91,6 @@ export function ArticlesBrowser({ articles }: { articles: LocalizedArticle[] }) 
               type="button"
               onClick={() => {
                 setQuery("");
-                setCategory("Tümü");
                 setLimit(PAGE_SIZE);
               }}
               className="mt-[22px] cursor-pointer rounded border border-gold bg-surface px-[22px] py-2.5 font-sans text-sm font-semibold text-ink transition-colors hover:bg-cream"
@@ -112,34 +99,7 @@ export function ArticlesBrowser({ articles }: { articles: LocalizedArticle[] }) 
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((article) => (
-              <a key={article.slug} href={article.href} className="block text-ink">
-                <Card hover className="h-full overflow-hidden">
-                  <ArticleCover
-                    size="card"
-                    category={article.category}
-                    title={article.title}
-                    readMinutes={article.readMinutes}
-                  />
-                  <div className="p-6">
-                    <span className="font-mono text-[11px] tracking-[2px] text-gold">
-                      {article.category}
-                    </span>
-                    <h3 className="mt-2.5 text-lg font-semibold leading-[1.4] text-balance">
-                      {article.title}
-                    </h3>
-                    <p className="mt-3 font-mono text-[11.5px] text-muted">
-                      {article.date} · {article.readMinutes} DK OKUMA
-                    </p>
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted">
-                      {article.excerpt}
-                    </p>
-                  </div>
-                </Card>
-              </a>
-            ))}
-          </div>
+          <ArticleGrid articles={visible} />
         )}
       </div>
 

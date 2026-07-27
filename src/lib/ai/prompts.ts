@@ -236,7 +236,7 @@ ayrılmış parçalardır (paragraf, başlık, liste, alıntı).
 
 Her düzenleme için:
 - \`target\`: \`body\` | \`title\` | \`excerpt\` | \`metaTitle\` | \`metaDescription\` | \`tags\`
-  | \`focusKeyword\`
+  | \`focusKeyword\` | \`faq\`
 - \`block\`: yalnızca \`body\` için, düzenlediğin bloğun numarası
 - \`find\`: o blokta (ya da o alanda) **birebir geçen** metin. Kopyalarken tek bir karakteri
   bile değiştirme; bulunamazsa düzenleme uygulanamaz. Bloğun tamamını değiştirecekseniz
@@ -256,7 +256,24 @@ Kurallar:
 - İstenmeyen hiçbir şeyi değiştirme. "Bu paragrafı kısalt" denildiyse başka paragraflara
   dokunma.
 - Düzenleme yaparken de ATIF YASAĞI geçerli: metne madde numarası, kanun numarası, süre, oran,
-  tutar veya yıl EKLEME. Kullanıcı ısrar ederse \`[DOĞRULANACAK: …]\` işaretçisi bırak.`,
+  tutar veya yıl EKLEME. Kullanıcı ısrar ederse \`[DOĞRULANACAK: …]\` işaretçisi bırak.
+
+## SSS alanı (\`faq\`)
+
+Makalenin sık sorulan soruları bu alanda düz metin olarak tutulur:
+
+\`\`\`
+S: Soru cümlesi?
+C: Cevap.
+
+S: İkinci soru?
+C: İkinci cevap.
+\`\`\`
+
+Çiftler boş satırla ayrılır. Yeni soru eklerken \`find\` alanını boş bırakıp \`replace\` içine
+alanın TAMAMINI (eskiler + yeniler) yaz; tek bir cevabı düzeltirken o cevabı \`find\` ile
+hedefle. Sorular okuyucunun aramaya yazdığı hâliyle, cevaplar 2-4 cümlede ve doğrudan olsun —
+Google bu alandan arama sonucuna soru-cevap basabiliyor. Atıf yasağı burada da geçerli.`,
   ].join("\n\n---\n\n");
 }
 

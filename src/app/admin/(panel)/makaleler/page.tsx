@@ -11,13 +11,14 @@ import type { ArticleFormData } from "./types";
 export const metadata: Metadata = { title: "Makaleler" };
 
 export default async function AdminMakalelerPage() {
-  const [user, rows, areas] = await Promise.all([
+  const [user, rows, areas, members] = await Promise.all([
     getSessionUser(),
     prisma.article.findMany({
       // Genel siteyle aynı sıra (bkz. content/articles.ts): NULL publishAt sona düşer.
       orderBy: [{ publishAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
     }),
     prisma.practiceArea.findMany({ orderBy: { order: "asc" }, select: { slug: true, t: true } }),
+    prisma.teamMember.findMany({ orderBy: { order: "asc" }, select: { slug: true, name: true } }),
   ]);
 
   const list = rows.map(toListItem);
@@ -28,6 +29,8 @@ export default async function AdminMakalelerPage() {
     value: a.slug,
     label: (a.t as { tr: { title: string } }).tr.title,
   }));
+
+  const authorOptions = members.map((m) => ({ value: m.slug, label: m.name }));
 
   // İç bağlantı seçicisinin listesi. Yollar burada üretilir; kullanıcı elle yol yazmaz,
   // dolayısıyla yazım hatasından kaynaklanan kırık bağlantı olamaz.
@@ -57,6 +60,7 @@ export default async function AdminMakalelerPage() {
         initialList={list}
         initialForms={forms}
         practiceAreaOptions={practiceAreaOptions}
+        authorOptions={authorOptions}
         linkTargets={linkTargets}
       />
     </>

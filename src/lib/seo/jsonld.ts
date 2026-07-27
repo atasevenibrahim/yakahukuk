@@ -44,6 +44,9 @@ export function articleSchema(input: {
   description: string;
   slug: string;
   isoDate: string;
+  /** Son güncelleme. Önceden datePublished ile aynı basılıyordu — Google tazeliği bundan
+   *  okuduğu ve makaleler güncellendiği için ayrı verilmesi şart. */
+  modifiedIso: string;
   locale: Locale;
   imageUrl: string;
   authorName: string;
@@ -61,7 +64,7 @@ export function articleSchema(input: {
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     datePublished: input.isoDate,
-    dateModified: input.isoDate,
+    dateModified: input.modifiedIso,
     inLanguage: input.locale,
     image: input.imageUrl,
     keywords: input.keywords.join(", "),
@@ -85,6 +88,39 @@ export function personSchema(input: {
     url: absoluteUrl({ pathname: "/ekip/[slug]", params: { slug: input.slug } }, input.locale),
     knowsLanguage: input.languages,
     worksFor: { "@id": ORG_ID },
+  };
+}
+
+/**
+ * Kategori/etiket arşiv sayfaları için. Google'a bunun bir makale listesi olduğunu ve hangi
+ * makaleleri içerdiğini söyler — arşivler böylece kendi başlarına açılış sayfası olarak
+ * değerlendirilir.
+ */
+export function collectionSchema(input: {
+  name: string;
+  description: string;
+  url: string;
+  locale: Locale;
+  items: { title: string; url: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    inLanguage: input.locale,
+    isPartOf: { "@id": ORG_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: input.items.length,
+      itemListElement: input.items.map((item, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: item.title,
+        url: item.url,
+      })),
+    },
   };
 }
 

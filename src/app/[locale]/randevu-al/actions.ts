@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isSlotAvailable, computeEndTime, dateFromKey } from "@/lib/booking";
+import { notifyNewAppointment } from "@/lib/mail/notifications";
 import { getPracticeAreasRaw } from "@/content/practice-areas";
 
 const KVKK_TEXT_VERSION = "v1-2026";
@@ -69,7 +70,7 @@ export async function submitAppointment(
   const matchedArea = practiceAreas.find((a) => a.t.tr.title === data.konu);
 
   try {
-    await prisma.appointment.create({
+    const created = await prisma.appointment.create({
       data: {
         date,
         startTime: data.saat,
@@ -85,6 +86,18 @@ export async function submitAppointment(
         ip: headerList.get("x-forwarded-for"),
         userAgent: headerList.get("user-agent"),
       },
+    });
+
+    // Avukatlara bildirim. `await` YOK: e-posta sağlayıcısı yavaşsa ya da hata verirse
+    // ziyaretçi bekletilmemeli — randevu zaten kaydedildi.
+    void notifyNewAppointment({
+      name: created.name,
+      email: created.email,
+      phone: created.phone,
+      date: created.date,
+      startTime: created.startTime,
+      subject: created.subject,
+      note: data.aciklama,
     });
   } catch {
     // @@unique([date, startTime, status]) ihlali — yarış durumunda slot az önce dolmuş.

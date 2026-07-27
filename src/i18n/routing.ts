@@ -17,6 +17,17 @@ export const routing = defineRouting({
       en: "/practice-areas/[slug]",
     },
     "/makaleler": { tr: "/makaleler", en: "/articles" },
+    // Arşivler makale detayından ÖNCE tanımlı olmalı değil (next-intl birebir eşleşme yapıyor),
+    // ama okunurluk için burada gruplandı: kategori ve etiket arşivleri her biri kendi
+    // canonical/hreflang'i olan ayrı açılış sayfaları.
+    "/makaleler/kategori/[slug]": {
+      tr: "/makaleler/kategori/[slug]",
+      en: "/articles/category/[slug]",
+    },
+    "/makaleler/etiket/[slug]": {
+      tr: "/makaleler/etiket/[slug]",
+      en: "/articles/tag/[slug]",
+    },
     "/makaleler/[slug]": { tr: "/makaleler/[slug]", en: "/articles/[slug]" },
     "/basinda-biz": { tr: "/basinda-biz", en: "/press" },
     "/basinda-biz/[slug]": { tr: "/basinda-biz/[slug]", en: "/press/[slug]" },

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { notifyNewMessage } from "@/lib/mail/notifications";
 
 // Aydınlatma Metni sayfası henüz yok; onay kanıtı için sabit bir sürüm etiketi.
 const KVKK_TEXT_VERSION = "v1-2026";
@@ -49,7 +50,7 @@ export async function submitContactForm(
   const [locale, headerList] = await Promise.all([getLocale(), headers()]);
   const data = parsed.data;
 
-  await prisma.contactMessage.create({
+  const created = await prisma.contactMessage.create({
     data: {
       name: data.ad,
       email: data.eposta,
@@ -62,6 +63,15 @@ export async function submitContactForm(
       ip: headerList.get("x-forwarded-for"),
       userAgent: headerList.get("user-agent"),
     },
+  });
+
+  // Avukatlara bildirim — beklenmeden gönderilir; hata ziyaretçinin formunu düşürmemeli.
+  void notifyNewMessage({
+    name: created.name,
+    email: created.email,
+    phone: created.phone,
+    subject: created.subject,
+    message: created.message,
   });
 
   return { ok: true };
