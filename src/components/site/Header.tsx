@@ -92,7 +92,7 @@ export function Header({
         <Link href="/" className="flex-none" aria-label="YAKA Hukuk & Danışmanlık">
           {/* Navbar'da bilerek büyük. Logo, başlık satırının en uzun öğesi olduğu için
               yüksekliği doğrudan bu değer belirliyor (kelime markası ~30 px, hamburger 40 px). */}
-          <BrandMark size={54} />
+          <BrandMark size={60} />
         </Link>
 
         {/* Masaüstü navigasyon */}
