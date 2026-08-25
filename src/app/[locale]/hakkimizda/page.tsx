@@ -6,6 +6,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
+import { Photo } from "@/components/ui/Photo";
+import ofisCephe from "../../../../public/ofis-cephe.webp";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { localizedTeam } from "@/content/team";
@@ -88,9 +90,11 @@ export default async function AboutPage({
       {/* Hikâyemiz */}
       <Reveal className="pt-24">
         <Container className="grid grid-cols-1 items-center gap-12 md:grid-cols-[0.95fr_1.05fr] md:gap-[72px]">
-          <PlaceholderImage
-            label="büro / ekip fotoğrafı gelecek"
+          <Photo
+            src={ofisCephe}
+            alt="YAKA Hukuk büro binasının sokaktan görünümü — Ankara Beştepe"
             className="h-[320px] md:h-[420px]"
+            sizes="(max-width: 768px) 100vw, 560px"
           />
           <div>
             <Eyebrow label="HİKÂYEMİZ" />

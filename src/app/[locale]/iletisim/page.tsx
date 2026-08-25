@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/Container";
+import { Photo } from "@/components/ui/Photo";
+import ofisGiris from "../../../../public/ofis-giris.webp";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
 import { AppIcon } from "@/components/ui/AppIcon";
@@ -105,6 +107,15 @@ export default async function ContactPage({
               </div>
             </div>
           </Card>
+
+          {/* Kapı önce, yol tarifi sonra: ziyaretçi gireceği yeri görsün. Dikey (3:4)
+              fotoğraf bu dar yan sütuna oran olarak birebir oturuyor. */}
+          <Photo
+            src={ofisGiris}
+            alt="YAKA Hukuk & Danışmanlık ofisinin giriş kapısı ve tabelası"
+            className="h-[380px]"
+            sizes="(max-width: 1024px) 100vw, 480px"
+          />
 
           <Card className="overflow-hidden">
             <iframe

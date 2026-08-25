@@ -6,7 +6,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { AppIcon } from "@/components/ui/AppIcon";
-import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
+import { Photo } from "@/components/ui/Photo";
+import ofisTabela from "../../../public/ofis-tabela.webp";
 import { Reveal } from "@/components/site/Reveal";
 import { DarkCTA } from "@/components/site/DarkCTA";
 import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
@@ -99,9 +100,13 @@ export default async function HomePage({
             </Button>
           </div>
         </div>
-        <PlaceholderImage
-          label="ofis / mimari görsel — fotoğraf gelecek"
+        {/* LCP öğesi: hero görseli ilk ekranda göründüğü için priority. */}
+        <Photo
+          src={ofisTabela}
+          alt="YAKA Hukuk & Danışmanlık'ın Ankara Beştepe'deki ofisinin dış cephesi ve tabelası"
           className="h-[360px] md:h-[480px]"
+          sizes="(max-width: 768px) 100vw, 570px"
+          priority
         />
       </Container>
 
