@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { isSlotAvailable, computeEndTime, dateFromKey } from "@/lib/booking";
+import { getDaySlotInfo, computeEndTime, dateFromKey } from "@/lib/booking";
 import { notifyNewAppointment } from "@/lib/mail/notifications";
 import { getPracticeAreasRaw } from "@/content/practice-areas";
 
@@ -37,7 +37,14 @@ export type AppointmentFormInput = {
 
 export type AppointmentFormResult =
   | { ok: true }
-  | { ok: false; errors: Partial<Record<keyof AppointmentFormInput, boolean>>; slotTaken?: boolean };
+  | {
+      ok: false;
+      errors: Partial<Record<keyof AppointmentFormInput, boolean>>;
+      /** Slot gerçekten dolu — başka saat seçilmeli. */
+      slotTaken?: boolean;
+      /** Veritabanına ulaşılamıyor — "saat doldu" demek yanıltıcı olurdu. */
+      systemDown?: boolean;
+    };
 
 export async function submitAppointment(
   input: AppointmentFormInput,
@@ -56,8 +63,13 @@ export async function submitAppointment(
   const date = dateFromKey(data.dateKey);
 
   // Submit anında slotu yeniden doğrula (çift-rezervasyon güvenliği).
-  const stillAvailable = await isSlotAvailable(date, data.saat);
-  if (!stillAvailable) {
+  // `degraded` ile `dolu` ayrı ayrı raporlanır: kesintide "bu saat doldu" demek ziyaretçiyi
+  // boşuna başka saat denemeye iter, oysa hiçbir saat çalışmayacaktır.
+  const info = await getDaySlotInfo(date);
+  if (info.degraded) {
+    return { ok: false, errors: {}, systemDown: true };
+  }
+  if (!info.available.includes(data.saat)) {
     return { ok: false, errors: {}, slotTaken: true };
   }
 
@@ -99,9 +111,14 @@ export async function submitAppointment(
       subject: created.subject,
       note: data.aciklama,
     });
-  } catch {
-    // @@unique([date, startTime, status]) ihlali — yarış durumunda slot az önce dolmuş.
-    return { ok: false, errors: {}, slotTaken: true };
+  } catch (err) {
+    // P2002 = @@unique([date, startTime, status]) ihlali: yarış durumunda slot az önce dolmuş.
+    // Diğer her hata (ör. bağlantı kopması) "saat doldu" değildir — öyle demek, kaydedilmemiş
+    // bir talebi kullanıcıya çözülebilir bir sorun gibi gösterirdi.
+    const code = (err as { code?: string })?.code;
+    if (code === "P2002") return { ok: false, errors: {}, slotTaken: true };
+    console.error("[randevu] kayıt başarısız:", err);
+    return { ok: false, errors: {}, systemDown: true };
   }
 
   return { ok: true };

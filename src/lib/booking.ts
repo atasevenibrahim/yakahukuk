@@ -75,24 +75,37 @@ function fullSlotGrid(rules: { startTime: string; endTime: string; slotMinutes: 
  */
 export async function getDaySlotInfo(
   date: Date,
-): Promise<{ all: string[]; available: string[] }> {
+): Promise<{ all: string[]; available: string[]; degraded: boolean }> {
   const dateKey = istanbulDateKey(date);
   const weekday = istanbulWeekday(date);
 
-  const [rules, blocked, appointments] = await Promise.all([
-    prisma.availabilityRule.findMany({ where: { weekday, isActive: true } }),
-    prisma.blockedDate.findFirst({ where: { date: dateFromKey(dateKey) } }),
-    prisma.appointment.findMany({
-      where: {
-        date: dateFromKey(dateKey),
-        status: { in: ["PENDING", "CONFIRMED"] },
-      },
-      select: { startTime: true },
-    }),
-  ]);
+  let rules: Awaited<ReturnType<typeof prisma.availabilityRule.findMany>>;
+  let blocked: Awaited<ReturnType<typeof prisma.blockedDate.findFirst>>;
+  let appointments: { startTime: string }[];
+
+  try {
+    [rules, blocked, appointments] = await Promise.all([
+      prisma.availabilityRule.findMany({ where: { weekday, isActive: true } }),
+      prisma.blockedDate.findFirst({ where: { date: dateFromKey(dateKey) } }),
+      prisma.appointment.findMany({
+        where: {
+          date: dateFromKey(dateKey),
+          status: { in: ["PENDING", "CONFIRMED"] },
+        },
+        select: { startTime: true },
+      }),
+    ]);
+  } catch (err) {
+    // Veritabanına ulaşılamıyor. İçerik tarafındaki `safeQuery` gibi statik bir yedeğe
+    // DÜŞEMEYİZ: "eski slotları göster" demek, var olmayan bir saate randevu alınması
+    // demek. Bu yüzden yedek boş — ve `degraded` ile çağırana "bugün boş" değil
+    // "sistem şu an kapalı" olduğu söyleniyor ki sayfa telefonla yönlendirme gösterebilsin.
+    console.error("[booking] müsaitlik sorgusu başarısız, slotlar kapatıldı:", err);
+    return { all: [], available: [], degraded: true };
+  }
 
   const all = fullSlotGrid(rules);
-  if (blocked || rules.length === 0) return { all, available: [] };
+  if (blocked || rules.length === 0) return { all, available: [], degraded: false };
 
   const taken = new Set(appointments.map((a) => a.startTime));
   const now = new Date();
@@ -105,7 +118,7 @@ export async function getDaySlotInfo(
     return true;
   });
 
-  return { all, available };
+  return { all, available, degraded: false };
 }
 
 export async function getAvailableSlotsForDate(date: Date): Promise<string[]> {
@@ -114,26 +127,47 @@ export async function getAvailableSlotsForDate(date: Date): Promise<string[]> {
 
 export type DaySlots = { dateKey: string; date: Date; allSlots: string[]; slots: string[] };
 
-/** Bugünden itibaren, hafta sonu dahil olası N takvim gününün müsaitlik durumu. */
-export async function getUpcomingDaySlots(days = 5): Promise<DaySlots[]> {
+/**
+ * Bugünden itibaren, hafta sonu dahil olası N takvim gününün müsaitlik durumu.
+ *
+ * `degraded`: veritabanına ulaşılamadı, günlerin hiçbiri güvenilir değil. Çağıran sayfa
+ * bu durumda takvim yerine telefonla yönlendirme göstermeli — boş bir takvim göstermek
+ * ziyaretçiye "hiç boş yer yok" demek olurdu ki bu yanlış bilgi.
+ */
+export async function getUpcomingDaySlots(
+  days = 5,
+): Promise<{ days: DaySlots[]; degraded: boolean }> {
   const results: DaySlots[] = [];
   const cursor = new Date();
   let added = 0;
   let guard = 0;
+  let degraded = false;
   while (added < days && guard < days * 4) {
     guard++;
     const dateKey = istanbulDateKey(cursor);
-    const { all, available } = await getDaySlotInfo(cursor);
+    const info = await getDaySlotInfo(cursor);
+    // İlk kesintide dur: kalan günler için de aynı hata tekrarlanacak, her biri için
+    // ayrı sorgu atıp aynı hatayı almanın anlamı yok.
+    if (info.degraded) {
+      degraded = true;
+      break;
+    }
     // Hafta sonu ve kapalı günler de listede kalsın (boş slot olarak) — kullanıcı
     // görsün ama seçemesin; yalnızca AvailabilityRule'da tanımsız günler tamamen atlanır.
-    results.push({ dateKey, date: dateFromKey(dateKey), allSlots: all, slots: available });
+    results.push({ dateKey, date: dateFromKey(dateKey), allSlots: info.all, slots: info.available });
     added++;
     cursor.setDate(cursor.getDate() + 1);
   }
-  return results;
+  return { days: results, degraded };
 }
 
-/** Bir slotun hâlâ müsait olup olmadığını (submit anı çift kontrol) doğrular. */
+/**
+ * Bir slotun hâlâ müsait olup olmadığını (submit anı çift kontrol) doğrular.
+ *
+ * DB kesintisinde `getDaySlotInfo` boş liste döndürdüğü için burası `false` olur — yani
+ * kesinti sırasında randevu KAYDEDİLMEZ. Doğrulanamayan bir slotu kabul etmek, aynı saate
+ * ikinci bir randevu yazmak demek olurdu.
+ */
 export async function isSlotAvailable(date: Date, startTime: string): Promise<boolean> {
   const slots = await getAvailableSlotsForDate(date);
   return slots.includes(startTime);

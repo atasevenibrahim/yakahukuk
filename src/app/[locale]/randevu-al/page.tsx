@@ -47,7 +47,7 @@ export default async function RandevuAlPage({
     month: "short",
   });
 
-  const days: DayOption[] = upcoming.map((d) => ({
+  const days: DayOption[] = upcoming.days.map((d) => ({
     dateKey: d.dateKey,
     dayLabel: dayFmt.format(d.date).replace(".", "").toLocaleUpperCase("tr"),
     dateLabel: dateFmt.format(d.date).replace(".", "").toLocaleUpperCase("tr"),
@@ -67,12 +67,35 @@ export default async function RandevuAlPage({
         </p>
       </div>
 
-      <RandevuWizard
-        practiceAreaTitles={areaTitles}
-        days={days}
-        phone={settings.phone}
-        phoneHref={phoneHref(settings.phone)}
-      />
+      {/* Müsaitlik okunamadıysa boş takvim GÖSTERİLMEZ: bu, ziyaretçiye "hiç boş yer yok"
+          demek olurdu. Bunun yerine telefona yönlendirilir — talep tamamen kaybolmasın. */}
+      {upcoming.degraded ? (
+        <div
+          className="mt-12 rounded-md border px-6 py-8 text-center"
+          style={{ borderColor: "#9C7C4A", background: "rgba(156,124,74,.07)" }}
+        >
+          <p className="m-0 text-[15px] font-semibold text-ink">
+            Çevrimiçi randevu sistemi şu an geçici olarak kullanılamıyor.
+          </p>
+          <p className="m-0 mt-2.5 text-[14px] leading-relaxed text-muted">
+            Teknik bir aksaklık nedeniyle uygun saatleri gösteremiyoruz. Randevunuzu telefonla
+            oluşturabilir ya da kısa süre sonra tekrar deneyebilirsiniz.
+          </p>
+          <a
+            href={phoneHref(settings.phone)}
+            className="mt-5 inline-block rounded bg-ink px-6 py-3 text-[14px] font-semibold text-cream transition-colors hover:bg-gold"
+          >
+            {settings.phone}
+          </a>
+        </div>
+      ) : (
+        <RandevuWizard
+          practiceAreaTitles={areaTitles}
+          days={days}
+          phone={settings.phone}
+          phoneHref={phoneHref(settings.phone)}
+        />
+      )}
     </Container>
   );
 }

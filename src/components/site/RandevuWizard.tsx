@@ -48,6 +48,8 @@ export function RandevuWizard({
     Partial<Record<keyof AppointmentFormInput, boolean>>
   >({});
   const [slotTaken, setSlotTaken] = useState(false);
+  /** Sistem kesintisi — "saat doldu"dan ayrı, çünkü başka saat denemek de işe yaramaz. */
+  const [systemDown, setSystemDown] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const konular = [...practiceAreaTitles, "Emin değilim"];
@@ -62,6 +64,7 @@ export function RandevuWizard({
     e.preventDefault();
     if (!selectedDay) return;
     setSubmitting(true);
+    setSystemDown(false);
     setSlotTaken(false);
     const result = await submitAppointment({
       konu,
@@ -75,7 +78,9 @@ export function RandevuWizard({
     });
     setSubmitting(false);
     if (!result.ok) {
-      if (result.slotTaken) {
+      if (result.systemDown) {
+        setSystemDown(true);
+      } else if (result.slotTaken) {
         setSlotTaken(true);
         setStep(2);
         setSaat("");
@@ -388,6 +393,24 @@ export function RandevuWizard({
                 </span>
               </div>
             </div>
+            {/* Kesinti: başka saat denemek işe yaramayacağı için ziyaretçi telefona yönlendirilir. */}
+            {systemDown && (
+              <div
+                className="mt-6 rounded border px-4 py-3.5"
+                style={{ borderColor: "#9C7C4A", background: "rgba(156,124,74,.07)" }}
+              >
+                <p className="m-0 text-[13.5px] font-semibold text-ink">
+                  Talebiniz şu an kaydedilemedi.
+                </p>
+                <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-muted">
+                  Geçici bir teknik aksaklık yaşanıyor. Lütfen kısa süre sonra tekrar deneyin ya
+                  da bize doğrudan ulaşın:{" "}
+                  <a href={phoneHref} className="border-b border-gold font-semibold text-gold">
+                    {phone}
+                  </a>
+                </p>
+              </div>
+            )}
             <div className="mt-7 flex items-center justify-between">
               <button
                 type="button"
