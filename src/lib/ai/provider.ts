@@ -25,8 +25,11 @@ export type AiErrorKind =
   | "config"
   /** Anahtar var ama servis reddediyor (401/403) — geçersiz, kısıtlı ya da API açık değil. */
   | "auth"
-  /** Ücretsiz kota doldu (429) ya da eşzamanlılık limiti. */
+  /** Kısa vadeli istek sınırı (dakikalık RPM) — birkaç saniye içinde geçer. */
   | "quota"
+  /** Günlük istek sınırı (RPD) — ertesi güne kadar geçmez. "quota" ile aynı görünüp çok
+   * farklı bir bekleme süresi gerektirdiği için ayrı tutuluyor (bkz. classify()). */
+  | "quota-daily"
   /** Model güvenlik süzgeci yanıtı engelledi. */
   | "blocked"
   /** Model geçersiz/eksik JSON döndürdü. */
@@ -56,7 +59,9 @@ const USER_MESSAGES: Record<AiErrorKind, string> = {
   auth:
     "Yapay zeka anahtarı servis tarafından reddedildi. Anahtarın geçerli olduğunu, Google projesinde Generative Language API'nin açık olduğunu ve anahtar kısıtlamalarının bu API'yi kapsadığını kontrol edin.",
   quota:
-    "Günlük ücretsiz kota dolmuş görünüyor. Birkaç dakika sonra tekrar deneyin — yazdıklarınız kaybolmadı.",
+    "Yapay zeka servisi şu an istek sınırına takıldı (ücretsiz kotanın dakikalık sınırı). Birkaç saniye sonra tekrar deneyin — yazdıklarınız kaybolmadı.",
+  "quota-daily":
+    "Günlük ücretsiz kota (gemini-3.6-flash) bugün için doldu. Kota ertesi gün sıfırlanır; bu arada makaleleri elle düzenleyebilirsiniz. Yazdıklarınız kaybolmadı.",
   blocked:
     "Model bu konuyu yanıtlamayı reddetti. Konuyu daha nötr bir dille yeniden yazıp tekrar deneyin.",
   invalid:
@@ -69,23 +74,39 @@ function aiError(kind: AiErrorKind, cause?: unknown): AiError {
   return new AiError(kind, USER_MESSAGES[kind], { cause });
 }
 
+/** Gemini'nin günlük (RPD) kotasını dakikalık (RPM) kotadan ayırt eder — 429 gövdesindeki
+ * `quotaId` bunu açıkça taşıyor (ör. "GenerateRequestsPerDayPerProjectPerModel-FreeTier"). */
+function isDailyQuota(message: string): boolean {
+  return /PerDay/i.test(message);
+}
+
+/** Gemini geçersiz/süresi dolmuş bir anahtara 401/403 değil 400 (INVALID_ARGUMENT) dönüyor —
+ * gövdesinde "API_KEY_INVALID" geçiyor. Bunu ayırt etmeden en sık görülen kurulum hatası
+ * (bozuk anahtar) "invalid" sınıfına düşüyor ve admine "konunu kısalt" gibi alakasız bir
+ * mesaj gösteriliyor; oysa kodda zaten bunun için doğru "auth" mesajı yazılmış durumda. */
+function isInvalidKeyBody(message: string): boolean {
+  return /API_KEY_INVALID|API key not valid/i.test(message);
+}
+
 /** SDK/ağ hatasını sınıflandırır. Bilinmeyen her şey `transient` sayılır (tekrar denenebilir). */
-function classify(err: unknown): AiError {
+export function classify(err: unknown): AiError {
   if (err instanceof AiError) return err;
 
   if (err instanceof ApiError) {
-    if (err.status === 429) return aiError("quota", err);
+    if (err.status === 429) return aiError(isDailyQuota(err.message) ? "quota-daily" : "quota", err);
     // 401/403: anahtar var ama reddedildi — tekrar denemek çözmez, kurulum düzeltilmeli.
     // "config"ten ayrı tutuluyor: "anahtar eksik" ile "anahtar reddedildi" farklı işler ve
     // ikisine aynı mesajı vermek yanlış yere baktırır (bu ayrım gerçek bir olayda ortaya çıktı).
     if (err.status === 401 || err.status === 403) return aiError("auth", err);
-    if (err.status === 400) return aiError("invalid", err);
+    if (err.status === 400) return aiError(isInvalidKeyBody(err.message) ? "auth" : "invalid", err);
     return aiError("transient", err);
   }
 
   // ApiError'a sarılmamış durumlar için mesajdan çıkarım (SDK sürümleri arasında değişebiliyor).
   const message = err instanceof Error ? err.message : String(err);
-  if (/RESOURCE_EXHAUSTED|\b429\b|quota/i.test(message)) return aiError("quota", err);
+  if (/RESOURCE_EXHAUSTED|\b429\b|quota/i.test(message)) {
+    return aiError(isDailyQuota(message) ? "quota-daily" : "quota", err);
+  }
   return aiError("transient", err);
 }
 

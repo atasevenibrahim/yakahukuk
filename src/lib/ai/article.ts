@@ -17,6 +17,7 @@ import {
   type LinkTarget,
 } from "./prompts";
 import { buildVerificationReport, type VerificationReport } from "./citations";
+import { hasLinkableOccurrence } from "./link-safety";
 import {
   EDIT_TARGETS,
   checkEdits,
@@ -292,11 +293,12 @@ export async function suggestInternalLinks(
       temperature: 0.5,
     });
 
-    // Model metinde geçmeyen bir ifade ya da listede olmayan bir yol önerebilir —
-    // ikisini de burada süzüyoruz, panelde çalışmayan öneri gösterilmesin.
+    // Model metinde geçmeyen bir ifade, listede olmayan bir yol ya da ZATEN bağlantılı bir
+    // ifadeyi (iç içe bağlantıya yol açar, bkz. link-safety.ts) önerebilir — üçünü de
+    // burada süzüyoruz, panelde çalışmayan/zararlı öneri gösterilmesin.
     const allowedHrefs = new Set(targets.map((t) => t.href));
     const filtered = value.suggestions.filter(
-      (s) => allowedHrefs.has(s.href) && body.includes(s.phrase),
+      (s) => allowedHrefs.has(s.href) && hasLinkableOccurrence(body, s.phrase),
     );
 
     await logAudit({

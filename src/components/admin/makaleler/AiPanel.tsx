@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/article";
 import type { LinkSuggestion, SeoSuggestions } from "@/lib/ai/article";
 import type { ArticleFormData, ArticleLocaleForm } from "@/app/admin/(panel)/makaleler/types";
+import { linkifyFirstFreeOccurrence } from "@/lib/ai/link-safety";
 import { SuggestionList } from "./SuggestionList";
 
 /**
@@ -183,16 +184,20 @@ export function AiPanel({
       setError("İç bağlantı önerisi için önce gövde metni gerekli.");
       return;
     }
-    void run("links", () => suggestInternalLinks(trBody, form.id ?? undefined), setLinks);
+    // `excludeArticleSlug` bir SLUG bekliyor (linkTargets içinde a.slug ile karşılaştırılıyor);
+    // form.id veritabanı cuid'i, form.slug ayrı bir alan. Yanlışı geçmek düzenlenen makalenin
+    // kendi kendine bağlantı önerisi almasına yol açıyordu.
+    void run("links", () => suggestInternalLinks(trBody, form.slug || undefined), setLinks);
   }
 
   function applyLink(s: LinkSuggestion) {
-    if (!trBody.includes(s.phrase)) {
+    // Yalnızca mevcut bir bağlantının DIŞINDAKİ ilk geçişi hedefler — aksi hâlde model zaten
+    // bağlantılı bir ifadeyi tekrar önerdiğinde (`[[İfade](/yol)](/yol)`) gövde bozulurdu.
+    const next = linkifyFirstFreeOccurrence(trBody, s.phrase, s.href);
+    if (!next) {
       showToast("Bu ifade metinde artık bulunmuyor — öneri uygulanamadı.");
       return;
     }
-    // Yalnızca ilk geçtiği yeri bağlantıya çevir; tüm geçişleri değiştirmek aşırı olur.
-    const next = trBody.replace(s.phrase, `[${s.phrase}](${s.href})`);
     setLocaleField("tr", "body", next);
     setLinks((cur) => (cur ? cur.filter((x) => x.phrase !== s.phrase) : cur));
     showToast("Bağlantı eklendi.");
