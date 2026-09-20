@@ -110,6 +110,53 @@ export function classify(err: unknown): AiError {
   return aiError("transient", err);
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Google'ın 429 gövdesinde önerdiği bekleme süresini okur (RetryInfo.retryDelay: "22s"). */
+function suggestedRetryDelayMs(err: AiError): number | null {
+  const cause = err.cause;
+  const message = cause instanceof Error ? cause.message : "";
+  const seconds = /retryDelay"?\s*:?\s*"?(\d+(?:\.\d+)?)s/i.exec(message)?.[1];
+  return seconds ? Number(seconds) * 1000 : null;
+}
+
+const MAX_ATTEMPTS = 3;
+/** Admin ekranda çok uzun beklemesin diye Google'ın önerdiği süreye üst sınır konur. */
+const MAX_RETRY_DELAY_MS = 15_000;
+
+/**
+ * Geçici hatalarda (kısa vadeli RPM kotası / 5xx / ağ) üstel geri çekilmeyle yeniden dener.
+ *
+ * Yalnızca "transient" ve "quota" (dakikalık — GÜNLÜK kota "quota-daily" DEĞİL, o ertesi güne
+ * kadar geçmiyor, beklemek boşuna) sınıfları yeniden denenir; auth/config/invalid/blocked
+ * yeniden denemekle düzelmez, ilk denemede fırlatılır.
+ *
+ * Çağıranın sorumluluğu: yalnızca YAN ETKİSİZ/tek seferlik bir işlemi sarmalamak.
+ * `completeStream()` bu yüzden yalnızca akış nesnesini ALMA çağrısını sarıyor — akış
+ * başladıktan (ilk parça istemciye gittikten) sonraki bir hatada retry YAPILMAZ, çünkü
+ * istemci zaten kısmi metin almış olabilir ve tekrar denemek yinelenmiş içerik üretir.
+ */
+async function withRetry<T>(attempt: () => Promise<T>): Promise<T> {
+  let lastError: AiError | undefined;
+
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    try {
+      return await attempt();
+    } catch (err) {
+      const classified = classify(err);
+      lastError = classified;
+      const retryable = classified.kind === "transient" || classified.kind === "quota";
+      if (!retryable || i === MAX_ATTEMPTS - 1) throw classified;
+      const delay = suggestedRetryDelayMs(classified);
+      await sleep(delay ? Math.min(delay, MAX_RETRY_DELAY_MS) : 1000 * 2 ** i);
+    }
+  }
+  // Erişilmez: döngü ya değer döndürür ya da son denemede fırlatır.
+  throw lastError as AiError;
+}
+
 let cachedClient: GoogleGenAI | undefined;
 let cachedKey: string | undefined;
 
@@ -198,19 +245,22 @@ export async function complete<T>(options: CompleteOptions<T>): Promise<{ value:
 
   let raw: Awaited<ReturnType<typeof ai.models.generateContent>>;
   try {
-    raw = await ai.models.generateContent({
-      model: model(),
-      contents,
-      config: {
-        systemInstruction: options.system,
-        responseMimeType: "application/json",
-        responseJsonSchema: jsonSchemaOf(options.schema),
-        temperature: options.temperature ?? 0.8,
-        thinkingConfig: { thinkingLevel: THINKING[options.thinking ?? "low"] },
-        maxOutputTokens: options.maxOutputTokens,
-        abortSignal: options.signal,
-      },
-    });
+    // Tek seferlik, yan etkisiz bir çağrı — tamamı güvenle yeniden denenebilir.
+    raw = await withRetry(() =>
+      ai.models.generateContent({
+        model: model(),
+        contents,
+        config: {
+          systemInstruction: options.system,
+          responseMimeType: "application/json",
+          responseJsonSchema: jsonSchemaOf(options.schema),
+          temperature: options.temperature ?? 0.8,
+          thinkingConfig: { thinkingLevel: THINKING[options.thinking ?? "low"] },
+          maxOutputTokens: options.maxOutputTokens,
+          abortSignal: options.signal,
+        },
+      }),
+    );
   } catch (err) {
     throw classify(err);
   }
@@ -258,17 +308,21 @@ export async function* completeStream(options: StreamOptions): AsyncGenerator<st
 
   let stream: Awaited<ReturnType<typeof ai.models.generateContentStream>>;
   try {
-    stream = await ai.models.generateContentStream({
-      model: model(),
-      contents: options.prompt,
-      config: {
-        systemInstruction: options.system,
-        temperature: options.temperature ?? 0.8,
-        thinkingConfig: { thinkingLevel: THINKING[options.thinking ?? "medium"] },
-        maxOutputTokens: options.maxOutputTokens,
-        abortSignal: options.signal,
-      },
-    });
+    // Yalnızca akış NESNESİNİ ALMA çağrısı yeniden denenir — henüz istemciye tek bir parça
+    // bile gitmedi. `for await` döngüsüne girildikten sonra retry YOK (aşağıya bkz).
+    stream = await withRetry(() =>
+      ai.models.generateContentStream({
+        model: model(),
+        contents: options.prompt,
+        config: {
+          systemInstruction: options.system,
+          temperature: options.temperature ?? 0.8,
+          thinkingConfig: { thinkingLevel: THINKING[options.thinking ?? "medium"] },
+          maxOutputTokens: options.maxOutputTokens,
+          abortSignal: options.signal,
+        },
+      }),
+    );
   } catch (err) {
     throw classify(err);
   }
